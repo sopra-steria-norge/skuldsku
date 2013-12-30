@@ -10,12 +10,23 @@ public class SerializerTest {
 
     @Test
     public void shouldReturnClassNameForEmptyClass() throws Exception {
-        assertThat(serializer.asString(new EmptyClass())).isEqualTo("<no.steria.spytest.    serializer.EmptyClass>");
+        assertThat(serializer.asString(new EmptyClass())).isEqualTo("<no.steria.spytest.serializer.EmptyClass>");
     }
 
     @Test
     public void shouldHandleNull() throws Exception {
         assertThat(serializer.asString(null)).isEqualTo("<null>");
+    }
+
+    @Test
+    public void shouldDeserialiseNull() throws Exception {
+        assertThat(serializer.asObject(serializer.asString(null))).isNull();
+    }
+
+    @Test
+    public void shouldReturnClass() throws Exception {
+        EmptyClass emptyClass = (EmptyClass) serializer.asObject(serializer.asString(new EmptyClass()));
+        assertThat(emptyClass.getClass()).isEqualTo(EmptyClass.class);
 
     }
 }

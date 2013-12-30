@@ -31,4 +31,17 @@
         <scope>test</scope>
     </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <target>1.7</target>
+                    <source>1.7</source>
+                </configuration>
+                <version>2.3.2</version>
+            </plugin>
+
+        </plugins>
+    </build>
 </project>
