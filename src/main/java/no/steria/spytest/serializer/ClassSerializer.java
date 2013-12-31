@@ -24,7 +24,12 @@ public class ClassSerializer {
                 if (!access) {
                     field.setAccessible(true);
                 }
-                result.append(field.get(object));
+                Object fieldValue = field.get(object);
+                if (fieldValue == null) {
+                    result.append("&null");
+                } else {
+                    result.append(fieldValue);
+                }
                 if (!access) {
                     field.setAccessible(false);
                 }
@@ -64,7 +69,9 @@ public class ClassSerializer {
         Object value;
         Class<?> type = field.getType();
 
-        if (int.class.equals(type) || Integer.class.equals(type)) {
+        if ("&null".equals(fieldValue)) {
+            value = null;
+        } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else {
             value = fieldValue;

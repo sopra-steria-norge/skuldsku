@@ -14,7 +14,7 @@ public class SerializerTest {
     }
 
     @Test
-    public void shouldHandleNull() throws Exception {
+    public void shouldHandleNullObjects() throws Exception {
         assertThat(serializer.asString(null)).isEqualTo("<null>");
     }
 
@@ -42,6 +42,14 @@ public class SerializerTest {
 
         assertThat(cloned.getIntval()).isEqualTo(42);
         assertThat(cloned.getStringval()).isEqualTo("pedro");
+    }
+
+    @Test
+    public void shouldHandleNullInFields() throws Exception {
+        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval(null).setIntval(42);
+        ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serializer.asString(simpleFields));
+
+        assertThat(cloned.getStringval()).isNull();
 
     }
 }
