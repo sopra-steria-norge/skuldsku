@@ -27,6 +27,13 @@ public class SerializerTest {
     public void shouldReturnClass() throws Exception {
         EmptyClass emptyClass = (EmptyClass) serializer.asObject(serializer.asString(new EmptyClass()));
         assertThat(emptyClass.getClass()).isEqualTo(EmptyClass.class);
+    }
+
+    @Test
+    public void shouldParseSimpleStringField() throws Exception {
+        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("pedro");
+
+        assertThat(serializer.asString(simpleFields)).isEqualTo("<no.steria.spytest.serializer.ClassWithSimpleFields;stringval=pedro;intval=0>");
 
     }
 }

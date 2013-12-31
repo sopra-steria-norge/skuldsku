@@ -1,12 +1,38 @@
 package no.steria.spytest.serializer;
 
+import java.lang.reflect.Field;
+
 public class ClassSerializer {
     public String asString(Object object) {
         if (object == null) {
             return "<null>";
         }
         String classname = object.getClass().getName();
-        return "<" + classname + ">";
+        String fieldsCode = computeFields(object);
+        return "<" + classname + fieldsCode + ">";
+    }
+
+    private String computeFields(Object object) {
+        Field[] declaredFields = object.getClass().getDeclaredFields();
+        StringBuilder result = new StringBuilder();
+        for (Field field : declaredFields) {
+            result.append(";");
+            result.append(field.getName());
+            result.append("=");
+            try {
+                boolean access = field.isAccessible();
+                if (!access) {
+                    field.setAccessible(true);
+                }
+                result.append(field.get(object));
+                if (!access) {
+                    field.setAccessible(false);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result.toString();
     }
 
     public Object asObject(String serializedValue) {
