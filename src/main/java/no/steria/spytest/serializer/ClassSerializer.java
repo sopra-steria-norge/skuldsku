@@ -39,9 +39,54 @@ public class ClassSerializer {
         if ("<null>".equals(serializedValue)) {
             return null;
         }
-        String className=serializedValue.substring(1,serializedValue.length()-1);
+        String classCode=serializedValue.substring(1,serializedValue.length()-1);
+        String[] parts = classCode.split(";");
+
+        Object object = initObject(parts[0]);
+
+        for (int i=1;i<parts.length;i++) {
+            String[] fieldParts = parts[i].split("=");
+
+            try {
+                Field field = object.getClass().getDeclaredField(fieldParts[0]);
+
+                setFieldValue(object, fieldParts[1], field);
+
+            } catch (NoSuchFieldException | IllegalAccessError e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return object;
+    }
+
+    private void setFieldValue(Object object, String fieldValue, Field field) {
+        Object value;
+        Class<?> type = field.getType();
+
+        if (int.class.equals(type) || Integer.class.equals(type)) {
+            value = Integer.parseInt(fieldValue);
+        } else {
+            value = fieldValue;
+        }
+
+        boolean access = field.isAccessible();
+        if (!access) {
+            field.setAccessible(true);
+        }
         try {
-            return Class.forName(className).newInstance();
+            field.set(object, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        if (!access) {
+            field.setAccessible(false);
+        }
+    }
+
+    private Object initObject(String classname) {
+        try {
+            return Class.forName(classname).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

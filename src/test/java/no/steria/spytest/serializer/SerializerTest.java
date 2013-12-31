@@ -32,8 +32,16 @@ public class SerializerTest {
     @Test
     public void shouldParseSimpleStringField() throws Exception {
         ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("pedro");
-
         assertThat(serializer.asString(simpleFields)).isEqualTo("<no.steria.spytest.serializer.ClassWithSimpleFields;stringval=pedro;intval=0>");
+    }
+
+    @Test
+    public void sholdDeserializeObjectWithFields() throws Exception {
+        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("pedro").setIntval(42);
+        ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serializer.asString(simpleFields));
+
+        assertThat(cloned.getIntval()).isEqualTo(42);
+        assertThat(cloned.getStringval()).isEqualTo("pedro");
 
     }
 }
