@@ -52,4 +52,13 @@ public class SerializerTest {
         assertThat(cloned.getStringval()).isNull();
 
     }
+
+    @Test
+    public void shouldHandleControlCharacters() throws Exception {
+        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("a&;bc");
+        ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serializer.asString(simpleFields));
+
+        assertThat(cloned.getStringval()).isEqualTo("a&;bc");
+
+    }
 }

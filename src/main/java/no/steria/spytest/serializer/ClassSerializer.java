@@ -25,11 +25,8 @@ public class ClassSerializer {
                     field.setAccessible(true);
                 }
                 Object fieldValue = field.get(object);
-                if (fieldValue == null) {
-                    result.append("&null");
-                } else {
-                    result.append(fieldValue);
-                }
+                String encodedValue = encodeValue(fieldValue);
+                result.append(encodedValue);
                 if (!access) {
                     field.setAccessible(false);
                 }
@@ -38,6 +35,13 @@ public class ClassSerializer {
             }
         }
         return result.toString();
+    }
+
+    private String encodeValue(Object fieldValue) {
+        if (fieldValue == null) {
+            return "&null";
+        }
+        return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi");
     }
 
     public Object asObject(String serializedValue) {
@@ -74,7 +78,7 @@ public class ClassSerializer {
         } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else {
-            value = fieldValue;
+            value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
         }
 
         boolean access = field.isAccessible();
