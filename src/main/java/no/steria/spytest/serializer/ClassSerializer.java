@@ -1,6 +1,12 @@
 package no.steria.spytest.serializer;
 
+import org.joda.time.DateTime;
+import org.joda.time.ReadableInstant;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.lang.reflect.Field;
+import java.util.Date;
 
 public class ClassSerializer {
     public String asString(Object object) {
@@ -103,15 +109,28 @@ public class ClassSerializer {
             value = fieldValue.charAt(0);
         } else if (double.class.equals(type) || Double.class.equals(type)) {
             value = Double.parseDouble(fieldValue);
+        } else if (Date.class.equals(type)) {
+            value = dateFormat.parseLocalDateTime(fieldValue).toDate();
+        } else if (DateTime.class.equals(type)) {
+            value = dateFormat.parseDateTime(fieldValue);
         } else {
             value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
         }
         return value;
     }
 
+
+    private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
+
     protected String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "&null";
+        }
+        if (Date.class.equals(fieldValue.getClass())) {
+            return dateFormat.print(new DateTime(fieldValue));
+        }
+        if (DateTime.class.equals(fieldValue.getClass())) {
+            return dateFormat.print((ReadableInstant) fieldValue);
         }
         return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi");
     }

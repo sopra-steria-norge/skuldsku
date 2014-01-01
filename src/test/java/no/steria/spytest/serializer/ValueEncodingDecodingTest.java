@@ -1,6 +1,10 @@
 package no.steria.spytest.serializer;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -17,6 +21,8 @@ public class ValueEncodingDecodingTest {
         assertEncDec(42L);
         assertEncDec('x');
         assertEncDec(3.14d);
+        assertEncDec(new Date());
+        assertEncDec(new DateTime());
 
     }
 }
