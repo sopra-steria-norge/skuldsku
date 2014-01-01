@@ -6,6 +6,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class ClassSerializer {
@@ -113,6 +114,8 @@ public class ClassSerializer {
             value = dateFormat.parseLocalDateTime(fieldValue).toDate();
         } else if (DateTime.class.equals(type)) {
             value = dateFormat.parseDateTime(fieldValue);
+        } else if (BigDecimal.class.equals(type)) {
+            value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
             value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
         }
