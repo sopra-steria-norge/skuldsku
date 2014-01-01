@@ -5,6 +5,7 @@ import org.joda.time.ReadableInstant;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 
 public class ClassSerializer {
+    private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
+
     public String asString(Object object) {
         if (object == null) {
             return "<null>";
@@ -137,6 +140,8 @@ public class ClassSerializer {
 
         if ("&null".equals(fieldValue)) {
             value = null;
+        } else if (fieldValue.startsWith("<")) {
+            value = complexValueFromString(fieldValue,type);
         } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else if (long.class.equals(type) || Long.class.equals(type)) {
@@ -157,10 +162,32 @@ public class ClassSerializer {
         return value;
     }
 
+    private Object complexValueFromString(String fieldValue, Class<?> type) {
+        String[] parts = splitToParts(fieldValue);
+        if (!"array".equals(parts[0])) {
+            throw new IllegalArgumentException("Not supported " + parts[0]);
+        }
+        Object arr = (Object[]) Array.newInstance(type.getComponentType(), parts.length - 1);
 
-    private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
+        for (int i=0;i<parts.length-1;i++) {
+            Array.set(arr, i, objectValueFromString(parts[i + 1], type.getComponentType()));
+        }
+
+        return arr;
+    }
+
 
     protected String encodeValue(Object fieldValue) {
+        if (fieldValue instanceof Object[]) {
+            Object[] arr=(Object[]) fieldValue;
+            StringBuilder res = new StringBuilder("<array");
+            for (Object objInArr : arr) {
+                res.append(";");
+                res.append(encodeValue(objInArr));
+            }
+            res.append(">");
+            return res.toString();
+        }
         if (fieldValue == null) {
             return "&null";
         }

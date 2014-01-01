@@ -61,6 +61,18 @@ public class SerializerTest {
 
         assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0>");
         assertThat(cloned.getStringval()).isEqualTo("a&;<>bc");
+    }
 
+    @Test
+    public void shouldHandleArrays() throws Exception {
+        String arrval[] = {"a","b","c"};
+        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval);
+
+        String serialized = serializer.asString(classWithCollection);
+        assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithCollection;arrVal=<array;a;b;c>>");
+
+        ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
+        
+        assertThat(cloned.getArrVal()).containsOnly("a","b","c");
     }
 }
