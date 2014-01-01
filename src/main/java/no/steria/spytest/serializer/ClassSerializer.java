@@ -37,12 +37,7 @@ public class ClassSerializer {
         return result.toString();
     }
 
-    private String encodeValue(Object fieldValue) {
-        if (fieldValue == null) {
-            return "&null";
-        }
-        return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi");
-    }
+
 
     public Object asObject(String serializedValue) {
         if ("<null>".equals(serializedValue)) {
@@ -71,15 +66,7 @@ public class ClassSerializer {
 
     private void setFieldValue(Object object, String fieldValue, Field field) {
         Object value;
-        Class<?> type = field.getType();
-
-        if ("&null".equals(fieldValue)) {
-            value = null;
-        } else if (int.class.equals(type) || Integer.class.equals(type)) {
-            value = Integer.parseInt(fieldValue);
-        } else {
-            value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
-        }
+        value = objectValueFromString(fieldValue, field.getType());
 
         boolean access = field.isAccessible();
         if (!access) {
@@ -102,4 +89,29 @@ public class ClassSerializer {
             throw new RuntimeException(e);
         }
     }
+
+    protected Object objectValueFromString(String fieldValue, Class<?> type) {
+        Object value;
+
+        if ("&null".equals(fieldValue)) {
+            value = null;
+        } else if (int.class.equals(type) || Integer.class.equals(type)) {
+            value = Integer.parseInt(fieldValue);
+        } else if (long.class.equals(type) || Long.class.equals(type)) {
+            value = Long.parseLong(fieldValue);
+        } else if (char.class.equals(type) || Character.class.equals(type)) {
+            value = fieldValue.charAt(0);
+        } else {
+            value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
+        }
+        return value;
+    }
+
+    protected String encodeValue(Object fieldValue) {
+        if (fieldValue == null) {
+            return "&null";
+        }
+        return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi");
+    }
+
 }
