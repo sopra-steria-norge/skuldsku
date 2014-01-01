@@ -101,6 +101,8 @@ public class ClassSerializer {
             value = Long.parseLong(fieldValue);
         } else if (char.class.equals(type) || Character.class.equals(type)) {
             value = fieldValue.charAt(0);
+        } else if (double.class.equals(type) || Double.class.equals(type)) {
+            value = Double.parseDouble(fieldValue);
         } else {
             value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
         }

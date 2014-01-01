@@ -16,6 +16,7 @@ public class ValueEncodingDecodingTest {
         assertEncDec(34);
         assertEncDec(42L);
         assertEncDec('x');
+        assertEncDec(3.14d);
 
     }
 }
