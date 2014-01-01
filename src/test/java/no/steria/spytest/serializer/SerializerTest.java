@@ -55,10 +55,12 @@ public class SerializerTest {
 
     @Test
     public void shouldHandleControlCharacters() throws Exception {
-        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("a&;bc");
-        ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serializer.asString(simpleFields));
+        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("a&;<>bc");
+        String serialized = serializer.asString(simpleFields);
+        ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serialized);
 
-        assertThat(cloned.getStringval()).isEqualTo("a&;bc");
+        assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0>");
+        assertThat(cloned.getStringval()).isEqualTo("a&;<>bc");
 
     }
 }

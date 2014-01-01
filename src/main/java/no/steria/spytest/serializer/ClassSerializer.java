@@ -7,7 +7,9 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ClassSerializer {
     public String asString(Object object) {
@@ -50,8 +52,7 @@ public class ClassSerializer {
         if ("<null>".equals(serializedValue)) {
             return null;
         }
-        String classCode=serializedValue.substring(1,serializedValue.length()-1);
-        String[] parts = classCode.split(";");
+        String[] parts = splitToParts(serializedValue);
 
         Object object = initObject(parts[0]);
 
@@ -69,6 +70,40 @@ public class ClassSerializer {
         }
 
         return object;
+    }
+
+    protected String[] splitToParts(String serializedValue) {
+        List<String> result = new ArrayList<>();
+
+        int level = 0;
+        int prevpos=0;
+        for (int pos=0;pos<serializedValue.length();pos++) {
+            Character c = serializedValue.charAt(pos);
+            if (c == '<') {
+                level++;
+                if (level == 1) {
+                    prevpos=pos+1;
+                }
+                continue;
+            }
+            if (c == '>') {
+                level--;
+                if (level == 0) {
+                    result.add(serializedValue.substring(prevpos,pos));
+                    prevpos=pos+1;
+                }
+                continue;
+            }
+            if (c == ';' && level == 1) {
+                result.add(serializedValue.substring(prevpos,pos));
+                prevpos=pos+1;
+                continue;
+            }
+        }
+
+
+
+        return result.toArray(new String[0]);
     }
 
     private void setFieldValue(Object object, String fieldValue, Field field) {
@@ -117,7 +152,7 @@ public class ClassSerializer {
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
-            value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";");
+            value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";").replaceAll("&lt","<").replaceAll("&gt",">");
         }
         return value;
     }
@@ -135,7 +170,7 @@ public class ClassSerializer {
         if (DateTime.class.equals(fieldValue.getClass())) {
             return dateFormat.print((ReadableInstant) fieldValue);
         }
-        return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi");
+        return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi").replaceAll("<","&lt").replaceAll(">","&gt");
     }
 
 }
