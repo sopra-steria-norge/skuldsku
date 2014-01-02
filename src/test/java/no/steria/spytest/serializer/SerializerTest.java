@@ -72,7 +72,7 @@ public class SerializerTest {
         assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithCollection;arrVal=<array;a;b;c>>");
 
         ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
-        
+
         assertThat(cloned.getArrVal()).containsOnly("a","b","c");
     }
 }
