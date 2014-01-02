@@ -60,12 +60,15 @@ public class ClassSerializer {
         Object object = initObject(parts[0]);
 
         for (int i=1;i<parts.length;i++) {
-            String[] fieldParts = parts[i].split("=");
+            //String[] fieldParts = parts[i].split("=");
+            int eqPos=parts[i].indexOf("=");
+            String fieldName = parts[i].substring(0,eqPos);
+            String encFieldValue = parts[i].substring(eqPos+1);
 
             try {
-                Field field = object.getClass().getDeclaredField(fieldParts[0]);
+                Field field = object.getClass().getDeclaredField(fieldName);
 
-                setFieldValue(object, fieldParts[1], field);
+                setFieldValue(object, encFieldValue, field);
 
             } catch (NoSuchFieldException | IllegalAccessError e) {
                 throw new RuntimeException(e);
@@ -199,9 +202,7 @@ public class ClassSerializer {
             return resList;
         }
 
-
-
-        throw new IllegalArgumentException("Not supported " + parts[0]);
+        return asObject(fieldValue);
     }
 
 
@@ -235,7 +236,11 @@ public class ClassSerializer {
         if (DateTime.class.equals(fieldValue.getClass())) {
             return dateFormat.print((ReadableInstant) fieldValue);
         }
-        return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi").replaceAll("<","&lt").replaceAll(">","&gt");
+        String packageName = fieldValue.getClass().getPackage().getName();
+        if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
+            return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi").replaceAll("<","&lt").replaceAll(">","&gt");
+        }
+        return asString(fieldValue);
     }
 
 }

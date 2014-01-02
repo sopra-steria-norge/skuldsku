@@ -2,6 +2,8 @@ package no.steria.spytest.serializer;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SerializerTest {
@@ -73,5 +75,20 @@ public class SerializerTest {
         ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
 
         assertThat(cloned.getArrVal()).containsOnly("a","b","c");
+    }
+
+    @Test
+    public void shouldHandleClassWithOtherClassInside() throws Exception {
+        ClassWithOtherClass classWithOtherClass = new ClassWithOtherClass().setMyProperty(Arrays.asList(new ClassWithSimpleFields().setIntval(72).setStringval("Anders"),
+                new ClassWithSimpleFields().setIntval(17).setStringval("John F")));
+
+        String serializedValue = serializer.asString(classWithOtherClass);
+        System.out.println(serializedValue);
+        ClassWithOtherClass duplicate = (ClassWithOtherClass) serializer.asObject(serializedValue);
+
+        assertThat(duplicate.getMyProperty()).hasSize(2);
+        ClassWithSimpleFields classWithSimpleFields = duplicate.getMyProperty().get(0);
+        assertThat(classWithSimpleFields.getStringval()).isEqualTo("Anders");
+
     }
 }
