@@ -164,16 +164,44 @@ public class ClassSerializer {
 
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);
-        if (!"array".equals(parts[0])) {
-            throw new IllegalArgumentException("Not supported " + parts[0]);
-        }
-        Object arr = (Object[]) Array.newInstance(type.getComponentType(), parts.length - 1);
+        if ("array".equals(parts[0])) {
+            Object arr = (Object[]) Array.newInstance(type.getComponentType(), parts.length - 1);
 
-        for (int i=0;i<parts.length-1;i++) {
-            Array.set(arr, i, objectValueFromString(parts[i + 1], type.getComponentType()));
+            for (int i=0;i<parts.length-1;i++) {
+                String codeStr = parts[i + 1];
+                String[] valType = splitToParts(codeStr);
+                Class<?> aClass;
+                try {
+                    aClass = Class.forName(valType[0]);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                Array.set(arr, i, objectValueFromString(valType[1], aClass));
+            }
+
+            return arr;
+        }
+        if ("list".equals(parts[0])) {
+            List<Object> resList = new ArrayList<>();
+
+            for (int i=0;i<parts.length-1;i++) {
+                String codeStr = parts[i + 1];
+                String[] valType = splitToParts(codeStr);
+                Class<?> aClass;
+                try {
+                    aClass = Class.forName(valType[0]);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                resList.add(objectValueFromString(valType[1], aClass));
+            }
+
+            return resList;
         }
 
-        return arr;
+
+
+        throw new IllegalArgumentException("Not supported " + parts[0]);
     }
 
 
@@ -183,7 +211,17 @@ public class ClassSerializer {
             StringBuilder res = new StringBuilder("<array");
             for (Object objInArr : arr) {
                 res.append(";");
-                res.append(encodeValue(objInArr));
+                res.append("<" + objInArr.getClass().getName() + ";" + encodeValue(objInArr) + ">");
+            }
+            res.append(">");
+            return res.toString();
+        }
+        if (fieldValue instanceof  List) {
+            List<Object> listValues = (List<Object>) fieldValue;
+            StringBuilder res = new StringBuilder("<list");
+            for (Object objectInList : listValues) {
+                res.append(";");
+                res.append("<" + objectInList.getClass().getName() + ";" + encodeValue(objectInList) + ">");
             }
             res.append(">");
             return res.toString();

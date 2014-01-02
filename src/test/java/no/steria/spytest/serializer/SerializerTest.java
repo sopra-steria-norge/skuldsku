@@ -64,12 +64,11 @@ public class SerializerTest {
     }
 
     @Test
-    public void shouldHandleArrays() throws Exception {
+    public void shouldHandleArraysAndCollections() throws Exception {
         String arrval[] = {"a","b","c"};
         ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval);
 
         String serialized = serializer.asString(classWithCollection);
-        assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithCollection;arrVal=<array;a;b;c>>");
 
         ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
 
