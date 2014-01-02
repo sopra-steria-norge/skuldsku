@@ -156,9 +156,14 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                     if (columnNames.isEmpty()) {
                         // TODO: Log ignoring
                         System.out.println("Ignoring table with no columns: " + tableName);
-                        return null;
+                        continue;
                     }
-                    createTrigger(jdbc, tableName, columnNames);
+                    try {
+                        createTrigger(jdbc, tableName, columnNames);
+                    } catch (JdbcException e) {
+                        // TODO: Log exception
+                        System.out.println("Ignoring table: " + tableName + " (" + e.getMessage() + ")");
+                    }
                 }
                 return null;
             }
