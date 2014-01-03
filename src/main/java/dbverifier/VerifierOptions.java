@@ -1,6 +1,7 @@
 package dbverifier;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public final class VerifierOptions {
@@ -8,7 +9,7 @@ public final class VerifierOptions {
     private final Set<String> skipFields;
     
     public VerifierOptions() {
-        this.skipFields = getDefaultSkipFields();
+        this.skipFields = new HashSet<String>(getDefaultSkipFields());
     }
     
     
