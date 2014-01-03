@@ -10,6 +10,7 @@ import java.util.Set;
 
 import dbchange.DatabaseChange;
 import dbverifier.DatabaseChangeVerifier;
+import dbverifier.VerifierOptions;
 import dbverifier.VerifierResult;
 
 public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
@@ -25,14 +26,14 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
     //     if this.next one's actual value is larger: make n
     
     @Override
-    public VerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, Set<String> skipFields) {
+    public VerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, VerifierOptions verifierOptions) {
         final VerifierResult verifierResult = new VerifierResult();
         
         /*
          * Sort list so that expected data with best fit (ie the most number of fields match a given
          * actual data row) gets treated first.
          */
-        List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, skipFields);
+        List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, verifierOptions.getSkipFields());
         
         /*
          * Connect each expected data row to the actual data rows with the best fit. Note that already
@@ -41,18 +42,18 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
         final Set<DatabaseChange> candidates = new HashSet<DatabaseChange>(actual);
         while (!expectedSorted.isEmpty()) {
             final DatabaseChange expectedDatabaseChange = expectedSorted.remove(0);
-            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, skipFields);
+            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, verifierOptions.getSkipFields());
             if (actualDatabaseChange == null) {
                 verifierResult.addMissingFromActual(expectedDatabaseChange);
             } else {
                 candidates.remove(actualDatabaseChange);
-                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, skipFields);
+                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, verifierOptions.getSkipFields());
                 if (!match) {
                     verifierResult.addNotEquals(expectedDatabaseChange, actualDatabaseChange);
                 }
             }
             
-            expectedSorted = createSortedListOnBestFit(expectedSorted, candidates, skipFields);
+            expectedSorted = createSortedListOnBestFit(expectedSorted, candidates, verifierOptions.getSkipFields());
         }
         for (DatabaseChange unmatchedCandidate : candidates) {
             verifierResult.addAdditionalInActual(unmatchedCandidate);

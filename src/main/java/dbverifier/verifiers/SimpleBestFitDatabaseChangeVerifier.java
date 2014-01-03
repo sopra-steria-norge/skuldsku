@@ -10,19 +10,20 @@ import java.util.Set;
 
 import dbchange.DatabaseChange;
 import dbverifier.DatabaseChangeVerifier;
+import dbverifier.VerifierOptions;
 import dbverifier.VerifierResult;
 
 public class SimpleBestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
 
     @Override
-    public VerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, Set<String> skipFields) {
+    public VerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, VerifierOptions verifierOptions) {
         final VerifierResult verifierResult = new VerifierResult();
         
         /*
          * Sort list so that expected data with best fit (ie the most number of fields match a given
          * actual data row) gets treated first.
          */
-        final List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, skipFields);
+        final List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, verifierOptions.getSkipFields());
         
         /*
          * Connect each expected data row to the actual data rows with the best fit. Note that already
@@ -30,12 +31,12 @@ public class SimpleBestFitDatabaseChangeVerifier implements DatabaseChangeVerifi
          */
         final Set<DatabaseChange> candidates = new HashSet<DatabaseChange>(actual);
         for (DatabaseChange expectedDatabaseChange : expectedSorted) {
-            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, skipFields);
+            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, verifierOptions.getSkipFields());
             if (actualDatabaseChange == null) {
                 verifierResult.addMissingFromActual(expectedDatabaseChange);
             } else {
                 candidates.remove(actualDatabaseChange);
-                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, skipFields);
+                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, verifierOptions.getSkipFields());
                 if (!match) {
                     verifierResult.addNotEquals(expectedDatabaseChange, actualDatabaseChange);
                 }

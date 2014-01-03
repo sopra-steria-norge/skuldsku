@@ -15,6 +15,7 @@ import dbchange.DatabaseChangeRollback;
 import dbrecorder.DatabaseRecorder;
 import dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import dbverifier.DatabaseChangeVerifier;
+import dbverifier.VerifierOptions;
 import dbverifier.VerifierResult;
 import dbverifier.VerifierResult.VerifierResultPair;
 
@@ -27,7 +28,7 @@ public final class DatabaseRecorderRunner {
     private final DatabaseChangeRollback databaseChangeRollback;
     private final DatabaseChangeVerifier databaseChangeVerifier;
     private final File baseDirectory;
-    private final Set<String> skipFields;
+    private final VerifierOptions defaultVerifierOptions;
     private final boolean rollbackEnabled;
     
 
@@ -53,16 +54,16 @@ public final class DatabaseRecorderRunner {
         this.databaseChangeRollback = databaseChangeRollback;
         this.databaseChangeVerifier = config.getDatabaseChangeVerifier();
         this.baseDirectory = config.getBaseDirectory();
-        this.skipFields = alwaysHashSetAndNeverNull(config.getSkipFields());
+        this.defaultVerifierOptions = config.getDefaultVerifierOptions();
         this.rollbackEnabled = config.isRollbackEnabled();
     }
     
     
     public void recordAndCompare(DatabaseRecorderCallback callback, String filename) {
-        recordAndCompare(callback, filename, skipFields);
+        recordAndCompare(callback, filename, defaultVerifierOptions);
     }
     
-    public void recordAndCompare(DatabaseRecorderCallback callback, String filename, Set<String> skipFields) {
+    public void recordAndCompare(DatabaseRecorderCallback callback, String filename, VerifierOptions verifierOptions) {
         final File actualDirectory = createDirectoryIfNotExists(baseDirectory, ACTUAL_DIRECTORY_NAME);
         final File actualFile = new File(actualDirectory, filename);
         
@@ -77,15 +78,15 @@ public final class DatabaseRecorderRunner {
         final File expectedDirectory = createDirectoryIfNotExists(baseDirectory, EXPECTED_DIRECTORY_NAME);
         final File expectedFile = new File(expectedDirectory, filename);
         
-        assertEquals(actualFile, expectedFile, skipFields);
+        assertEquals(actualFile, expectedFile, verifierOptions);
     }
 
-    private void assertEquals(final File actualFile, final File expectedFile, Set<String> skipFields) {
+    private void assertEquals(final File actualFile, final File expectedFile, VerifierOptions verifierOptions) {
         if (expectedFile.exists()) {
             final VerifierResult result = databaseChangeVerifier.assertEquals(
                     DatabaseChange.readDatabaseChanges(expectedFile),
                     DatabaseChange.readDatabaseChanges(actualFile),
-                    alwaysHashSetAndNeverNull(skipFields));
+                    verifierOptions);
             // TODO: JUnit-mapper (so that other test suites than JUnit can be supported)
             for (DatabaseChange expectedDatabaseChange : result.getMissingFromActual()) {
                 Assert.fail("Cannot find actual data matching expected data on line: " + expectedDatabaseChange.getLineNumber());

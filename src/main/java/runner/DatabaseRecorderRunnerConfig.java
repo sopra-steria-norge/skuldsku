@@ -5,26 +5,27 @@ import java.util.Collections;
 import java.util.Set;
 
 import dbverifier.DatabaseChangeVerifier;
+import dbverifier.VerifierOptions;
 import dbverifier.verifiers.BestFitDatabaseChangeVerifier;
 
 public class DatabaseRecorderRunnerConfig {
 
     private DatabaseChangeVerifier databaseChangeVerifier;
     private File baseDirectory;
-    private Set<String> skipFields;
+    private VerifierOptions defaultVerifierOptions;
     private boolean rollbackEnabled;
     
     
     public DatabaseRecorderRunnerConfig() {
-        this.skipFields = Collections.singleton("SESSIONID");
+        this.defaultVerifierOptions = new VerifierOptions();
         this.baseDirectory = new File("src/test/resources");
         this.databaseChangeVerifier = new BestFitDatabaseChangeVerifier();
         this.rollbackEnabled = true;
     }
+
     
-    
-    public void setSkipFields(Set<String> skipFields) {
-        this.skipFields = skipFields;
+    public void setDefaultVerifierOptions(VerifierOptions defaultVerifierOptions) {
+        this.defaultVerifierOptions = defaultVerifierOptions;
     }
     
     public void setBaseDirectory(File baseDirectory) {
@@ -47,8 +48,8 @@ public class DatabaseRecorderRunnerConfig {
         return baseDirectory;
     }
 
-    Set<String> getSkipFields() {
-        return skipFields;
+    public VerifierOptions getDefaultVerifierOptions() {
+        return defaultVerifierOptions;
     }
     
     boolean isRollbackEnabled() {

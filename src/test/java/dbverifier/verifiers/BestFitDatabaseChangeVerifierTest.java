@@ -7,6 +7,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import dbchange.DatabaseChange;
+import dbverifier.VerifierOptions;
 import dbverifier.VerifierResult;
 import dbverifier.verifiers.BestFitDatabaseChangeVerifier;
 
@@ -18,7 +19,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void emptyIsOk() {
         final VerifierResult result = verifier.assertEquals(Collections.<DatabaseChange>emptyList(),
                 Collections.<DatabaseChange>emptyList(),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertFalse("Expecting no errors", result.hasErrors());
     }
     
@@ -26,7 +27,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void singleLineDifference() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope" }),
                 Collections.<DatabaseChange>emptyList(),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertTrue("Expecting an error", result.hasErrors());
         Assert.assertEquals(1, result.getMissingFromActual().size());
         Assert.assertEquals(0, result.getAdditionalInActual().size());
@@ -37,7 +38,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void singleLineMatches() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertFalse("Expecting no errors", result.hasErrors());
     }
     
@@ -45,7 +46,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void twoLineMatchesWithSameOrder() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "foo=bar", "lala=nope" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "foo=bar", "lala=nope" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertFalse("Expecting no errors", result.hasErrors());
     }
     
@@ -53,7 +54,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void twoLineMatchesWithDifferentOrder() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope", "foo=bar" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "foo=bar", "lala=nope" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertFalse("Expecting no errors", result.hasErrors());
     }
     
@@ -61,7 +62,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void missingFromActual() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope", "foo=bar" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertTrue("Expecting an error", result.hasErrors());
         Assert.assertEquals(1, result.getMissingFromActual().size());
         Assert.assertEquals(0, result.getAdditionalInActual().size());
@@ -72,7 +73,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void additionalInActual() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope", "foo=bar" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertTrue("Expecting an error", result.hasErrors());
         Assert.assertEquals(0, result.getMissingFromActual().size());
         Assert.assertEquals(1, result.getAdditionalInActual().size());
@@ -83,7 +84,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void notEquals() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=tja", "foo=bar" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "foo=bar", "lala=nope" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertTrue("Expecting an error", result.hasErrors());
         Assert.assertEquals(0, result.getMissingFromActual().size());
         Assert.assertEquals(0, result.getAdditionalInActual().size());
@@ -97,7 +98,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void additionalInActualWithCorrectPriority() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "a=1;b=2;c=3;d=4", "a=2" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "a=1;b=2;c=3;d=4", "a=1;b=2;c=3;d=4", "a=2"}),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertTrue("Expecting an error", result.hasErrors());
         Assert.assertEquals(0, result.getMissingFromActual().size());
         Assert.assertEquals(1, result.getAdditionalInActual().size());
@@ -110,7 +111,7 @@ public class BestFitDatabaseChangeVerifierTest {
     public void missingFromActualWithCorrectPriority() {
         final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "a=1;b=2;c=3;d=4", "a=1;b=2;c=3;d=4", "a=2" }),
                 DatabaseChange.toDatabaseChangeList(new String[] { "a=1;b=2;c=3;d=4", "a=2" }),
-                Collections.<String>emptySet());
+                new VerifierOptions());
         Assert.assertTrue("Expecting an error", result.hasErrors());
         Assert.assertEquals(1, result.getMissingFromActual().size());
         Assert.assertEquals(0, result.getAdditionalInActual().size());

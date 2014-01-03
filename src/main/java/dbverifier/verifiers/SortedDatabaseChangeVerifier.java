@@ -3,10 +3,10 @@ package dbverifier.verifiers;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import dbchange.DatabaseChange;
 import dbverifier.DatabaseChangeVerifier;
+import dbverifier.VerifierOptions;
 import dbverifier.VerifierResult;
 
 public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
@@ -21,7 +21,7 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
     
     
     @Override
-    public VerifierResult assertEquals(final List<DatabaseChange> expected, final List<DatabaseChange> actual, final Set<String> skipFields) {
+    public VerifierResult assertEquals(final List<DatabaseChange> expected, final List<DatabaseChange> actual, final VerifierOptions verifierOptions) {
         final Comparator<DatabaseChange> identifierSort = new Comparator<DatabaseChange>() {
             @Override
             public int compare(DatabaseChange change1, DatabaseChange change2) {
@@ -42,7 +42,7 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
                     }
                 }
                 for (String key : change1.getData().keySet()) {
-                    if (skipFields.contains(key)) {
+                    if (verifierOptions.getSkipFields().contains(key)) {
                         continue;
                     }
                     final int ret = change1.getValue(key).compareTo(change2.getValue(key));
@@ -56,6 +56,6 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
         Collections.sort(expected, identifierSort);
         Collections.sort(actual, identifierSort);
         
-        return strictOrderDatabaseChangeVerifier.assertEquals(expected, actual, skipFields);
+        return strictOrderDatabaseChangeVerifier.assertEquals(expected, actual, verifierOptions);
     }
 }

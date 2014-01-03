@@ -36,7 +36,8 @@ public final class JdbcImpl implements Jdbc {
                 if (resultSet.getMetaData().getColumnCount() != 1) {
                     throw new JdbcException("Expecting single column result, but got multiple columns.");
                 }
-                result.add((T) resultSet.getObject(1));
+                final T data = (T) resultSet.getObject(1);
+                result.add(data);
             }
         }, parameters);
         return result;

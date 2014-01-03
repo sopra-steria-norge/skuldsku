@@ -1,6 +1,7 @@
 package dbverifier;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import dbchange.DatabaseChange;
@@ -13,6 +14,18 @@ public final class VerifierResult {
     
     private final List<String> assertionFailed = new ArrayList<String>();
     
+    
+    public VerifierResult() {
+        
+    }
+    
+    public VerifierResult(Collection<VerifierResult> results) {
+        for (VerifierResult vr : results) {
+            missingFromActual.addAll(vr.missingFromActual);
+            additionalInActual.addAll(vr.additionalInActual);
+            notEquals.addAll(vr.notEquals);
+        }
+    }
     
     public void addMissingFromActual(DatabaseChange databaseChange) {
         missingFromActual.add(databaseChange);
