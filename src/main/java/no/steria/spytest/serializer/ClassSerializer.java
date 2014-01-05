@@ -56,8 +56,12 @@ public class ClassSerializer {
         }
         String[] parts = splitToParts(serializedValue);
 
-        if (serializedValue.indexOf("=") == -1 && parts.length == 2) {
+        if (serializedValue.indexOf("=") == -1) {
             try {
+                Class<?> clazz=null;
+                if ("list".equals(parts[0])) {
+                    return objectValueFromString(serializedValue,null);
+                }
                 return objectValueFromString(parts[1], Class.forName(parts[0]));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
