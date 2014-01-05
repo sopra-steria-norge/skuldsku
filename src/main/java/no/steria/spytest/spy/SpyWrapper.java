@@ -46,6 +46,7 @@ public class SpyWrapper implements java.lang.reflect.InvocationHandler {
                             if (!first) {
                                 parameters.append(";");
                             }
+                            first = false;
                             parameters.append(classSerializer.asString(para));
                         }
                     }
@@ -54,6 +55,6 @@ public class SpyWrapper implements java.lang.reflect.InvocationHandler {
                 }
 
             }
-q        }
+        }
     }
 }

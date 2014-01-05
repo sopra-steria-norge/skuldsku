@@ -16,12 +16,11 @@ public class ClassSerializer {
     private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
 
     public String asString(Object object) {
-        if (object == null) {
-            return "<null>";
+        String encval = encodeValue(object);
+        if (object != null && !encval.startsWith("<")) {
+            return "<" + object.getClass().getName() + ";" + encval + ">";
         }
-        String classname = object.getClass().getName();
-        String fieldsCode = computeFields(object);
-        return "<" + classname + fieldsCode + ">";
+        return encval;
     }
 
     private String computeFields(Object object) {
@@ -56,6 +55,14 @@ public class ClassSerializer {
             return null;
         }
         String[] parts = splitToParts(serializedValue);
+
+        if (serializedValue.indexOf("=") == -1 && parts.length == 2) {
+            try {
+                return objectValueFromString(parts[1], Class.forName(parts[0]));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         Object object = initObject(parts[0]);
 
@@ -160,7 +167,12 @@ public class ClassSerializer {
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
-            value = fieldValue.replaceAll("&amp","&").replaceAll("&semi",";").replaceAll("&lt","<").replaceAll("&gt",">");
+            value = fieldValue
+                    .replaceAll("&amp","&")
+                    .replaceAll("&semi", ";")
+                    .replaceAll("&eq", "=")
+                    .replaceAll("&lt", "<")
+                    .replaceAll("&gt", ">");
         }
         return value;
     }
@@ -207,6 +219,9 @@ public class ClassSerializer {
 
 
     protected String encodeValue(Object fieldValue) {
+        if (fieldValue == null) {
+            return "<null>";
+        }
         if (fieldValue instanceof Object[]) {
             Object[] arr=(Object[]) fieldValue;
             StringBuilder res = new StringBuilder("<array");
@@ -238,9 +253,16 @@ public class ClassSerializer {
         }
         String packageName = fieldValue.getClass().getPackage().getName();
         if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
-            return fieldValue.toString().replaceAll("&","&amp").replaceAll(";","&semi").replaceAll("<","&lt").replaceAll(">","&gt");
+            return fieldValue.toString()
+                    .replaceAll("&","&amp")
+                    .replaceAll(";","&semi")
+                    .replaceAll("<","&lt")
+                    .replaceAll(">","&gt")
+                    .replaceAll("=","&eq");
         }
-        return asString(fieldValue);
+        String classname = fieldValue.getClass().getName();
+        String fieldsCode = computeFields(fieldValue);
+        return "<" + classname + fieldsCode + ">";
     }
 
 }

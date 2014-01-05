@@ -91,4 +91,14 @@ public class SerializerTest {
         assertThat(classWithSimpleFields.getStringval()).isEqualTo("Anders");
 
     }
+
+    @Test
+    public void shouldHandleLangClasses() throws Exception {
+        String serialized = serializer.asString("abc");
+        assertThat(serialized).isEqualTo("<java.lang.String;abc>");
+
+        String duplicate = (String) serializer.asObject(serialized);
+
+        assertThat(duplicate).isEqualTo("abc");
+    }
 }
