@@ -119,4 +119,18 @@ public class BestFitDatabaseChangeVerifierTest {
         
         Assert.assertEquals("a=1;b=2;c=3;d=4", result.getMissingFromActual().get(0).toString());
     }
+    
+    @Test
+    public void equalWhenFieldSkipped() {
+        final VerifierOptions verifierOptions = new VerifierOptions();
+        verifierOptions.addSkipField("c");
+        
+        final VerifierResult result = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "a=1;b=2;c=3" }),
+                DatabaseChange.toDatabaseChangeList(new String[] { "a=1;b=2;c=5" }),
+                verifierOptions);
+        Assert.assertTrue("Expecting no errors", !result.hasErrors());
+        Assert.assertEquals(0, result.getMissingFromActual().size());
+        Assert.assertEquals(0, result.getAdditionalInActual().size());
+        Assert.assertEquals(0, result.getNotEquals().size());        
+    }
 }
