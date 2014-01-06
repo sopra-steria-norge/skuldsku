@@ -23,7 +23,6 @@ public class UrlFetcher {
 			throw new Exception("Invalid arguments, use UrlFetcher <requests.xml> <regexps.txt>");
 		}
 		new UrlFetcher(args[0],  args[1]);
-		//RegExp re = new RegExp("abc","cde");		
 	}
 	
 	public UrlFetcher(String requestFile, String regexpFile) throws Exception{

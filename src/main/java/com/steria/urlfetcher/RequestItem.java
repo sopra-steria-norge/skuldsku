@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * An "item" in the xml of requests from BurpSuite
  */
-@XmlRootElement
+@XmlRootElement(name="item")
 class RequestItem{
 	private String url;
 	private String request;

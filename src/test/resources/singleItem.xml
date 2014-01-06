@@ -1,0 +1,47 @@
+<?xml version="1.1"?>
+<item>
+    <time>Fri Jan 03 14:39:24 CET 2014</time>
+    <url><![CDATA[http://www.vg.no/content/tjenester.php?p=5]]></url>
+    <host ip="195.88.55.16">www.vg.no</host>
+    <port>80</port>
+    <protocol>http</protocol>
+    <method>GET</method>
+    <path><![CDATA[/content/tjenester.php?p=5]]></path>
+    <extension>php</extension>
+    <request base64="false"><![CDATA[GET /content/tjenester.php?p=5 HTTP/1.1
+Host: www.vg.no
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0
+Accept: text/html, */*; q=0.01
+Accept-Language: en-gb,en;q=0.5
+Accept-Encoding: gzip, deflate
+Proxy-Connection: keep-alive
+X-Requested-With: XMLHttpRequest
+Referer: http://www.vg.no/
+Cookie: richUserId=MYTV4ZXUW2DV; burt_test=1; tns_nip_panel_gallup=tns_checked; xtvrn=$417915$; richSync=%7B%22burt%22%3A%22MYTUPULZXOJ1%22%7D
+
+]]></request>
+    <status>200</status>
+    <responselength>2004</responselength>
+    <mimetype>HTML</mimetype>
+    <response base64="false"><![CDATA[HTTP/1.1 200 OK
+Server: Apache/2.2.15 (CentOS)
+X-VG-WebServer: vgfront-web-01, vgfront-web-01
+Content-Type: text/html; charset=UTF-8
+X-VG-SolveMe: uggc://jjj.it.ab/ynxfrgngg.ugzy
+X-Vary: Accept-Encoding,User-Agent
+X-VG-Phoenix: Identical Urls, I'm not a mobile so i should be at the old solution, FRONT
+Content-Length: 1482
+Accept-Ranges: bytes
+Date: Fri, 03 Jan 2014 13:39:24 GMT
+Connection: keep-alive
+X-Cache: HIT:2005
+Vary: Accept-Encoding,User-Agent
+X-VG-WebCache: m323-varnish-01
+X-Age: 376
+Age: 0
+
+<div class="tjeneste clearfix" style="padding-bottom: 10px; border-bottom: 1px solid #ccc;"><div class="img "><a href="https://www.penger.no/boliglan/?WT.mc_id=VG_F_tjenesteboks" title="Sjekk l&aring;netilbud"><img src="//static.vg.no/front/tjenester/logo/penger.jpg"/></a><a href="https://www.penger.no/boliglan/?WT.mc_id=VG_F_tjenesteboks" title="Sjekk l&aring;netilbud"><img src="//static.vg.no/front/tjenester/bilde/penger.jpg" /></a></div>
+    <h4>Sammenligne boligl&aring;n gratis?</h4><p>Send l&aring;nes&oslash;knad til tre banker samtidig p&aring; Penger.no og la bankene konkurrere om deg!<br /><a href="https://www.penger.no/boliglan/?WT.mc_id=VG_F_tjenesteboks" title="Sjekk l&aring;netilbud">Sjekk l&aring;netilbud</a></p></div><div class="tjeneste clearfix"><div class="img ad"><a href="http://www.letsdeal.no/tr/vgtjenesteboks/r/signupb/bg22/refsrc/vgboks/" title="Sjekk dagens deal"><img src="//static.vg.no/front/tjenester/logo/letsdeal.jpg"/></a><a href="http://www.letsdeal.no/tr/vgtjenesteboks/r/signupb/bg22/refsrc/vgboks/" title="Sjekk dagens deal"><img src="//static.vg.no/front/tjenester/bilde/letsdeal.jpg" /></a></div>
+    <h4>Gj&oslash;r en god deal</h4><p>P&aring; Let's Deal kan du f&aring; gode rabatter p&aring; alt fra lokale fris&oslash;rer og restauranter, til eksotiske reiser og spennende nettbutikker!<br /><a href="http://www.letsdeal.no/tr/vgtjenesteboks/r/signupb/bg22/refsrc/vgboks/" title="Sjekk dagens deal">Sjekk dagens deal</a></p></div>]]></response>
+    <comment></comment>
+  </item>
