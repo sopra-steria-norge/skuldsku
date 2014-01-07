@@ -33,8 +33,8 @@ Procedure
 * launch BurpUrlFetcher by: 
 	java BurpUrlFetcher requests.xml regexps.txt
 * The output will be a list of files in the current directory 
-    the name will be n-xxx where n is the request number and xxx is the http return code
-    the content of the files will be the data that is retrieved
+  - the name will be n-xxx where n is the request number and xxx is the http return code
+  - the content of the files will be the data that is retrieved
     
 Using internal eclipse recorder
 ===============================
@@ -62,6 +62,7 @@ Procedure
       `responseBody` VARCHAR(60000) NOT NULL ,
       PRIMARY KEY (`id`) )
 * Set up your jetty server to use the filter ResponseLogger (see HelloWorld for an example)
+* Ensure your jdbc db driver is on the classpath
 * Launch your jetty with these system properties set, default values in brackets: RequestLoggerDBDriver (com.mysql.jdbc.Driver), RequestLoggerDBUrl (jdbc:mysql://localhost:3306/mydb), RequestLoggerDBUser (root), RequestLoggerDBPass (no default)
 
 ### Record
