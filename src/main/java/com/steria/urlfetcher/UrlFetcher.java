@@ -3,72 +3,60 @@ package com.steria.urlfetcher;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
+import org.apache.commons.lang.StringUtils;
 
 public class UrlFetcher {
 
-	public static void main(String[] args) throws Exception {
-		
-		if(args.length != 2){
-			throw new Exception("Invalid arguments, use UrlFetcher <requests.xml> <regexps.txt>");
-		}
-		new UrlFetcher(args[0],  args[1]);
-	}
-	
-	public UrlFetcher(String requestFile, String regexpFile) throws Exception{
-		List<RegExp> regExps = parseRegExps(regexpFile);
-		RequestItems items = parseRequests(requestFile);
-		int requestCount = 0;
-		for(RequestItem item : items.getItemList()){
-			for(RegExp re: regExps){
-				item.setUrl(re.apply(item.getUrl()));
-				item.setRequest(re.apply(item.getRequest()));
-				System.out.println(item.getUrl());
-			}
-			makeCall(item, ""+requestCount++);
-		}
-	}
-	
-	void makeCall(RequestItem requestItem, String outputFilePrefix) throws Exception{
-		URL obj = new URL(requestItem.getUrl());
+	public UrlFetcher() {}
+
+	protected static Response makeCall(String url, String method, HashMap<String, String> headers)
+			throws Exception {
+		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-		con.setRequestMethod(requestItem.getMethod());
-		for(Entry<String, String> pair: requestItem.getHeaders().entrySet()){
-			String value = pair.getValue();
-			//retrieve uncompressed, makes diff meaningful...
-			if(pair.getKey().equals("Accept-Encoding")){
-				pair.setValue(value.replace("gzip, ", ""));
-				pair.setValue(value.replace("gzip", ""));
-			}
+		con.setRequestMethod(method);
+		for (Entry<String, String> pair : headers.entrySet()) {
 			con.setRequestProperty(pair.getKey(), pair.getValue());
 		}
-		int responseCode = con.getResponseCode();
-		System.out.println(responseCode);
-		
-		try(PrintWriter printWriter = new PrintWriter(outputFilePrefix+"-"+responseCode)){
-			if(responseCode != 200){
-				return;
-			}
-			try(BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))){
-				String inputLine;
-				while ((inputLine = in.readLine()) != null) {
-					printWriter.println(inputLine);
-				}
-			}
+		int responseCode = -1;
+		Response response = new Response();
+		try{
+			responseCode = con.getResponseCode();
+		}catch(Exception e){
+			System.err.println("Unable to make call to url "+url+" : "+ e);
+			return response;
 		}
+		
+		response.setCode(responseCode);
+		
+		if(responseCode == 200){
+			response.setBody(convertStreamToString(con.getInputStream()));
+			Map<String, List<String>> headerFields = con.getHeaderFields();
+			HashMap<String, String> responseHeaders = new HashMap<>();
+			for(Entry<String, List<String>> h: headerFields.entrySet()){
+				responseHeaders.put(h.getKey(), StringUtils.join(h.getValue(), "\n"));
+			}
+			response.setHeaders(responseHeaders);
+		}
+		return response;
 	}
 	
-	List<RegExp> parseRegExps(String regexpFileName) throws Exception{
+	static String convertStreamToString(java.io.InputStream is) {
+    try(java.util.Scanner s = new java.util.Scanner(is)){
+    	s.useDelimiter("\\A");
+    	return s.hasNext() ? s.next() : "";
+    }
+	}
+
+	protected static List<RegExp> parseRegExps(String regexpFileName) throws Exception {
 		List<RegExp> result = new ArrayList<>();
 		File file = new File(regexpFileName);
 		FileReader fileReader = new FileReader(file);
@@ -76,39 +64,24 @@ public class UrlFetcher {
 		String line;
 		while ((line = bufferedReader.readLine()) != null) {
 			String[] split = line.split("===");
-			result.add(new RegExp(split[0],  split[1]));
+			result.add(new RegExp(split[0], split[1]));
 		}
 		fileReader.close();
 		return result;
 	}
-	
-	/*
-	 * Parse the output file from BurpSuite, effectively a dump of a set of requests with headers 
-	 */
-	RequestItems parseRequests(String requestName) throws Exception
-	{
-		File file = new File(requestName);
-		JAXBContext jaxbContext = JAXBContext.newInstance(RequestItems.class);
- 
-		Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-		RequestItems items = (RequestItems) jaxbUnmarshaller.unmarshal(file);
-		return items;
-	}
-	
+
 	// A grouping of a regexp pattern and the replace blob
-	static class RegExp{
+	public static class RegExp {
 		private Pattern pattern;
 		private String replace;
-		RegExp(String patternString, String replace){
+
+		RegExp(String patternString, String replace) {
 			this.pattern = Pattern.compile(patternString);
 			this.replace = replace;
 		}
-		
-		String apply(String url){
+
+		public String apply(String url) {
 			return pattern.matcher(url).replaceAll(replace);
 		}
 	}
 }
-
-
-
