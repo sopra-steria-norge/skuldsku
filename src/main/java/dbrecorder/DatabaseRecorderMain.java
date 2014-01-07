@@ -1,11 +1,13 @@
 package dbrecorder;
 
+import java.io.File;
 import java.io.PrintWriter;
 
 import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
+import dbchange.DatabaseChangeRollback;
 import dbrecorder.impl.oracle.OracleDatabaseRecorder;
 
 
@@ -35,7 +37,7 @@ public final class DatabaseRecorderMain {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.out.println("Usage: dbrecorder JDBC_URL USERNAME PASSWORD setup|start|stop|export FILE|tearDown");
+            System.out.println("Usage: dbrecorder JDBC_URL USERNAME PASSWORD setup|start|stop|export FILE|tearDown|rollback FILE");
             System.exit(1);
         }
         
@@ -45,6 +47,7 @@ public final class DatabaseRecorderMain {
         
         final DataSource dataSource = createDataSource(jdbcUrl, username, password);
         final DatabaseRecorder databaseRecorder = new OracleDatabaseRecorder(dataSource);
+        final DatabaseChangeRollback rollback = new DatabaseChangeRollback(dataSource);
         
         if (args[3].equals("setup")) {
             databaseRecorder.setup();
@@ -67,6 +70,10 @@ public final class DatabaseRecorderMain {
         } else if (args[3].equals("tearDown")) {
             databaseRecorder.tearDown();
             System.out.println("Database recording stopped and data cleared.");
+        } else if (args[3].equals("rollback")) {
+            final File rollbackFile = new File(args[4]);
+            rollback.rollback(rollbackFile);
+            System.out.println("Database changes rolled back: " + args[4]);
         }
     }
 }
