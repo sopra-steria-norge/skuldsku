@@ -36,7 +36,7 @@ Procedure
   - the name will be n-xxx where n is the request number and xxx is the http return code
   - the content of the files will be the data that is retrieved
     
-Using internal eclipse recorder
+Using internal jetty recorder
 ===============================
 
 Purpose
