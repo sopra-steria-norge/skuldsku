@@ -8,7 +8,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class SpyWrapperTest {
 
@@ -17,7 +16,7 @@ public class SpyWrapperTest {
 
     @Before
     public void setUp() throws Exception {
-        serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback);
+        serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, AsyncMode.ALL_SYNC);
     }
 
     @Test
