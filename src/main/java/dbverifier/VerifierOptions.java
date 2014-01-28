@@ -12,6 +12,10 @@ public final class VerifierOptions {
         this.skipFields = new HashSet<String>(getDefaultSkipFields());
     }
     
+    public VerifierOptions(VerifierOptions verifierOptions) {
+        this.skipFields = new HashSet<String>(verifierOptions.getSkipFields());
+    }
+    
     
     public void addSkipField(String fieldName) {
         skipFields.add(fieldName);
