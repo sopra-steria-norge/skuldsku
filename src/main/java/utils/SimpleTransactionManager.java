@@ -5,6 +5,18 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+/**
+ * A <code>TransactionManager</code> making a new database transaction
+ * for each call to {@link #doInTransaction(TransactionCallback)}.
+ *
+ * <br /><br />
+ * 
+ * <ol>
+ *   <li>A <code>Connection</code> is obtained from the <code>DataSource</code>.</li>
+ *   <li>The callback gets executed.</li>
+ *   <li>If there are no errors: The transaction gets committed and the connection closed. If there are errors: The transaction get rolled back and the connection closed.</li>
+ * </ol>
+ */
 public final class SimpleTransactionManager implements TransactionManager {
     
     private final DataSource dataSource;

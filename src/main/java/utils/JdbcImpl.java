@@ -20,7 +20,7 @@ public final class JdbcImpl implements Jdbc {
         try {
             final Statement statement = connection.createStatement();
             statement.execute(sql);
-            statement.close(); // TODO: closeOnCompletion?
+            statement.close();
         } catch (SQLException e) {
             throw new JdbcException(e);
         }
@@ -63,7 +63,7 @@ public final class JdbcImpl implements Jdbc {
                     e.printStackTrace();
                 }
             }
-            statement.close(); // TODO: closeOnCompletion?
+            statement.close();
         } catch (SQLException e) {
             throw new JdbcException(e);
         }
