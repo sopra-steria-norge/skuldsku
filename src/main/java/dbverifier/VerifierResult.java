@@ -11,7 +11,6 @@ public final class VerifierResult {
     private final List<DatabaseChange> missingFromActual = new ArrayList<DatabaseChange>();
     private final List<DatabaseChange> additionalInActual = new ArrayList<DatabaseChange>();
     private final List<VerifierResultPair> notEquals = new ArrayList<VerifierResultPair>();
-    
     private final List<String> assertionFailed = new ArrayList<String>();
     
     
@@ -24,6 +23,7 @@ public final class VerifierResult {
             missingFromActual.addAll(vr.missingFromActual);
             additionalInActual.addAll(vr.additionalInActual);
             notEquals.addAll(vr.notEquals);
+            assertionFailed.addAll(vr.assertionFailed);
         }
     }
     
