@@ -1,5 +1,7 @@
 package dbrecorder.impl.oracle;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,6 +41,10 @@ public class OracleDatabaseRecorderTest {
         impl.setup();
         impl.start();
         impl.stop();
+        
+        final PrintWriter out = new PrintWriter(new StringWriter());
+        impl.exportTo(out);
+        impl.exportAndRemove(out);
         impl.tearDown();
     }
 }

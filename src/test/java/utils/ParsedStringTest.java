@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -7,10 +8,19 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import utils.ParsedString;
-
 public class ParsedStringTest {
 
+    
+    @Test
+    public void testJavaDocExample() {
+        final ParsedString pr = new ParsedString("foo bar test\\ well", Collections.singleton(' '), '\\', Collections.<Character, Character>emptyMap());;
+        final Iterator<String> it = pr.iterator();
+        Assert.assertEquals("foo", it.next());
+        Assert.assertEquals("bar", it.next());
+        Assert.assertEquals("test well", it.next());
+        Assert.assertEquals(false, it.hasNext());
+    }
+    
     @Test
     public void testEmptyString() {
         final ParsedString pr = new ParsedString("");
@@ -124,6 +134,37 @@ public class ParsedStringTest {
         Assert.assertEquals("", it.next());
         Assert.assertEquals(null, it.next());
         Assert.assertEquals("", it.next());
+        Assert.assertEquals(false, it.hasNext());
+    }
+    
+    @Test
+    public void testUnescapeNull2() {
+        final ParsedString pr = new ParsedString(";\\0;a");
+        final Iterator<String> it = pr.iterator();
+        Assert.assertEquals("", it.next());
+        Assert.assertEquals(null, it.next());
+        Assert.assertEquals("a", it.next());
+        Assert.assertEquals(false, it.hasNext());
+    }
+    
+    @Test
+    public void testTwoSeparators() {
+        final ParsedString pr = new ParsedString(";foo=bar;a");
+        final Iterator<String> it = pr.iterator();
+        Assert.assertEquals("", it.next());
+        Assert.assertEquals("foo", it.next());
+        Assert.assertEquals("bar", it.next());
+        Assert.assertEquals("a", it.next());
+        Assert.assertEquals(false, it.hasNext());
+    }
+    
+    @Test
+    public void testEscapeEquals() {
+        final ParsedString pr = new ParsedString(";foo\\=bar;a");
+        final Iterator<String> it = pr.iterator();
+        Assert.assertEquals("", it.next());
+        Assert.assertEquals("foo=bar", it.next());
+        Assert.assertEquals("a", it.next());
         Assert.assertEquals(false, it.hasNext());
     }
     

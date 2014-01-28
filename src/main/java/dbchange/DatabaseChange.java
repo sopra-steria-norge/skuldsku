@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +48,13 @@ public class DatabaseChange {
     }
 
 
-    private static Map<String, String> extractData(String row) {
+    static Map<String, String> extractData(String row) {
         final Map<String, String> data = new LinkedHashMap<String, String>();
-        for (String s : new ParsedString(row)) {
-            final String key = s.substring(0, s.indexOf('='));
-            final String value = s.substring(s.indexOf('=') + 1);
+        
+        final Iterator<String> it = new ParsedString(row).iterator();
+        while (it.hasNext()) {
+            final String key = it.next();
+            final String value = it.next();
             data.put(key, value);
         }
         return Collections.unmodifiableMap(data);
@@ -109,6 +112,9 @@ public class DatabaseChange {
     public boolean equals(DatabaseChange databaseChange, Set<String> skipFields) {
         for (String key : data.keySet()) {
             if (skipFields.contains(key)) {
+                continue;
+            }
+            if (key.startsWith("OLDROW")) {
                 continue;
             }
             final String v1 = data.get(key);

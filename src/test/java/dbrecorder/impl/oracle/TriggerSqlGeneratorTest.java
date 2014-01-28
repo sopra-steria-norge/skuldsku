@@ -13,7 +13,7 @@ public class TriggerSqlGeneratorTest {
     @Test
     public void testColumnNameAndValue() {
         final String result = TriggerSqlGenerator.columnNameAndValue("LALA", "ROW", ":new.");
-        Assert.assertEquals("'ROW.LALA='||NVL(REPLACE(REPLACE(:new.LALA, '\\', '\\\\'), ';', '\\;'), '\\0')",
+        Assert.assertEquals("'ROW.LALA='||NVL(REPLACE(REPLACE(REPLACE(:new.LALA, '\\', '\\\\'), ';', '\\;'), '=', '\\='), '\\0')",
                 result);
     }
     

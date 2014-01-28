@@ -1,8 +1,11 @@
 package utils;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * A record parser.
@@ -10,7 +13,7 @@ import java.util.NoSuchElementException;
 public class ParsedString implements Iterable<String> {
 
     private final String record;
-    private final char delimiterChar;
+    private final Set<Character> delimiterChars;
     private final char escapeChar;
     
     private final Map<Character, Character> escapes;
@@ -22,16 +25,41 @@ public class ParsedString implements Iterable<String> {
      *          and "\" as the escape sign.
      */
     public ParsedString(String s) {
-        this(s, ';', '\\', getDefaultEscapes());
+        this(s, getDefaultDelimiters(), '\\', getDefaultEscapes());
     }
     
-    ParsedString(String record, char delimiter, char escape, Map<Character, Character> escapes) {
+    /**
+     * Creates a parser.
+     * 
+     * For example:
+     * <p>
+     *     <code>new ParsedString("foo bar test\\ well", Collections.singleton(' '), '\\', Collections.<Character, Character>emptyMap());</code>
+     * </p>
+     * <p>
+     *     Results in the following fields when iterating:
+     *     <ol>
+     *       <li>foo</li>
+     *       <li>bar</li>
+     *       <li>test well</li>
+     *     </ol>
+     * </p>
+     * 
+     * @param record The record to be parsed.
+     * @param delimiters A <code>Set</code> of delimiters used for separating fields
+     *          in the given record. 
+     * @param escape The escape character.
+     * @param escapes A <code>Map</code> with mappings between escape characters and
+     *          their values.
+     */
+    ParsedString(String record, Set<Character> delimiters, char escape, Map<Character, Character> escapes) {
         this.record = record;
-        this.delimiterChar = delimiter;
+        this.delimiterChars = delimiters;
         this.escapeChar = escape;
-        this.escapes = escapes;
+        this.escapes = new HashMap<Character, Character>(escapes);
         
-        this.escapes.put(delimiterChar, delimiterChar);
+        for (Character c : delimiterChars) {
+            this.escapes.put(c, c);
+        }
         this.escapes.put(escapeChar, escapeChar);
     }
     
@@ -42,6 +70,13 @@ public class ParsedString implements Iterable<String> {
         return escapes;
     }
     
+    private static Set<Character> getDefaultDelimiters() {
+        final Set<Character> delimiters = new HashSet<Character>();
+        delimiters.add(';');
+        delimiters.add('=');
+        return delimiters;
+    }
+    
     /**
      * Returns an <code>Iterator</code> on the tokens in this <code>ParsedString</code>.
      */
@@ -50,7 +85,6 @@ public class ParsedString implements Iterable<String> {
         return new Iterator<String>() {
             private int index = 0;
             private StringBuilder nextToken = new StringBuilder();
-            private boolean escaped = false;
             
             @Override
             public boolean hasNext() {
@@ -62,6 +96,7 @@ public class ParsedString implements Iterable<String> {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
+                boolean escaped = false;
                 while (index < record.length()) {
                     char c = record.charAt(index);
                     index++;
@@ -72,19 +107,19 @@ public class ParsedString implements Iterable<String> {
                          */
                         if (!escapes.containsKey(c)) {
                             throw new IllegalStateException("Unknown escape character: " + c);
-                        }
-
-                        final Character escapeValue = escapes.get(c);
-                        if (escapeValue == null) {
-                            if (nextToken.length() != 0 || record.charAt(index) != delimiterChar) {
-                                throw new IllegalStateException("Null can only be returned when there is no other data in the same field.");
+                        } else {
+                            final Character escapeValue = escapes.get(c);
+                            if (escapeValue == null) {
+                                if (nextToken.length() != 0 || !delimiterChars.contains(record.charAt(index))) {
+                                    throw new IllegalStateException("Null can only be returned when there is no other data in the same field. Index=" + index + " String: " + record);
+                                }
+                                index++;
+                                return null;
                             }
-                            index++;
-                            return null;
+                            nextToken.append(escapeValue);
+                            escaped = false;
                         }
-                        nextToken.append(escapeValue);
-                        escaped = false;
-                    } else if (c == delimiterChar) {
+                    } else if (delimiterChars.contains(c)) {
                         /*
                          * Field completely read:
                          */

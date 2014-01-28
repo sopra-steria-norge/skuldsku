@@ -78,7 +78,7 @@ final class TriggerSqlGenerator {
     }
     
     static String escapeField(String field, String prefix) {
-        return "NVL(REPLACE(REPLACE(" + prefix + field + ", '\\', '\\\\'), ';', '\\;'), '\\0')";
+        return "NVL(REPLACE(REPLACE(REPLACE(" + prefix + field + ", '\\', '\\\\'), ';', '\\;'), '=', '\\='), '\\0')";
     }
     
     static String generateTriggerSql(String triggerName, String tableName, String insertDataRow, String updateDataRow, String deleteDataRow) {
