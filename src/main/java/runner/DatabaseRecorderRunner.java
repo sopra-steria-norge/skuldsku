@@ -3,13 +3,9 @@ package runner;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
-import junit.framework.Assert;
 import dbchange.DatabaseChange;
 import dbchange.DatabaseChangeRollback;
 import dbrecorder.DatabaseRecorder;
@@ -17,7 +13,6 @@ import dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import dbverifier.DatabaseChangeVerifier;
 import dbverifier.VerifierOptions;
 import dbverifier.VerifierResult;
-import dbverifier.VerifierResult.VerifierResultPair;
 
 public final class DatabaseRecorderRunner {
 
@@ -30,6 +25,7 @@ public final class DatabaseRecorderRunner {
     private final File baseDirectory;
     private final VerifierOptions defaultVerifierOptions;
     private final boolean rollbackEnabled;
+    private final VerifierResultHandler verifierResultHandler;
     
 
     public DatabaseRecorderRunner(DataSource dataSource) {
@@ -54,8 +50,9 @@ public final class DatabaseRecorderRunner {
         this.databaseChangeRollback = databaseChangeRollback;
         this.databaseChangeVerifier = config.getDatabaseChangeVerifier();
         this.baseDirectory = config.getBaseDirectory();
-        this.defaultVerifierOptions = config.getDefaultVerifierOptions();
+        this.defaultVerifierOptions = new VerifierOptions(config.getDefaultVerifierOptions());
         this.rollbackEnabled = config.isRollbackEnabled();
+        this.verifierResultHandler = config.getVerifierResultHandler();
     }
     
     
@@ -82,28 +79,20 @@ public final class DatabaseRecorderRunner {
     }
 
     private void assertEquals(final File actualFile, final File expectedFile, VerifierOptions verifierOptions) {
+        final VerifierResult result;
         if (expectedFile.exists()) {
-            final VerifierResult result = databaseChangeVerifier.assertEquals(
+            result = databaseChangeVerifier.assertEquals(
                     DatabaseChange.readDatabaseChanges(expectedFile),
                     DatabaseChange.readDatabaseChanges(actualFile),
                     verifierOptions);
-            // TODO: JUnit-mapper (so that other test suites than JUnit can be supported)
-            for (DatabaseChange expectedDatabaseChange : result.getMissingFromActual()) {
-                Assert.fail("Cannot find actual data matching expected data on line: " + expectedDatabaseChange.getLineNumber());
-            }
-            for (VerifierResultPair pair : result.getNotEquals()) {
-                Assert.fail("The actual data on line " + pair.getActual().getLineNumber()
-                        + " does not match the expected data on line number " + pair.getExpected().getLineNumber());
-            }
-            for (DatabaseChange unmatchedCandidate : result.getAdditionalInActual()) {
-                Assert.fail("Could not find expected data matching actual data on line " + unmatchedCandidate.getLineNumber());
-            }
         } else {
-            Assert.fail("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
+            result = new VerifierResult();
+            result.addAssertionFailed("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
                     + "\nIf this is the first execution of the test, you can take a look at the actual data ("
                     + actualFile.getAbsolutePath()
                     + ") and check if the result is correct. If correct, you can use this file as the expected data.");
         }
+        verifierResultHandler.handle(result);
     }
     
     private File createDirectoryIfNotExists(File baseDirectory, String directoryName) {       
@@ -140,9 +129,5 @@ public final class DatabaseRecorderRunner {
         }
         
         control.destroy();
-    }
-    
-    private static <T> Set<T> alwaysHashSetAndNeverNull(Set<T> set) {
-        return (set != null) ? new HashSet<T>(set) : Collections.<T>emptySet();
     }
 }

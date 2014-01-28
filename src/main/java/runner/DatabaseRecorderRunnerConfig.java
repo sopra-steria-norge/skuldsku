@@ -1,8 +1,6 @@
 package runner;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Set;
 
 import dbverifier.DatabaseChangeVerifier;
 import dbverifier.VerifierOptions;
@@ -14,6 +12,7 @@ public class DatabaseRecorderRunnerConfig {
     private File baseDirectory;
     private VerifierOptions defaultVerifierOptions;
     private boolean rollbackEnabled;
+    private VerifierResultHandler verifierResultHandler;
     
     
     public DatabaseRecorderRunnerConfig() {
@@ -21,8 +20,17 @@ public class DatabaseRecorderRunnerConfig {
         this.baseDirectory = new File("src/test/resources");
         this.databaseChangeVerifier = new BestFitDatabaseChangeVerifier();
         this.rollbackEnabled = true;
+        this.verifierResultHandler = new JUnitVerifierResultHandler();
     }
 
+    
+    public void setVerifierResultHandler(VerifierResultHandler verifierResultHandler) {
+        this.verifierResultHandler = verifierResultHandler;
+    }
+    
+    public VerifierResultHandler getVerifierResultHandler() {
+        return verifierResultHandler;
+    }
     
     public void setDefaultVerifierOptions(VerifierOptions defaultVerifierOptions) {
         this.defaultVerifierOptions = defaultVerifierOptions;
