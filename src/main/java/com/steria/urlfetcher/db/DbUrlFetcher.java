@@ -10,17 +10,15 @@ import java.util.List;
 import com.steria.urlfetcher.HeaderUtil;
 import com.steria.urlfetcher.Response;
 import com.steria.urlfetcher.UrlFetcher;
-import com.steria.urlfetcher.UrlFetcher.RegExp;
 
 public class DbUrlFetcher extends UrlFetcher{
 	
 	public static void main(String[] args) throws Exception {
 		if (args.length != 1) {
 			throw new Exception(
-			"Invalid arguments, use UrlFetcher burp <requests.xml> <regexps.txt> or \n" +
-			"                       UrlFetcher db <regexps.xml>");
+			"Invalid arguments, use UrlFetcher <regexps.xml>");
 		}
-		new DbUrlFetcher(args[1]);		
+		new DbUrlFetcher(args[0]);		
 	}
 	
 	DbUrlFetcher(String regexpFile) throws Exception {
@@ -33,6 +31,7 @@ public class DbUrlFetcher extends UrlFetcher{
 			String url = rs.getString("url");
 			String method = rs.getString("method");
 			String headers = rs.getString("headers");
+			String body = rs.getString("body");
 			int responseCode = rs.getInt("responseCode");
 			String responseHeaders = rs.getString("responseHeaders");
 			String responseBody = rs.getString("responseBody");
@@ -44,15 +43,20 @@ public class DbUrlFetcher extends UrlFetcher{
 				responseBody = re.apply(responseBody);
 			}			
 
-			Response response = makeCall(url, method, HeaderUtil.parseHeaders(headers));
+			Response response = makeCall(url, method, HeaderUtil.parseHeaders(headers), body);
 			if(response.getCode() != responseCode){
 				System.out.println("URL:"+url+" ResponseCode expected "+ responseCode + " got " + response.getCode());
-			}else	if(response.getBody() != responseBody){
-				System.out.println("URL:"+url+" ResponseBody expected "+ responseBody + " got " + response.getBody());
-			}else if(!HeaderUtil.makeCanonic(response.getHeaders()).equals(HeaderUtil.makeCanonic(responseHeaders))){
-				System.out.println("URL:"+url+" ResponseHeader expected "+ headers + " got " + response.getHeaders());
-			}else{
-			  System.out.println("URL:"+ url +" OK");
+			}else	{
+				String newBody = response.getBody();
+				String canonicResponseHeaders = HeaderUtil.makeCanonic(responseHeaders);
+				String canonicNewHeaders = HeaderUtil.makeCanonic(response.getHeaders());
+				if(!responseBody.equals(newBody)){
+					System.out.println("URL:"+url+" ResponseBody expected "+ responseBody + " got " + newBody);
+				}else if(!canonicNewHeaders.equals(canonicResponseHeaders)){
+					System.out.println("URL:"+url+" ResponseHeader expected "+ canonicResponseHeaders + " got " + canonicNewHeaders);
+				}else{
+				  System.out.println("URL:"+ url +" OK");
+				}
 			}
 		}
 	}

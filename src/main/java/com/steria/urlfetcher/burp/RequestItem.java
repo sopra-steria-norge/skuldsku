@@ -1,10 +1,6 @@
 package com.steria.urlfetcher.burp;
 
-import java.util.HashMap;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.steria.urlfetcher.HeaderUtil;
 
 /**
  * An "item" in the xml of requests from BurpSuite
@@ -21,6 +17,7 @@ class RequestItem{
 	//private String port;
 	//private String path;
 	//private String extension;
+	private String body;
 	
 	public String getUrl() {
 		return url;
@@ -33,11 +30,41 @@ class RequestItem{
 	public String getRequest() {
 		return request;
 	}
+	
+	public String getBody(){
+		return body;
+	}
+	
+	public void setBody(String body){
+		this.body = body;
+	}
 
 	// for Burp only
 	public void setRequest(String request) {
+		//request consists of the headers (key: value) followed by a blank line, optionally followed by a body
 		this.request = request;
-		headers = request.substring(request.indexOf("\n")+1);
+		int lineBreak = request.indexOf("\n");
+		headers = "";
+		body = "";
+		boolean headerDone = false;
+		String[] lines = request.substring(lineBreak+1).split("\n");
+		for(String line : lines){
+			if("".equals(line)){
+				headerDone = true;
+			}else{
+				if(!headerDone){
+					if(!"".equals(headers)){
+						headers += "\n";
+					}
+					headers += line;
+				}else{
+					if(!"".equals(body)){
+						body += "\n";
+					}
+					body += line;
+				}
+			}
+		}	
 	}
 	
 	public String getMethod() {

@@ -29,6 +29,7 @@ public class BurpUrlFetcher extends UrlFetcher{
 			for (RegExp re : regExps) {
 				item.setUrl(re.apply(item.getUrl()));
 				item.setHeaders(re.apply(item.getHeaders()));
+				item.setBody(re.apply(item.getBody()));
 				// item.setRequest(re.apply(item.getRequest()));
 				System.out.println(item.getUrl());
 			}
@@ -51,7 +52,12 @@ public class BurpUrlFetcher extends UrlFetcher{
 	
 	static void makeCall(RequestItem requestItem, String outputFilePrefix)
 			throws Exception {
-		Response response = makeCall(requestItem.getUrl(), requestItem.getMethod(), HeaderUtil.parseHeaders(requestItem.getHeaders()));
+		Response response = makeCall(
+				requestItem.getUrl(), 
+				requestItem.getMethod(), 
+				HeaderUtil.parseHeaders(requestItem.getHeaders()),
+				requestItem.getBody()
+				);
 		System.out.println(response.getCode());
 
 		if (response.getCode() != 200) {

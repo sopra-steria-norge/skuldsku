@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+    <time>Wed Jan 29 09:07:15 CET 2014</time>
+    <url><![CDATA[http://localhost:9000/mongo/init]]></url>
+    <host ip="127.0.0.1">localhost</host>
+    <port>9000</port>
+    <protocol>http</protocol>
+    <method>POST</method>
+    <path><![CDATA[/mongo/init]]></path>
+    <extension>null</extension>
+    <request base64="false"><![CDATA[POST /mongo/init HTTP/1.1
+Host: localhost:9000
+Proxy-Connection: keep-alive
+Content-Length: 75
+Cache-Control: no-cache
+Origin: chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop
+Content-Type: application/json
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.76 Safari/537.36
+Postman-Token: 5e98575d-548b-5c30-8700-d28cdd00f054
+Accept: */*
+Accept-Encoding: gzip,deflate,sdch
+Accept-Language: no,nb;q=0.8,en-GB;q=0.6,en;q=0.4,en-US;q=0.2,sv;q=0.2,da;q=0.2
+
+{"councilFilter":"1151", "uri":"mongodb://localhost:27017/?replicaSet=rep"}]]></request>
+    <status></status>
+    <responselength></responselength>
+    <mimetype></mimetype>
+    <response base64="false"></response>
+    <comment></comment>
+  </item>

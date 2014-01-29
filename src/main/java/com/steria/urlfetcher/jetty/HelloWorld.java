@@ -14,7 +14,6 @@ import org.eclipse.jetty.servlet.ServletHandler;
 
 /**
  * Simple example of how to wire up the filter when using embedded jetty
- * @author ofriberg
  *
  */
 public class HelloWorld
@@ -26,11 +25,10 @@ public class HelloWorld
         server.setHandler(handler);
 
         handler.addServletWithMapping(HelloServlet.class, "/*");
-        handler.addFilterWithMapping(ResponseLogger.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        handler.addFilterWithMapping(ResponseFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         server.start();
         server.join();
-
     }
     
     /**
@@ -42,6 +40,14 @@ public class HelloWorld
 
       @Override
       protected void doGet(HttpServletRequest request, HttpServletResponse response)
+          throws ServletException, IOException {
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().println("<h1>Hello SimpleServlet</h1>");
+      }
+      
+      @Override
+      protected void doPost(HttpServletRequest request, HttpServletResponse response)
           throws ServletException, IOException {
         response.setContentType("text/html");
         response.setStatus(HttpServletResponse.SC_OK);

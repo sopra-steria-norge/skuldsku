@@ -1,10 +1,6 @@
 package com.steria.urlfetcher.jetty;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Enumeration;
 
@@ -20,35 +16,27 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
-@WebFilter("/*")
-public class ResponseLogger implements Filter {
-	Connection con;
-	PreparedStatement stmt;
-	boolean applyFilter;
+import com.steria.urlfetcher.db.IResponseLogger;
 
+@WebFilter("/*")
+public class ResponseFilter implements Filter {
+	IResponseLogger responseLogger;
+	Boolean applyFilter;
+	
 	@Override
 	public void init(FilterConfig config) throws ServletException {
-		try {
-			String driverName = System.getProperty("RequestLoggerDBDriver", "com.mysql.jdbc.Driver");
-			String url = System.getProperty("RequestLoggerDBUrl", "jdbc:mysql://localhost:3306/mydb");
-			String user = System.getProperty("RequestLoggerDBUser","root");
-			String password = System.getProperty("RequestLoggerDBPass");
-			
-			Class.forName(driverName);			
-			
-			System.out.println("Making a connection to: " + url);
-			
-			con = DriverManager.getConnection(url, user, password);
-			stmt = con.prepareStatement("INSERT INTO qtable (url, method, headers, responseCode, responseHeaders, responseBody) VALUES (?, ?, ?, ?, ?, ?)");
-
-			System.out.println("Connection successful.\n");
-		} catch (Exception e) {
+		try{
+			String responseLoggerClass = System.getProperty("ResponseLoggerClass", "com.steria.urlfetcher.db.JDBCResponseLogger");
+			Class<?> rlClass = Class.forName(responseLoggerClass);
+			responseLogger = (IResponseLogger)rlClass.newInstance();
+		  responseLogger.init();
+		}catch(Exception e){
 			e.printStackTrace();
 			return;
 		}
 		applyFilter = true;
 	}
-
+	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws ServletException, IOException {
@@ -78,28 +66,25 @@ public class ResponseLogger implements Filter {
 			}
 		}catch(Exception e){
 			System.err.println("Exception in logging filter, disabled until next restart: "+e);
+			e.printStackTrace(System.err);
 			applyFilter = false;
 		}
 	}
 
-	@Override
-	public void destroy() {
-		if (con != null) {
-			try {
-				// Close the connection
-				con.close();
-			} catch (SQLException ex) {
-				System.out.println("SQLException: " + ex);
-			}
-		}
-	}
-
-	public void log(Request request, Response response, String responseBody) throws Exception {
-			String headers = "";
+	private void log(Request request, Response response, String responseBody) throws Exception {
+			String requestHeaders = "";
 			Enumeration<String> headerNames = request.getHeaderNames();
 			while (headerNames.hasMoreElements()) {
 				String header = headerNames.nextElement();
-				headers += header + ": " + request.getHeader(header) + "\n";
+				requestHeaders += header + ": " + request.getHeader(header) + "\n";
+			}
+			String requestBody = "";
+			String line= null;
+			while((line=request.getReader().readLine()) != null){
+				if(!"".equals(requestBody)){
+					requestBody += "\n";
+				}
+				requestBody += line;
 			}
 			
 			String responseHeaders = "";
@@ -107,6 +92,8 @@ public class ResponseLogger implements Filter {
 			for(String header: responseHeaderNames){
 				responseHeaders += header + ": " + response.getHeader(header) + "\n";
 			}
+			responseHeaders += "Content-Length: "+responseBody.length()+"\n";
+			responseHeaders += "Server: "+"SERVER_REPLACE_ME_IN_REGEXP_FILE"+"\n";
 			
 			String method = request.getMethod();
 			String query = request.getQueryString();
@@ -115,23 +102,13 @@ public class ResponseLogger implements Filter {
 			}
 			String r = request.getRequestURL() + query;
 			
-			doUpdate(r, method, headers, response.getStatus(), responseBody, responseHeaders);
+			responseLogger.persist(r, method, requestHeaders, requestBody, response.getStatus(), responseBody, responseHeaders);
 	}
-
-	@SuppressWarnings("nls")
-	public void doUpdate(String url, String method, String requestheaders, 
-			int responseCode, String responseBody, String responseHeaders) throws Exception {
-		int rst;
-		
-				stmt.setString(1, url);
-				stmt.setString(2, method);
-				stmt.setString(3, requestheaders);
-				stmt.setInt(4, responseCode);
-				stmt.setString(5, responseHeaders);
-				stmt.setString(6, responseBody);
-		rst = stmt.executeUpdate();
-		if(rst != 0){
-			throw new Exception("Bad result code: "+rst);
+	
+	@Override
+	public void destroy(){
+		if(responseLogger != null){
+			responseLogger.destroy();
 		}
 	}
 }

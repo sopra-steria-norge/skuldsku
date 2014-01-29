@@ -22,14 +22,14 @@ Procedure
 * Launch your browser and configure a the proxy to 127.0.0.1:8080
 
 ### record
-* Run your tests in the browser, you should see the Proxy/History tab being populated as you go
+* Run your tests in the browser, you should see the Proxy/History tab in Burp being populated as you go
 * in the Proxy/History tab select the rows of requests that you'd like to replay later
 * rightclick->Save items, say into requests.xml
 
 ### replay
 * create a file (say) regexps.txt where you will store a list of regexps for massaging the urls (to switch server to dev etc)
-* it is recommended to include the line "Accept-Encoding: gzip, ===Accept-Encoding: "
 * add patterns to the file in the format "vg.no===google.com" which will transform any mention of vg.no to google.com (where === is the separator)
+* it is recommended to include the line "Accept-Encoding: gzip, ===Accept-Encoding: "
 * launch BurpUrlFetcher by: 
 	java BurpUrlFetcher requests.xml regexps.txt
 * The output will be a list of files in the current directory 
@@ -45,23 +45,25 @@ Allow capturing all requests (with headers and method) and responses (with heade
 
 Required Software
 -----------------
-* A db with a jdbc driver
-* and you need to tweak you jetty configuration
+* A db with a jdbc driver (or implement IResponseLogger and set the ResponseLoggerClass property to the full classname)
+* and you need to tweak your jetty configuration
 
 Procedure
 ---------
 ### Prepare
 * get yourself a database and create this table:
+  <pre>
 	CREATE  TABLE IF NOT EXISTS `mydb`.`qtable` (
-      `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
       `url` VARCHAR(1000) NOT NULL ,
       `method` VARCHAR(100) NOT NULL ,
       `headers` VARCHAR(2000) NOT NULL ,
+      `body` VARCHAR(4000) NOT NULL ,
       `responseCode` INT NOT NULL ,
       `responseHeaders` VARCHAR(2000) NOT NULL ,
-      `responseBody` VARCHAR(60000) NOT NULL ,
+      `responseBody` VARCHAR(56000) NOT NULL ,
       PRIMARY KEY (`id`) )
-* Set up your jetty server to use the filter ResponseLogger (see HelloWorld for an example)
+  </pre>
+* Set up your jetty server to use the filter ResponseFilter (see HelloWorld for an example)
 * Ensure your jdbc db driver is on the classpath
 * Launch your jetty with these system properties set, default values in brackets: RequestLoggerDBDriver (com.mysql.jdbc.Driver), RequestLoggerDBUrl (jdbc:mysql://localhost:3306/mydb), RequestLoggerDBUser (root), RequestLoggerDBPass (no default)
 

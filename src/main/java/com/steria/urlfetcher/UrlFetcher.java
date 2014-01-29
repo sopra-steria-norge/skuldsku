@@ -1,6 +1,7 @@
 package com.steria.urlfetcher;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.net.HttpURLConnection;
@@ -18,7 +19,7 @@ public class UrlFetcher {
 
 	public UrlFetcher() {}
 
-	protected static Response makeCall(String url, String method, HashMap<String, String> headers)
+	protected static Response makeCall(String url, String method, HashMap<String, String> headers, String body)
 			throws Exception {
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -26,6 +27,12 @@ public class UrlFetcher {
 		for (Entry<String, String> pair : headers.entrySet()) {
 			con.setRequestProperty(pair.getKey(), pair.getValue());
 		}
+		con.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		wr.writeBytes(body);
+		wr.flush();
+		wr.close();
+		
 		int responseCode = -1;
 		Response response = new Response();
 		try{
@@ -42,7 +49,9 @@ public class UrlFetcher {
 			Map<String, List<String>> headerFields = con.getHeaderFields();
 			HashMap<String, String> responseHeaders = new HashMap<>();
 			for(Entry<String, List<String>> h: headerFields.entrySet()){
-				responseHeaders.put(h.getKey(), StringUtils.join(h.getValue(), "\n"));
+				if(h.getKey() != null){
+					responseHeaders.put(h.getKey(), StringUtils.join(h.getValue(), "\n"));
+				}
 			}
 			response.setHeaders(responseHeaders);
 		}
@@ -64,7 +73,11 @@ public class UrlFetcher {
 		String line;
 		while ((line = bufferedReader.readLine()) != null) {
 			String[] split = line.split("===");
-			result.add(new RegExp(split[0], split[1]));
+			if(split.length == 1){
+				result.add(new RegExp(split[0], ""));
+			}else{
+				result.add(new RegExp(split[0], split[1]));
+			}
 		}
 		fileReader.close();
 		return result;
