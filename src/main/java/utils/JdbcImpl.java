@@ -32,12 +32,13 @@ public final class JdbcImpl implements Jdbc {
             @SuppressWarnings("unchecked")
             @Override
             public void extractData(ResultSet resultSet) throws SQLException {
-                // TODO: Only execute once for the ResultSet:
                 if (resultSet.getMetaData().getColumnCount() != 1) {
                     throw new JdbcException("Expecting single column result, but got multiple columns.");
                 }
-                final T data = (T) resultSet.getObject(1);
-                result.add(data);
+                while (resultSet.next()) {
+                    final T data = (T) resultSet.getObject(1);
+                    result.add(data);
+                }
             }
         }, parameters);
         return result;
@@ -52,9 +53,7 @@ public final class JdbcImpl implements Jdbc {
             statement.execute();
             final ResultSet resultSet = statement.getResultSet();
             try {
-                while (resultSet.next()) {
-                    callback.extractData(resultSet);
-                }
+                callback.extractData(resultSet);
             } finally {
                 try {
                     resultSet.close();

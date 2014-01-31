@@ -59,7 +59,9 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                 jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM DBR_RECORDER", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
-                        out.println(rs.getString(1));
+                        while (rs.next()) {
+                            out.println(rs.getString(1));
+                        }
                     }
                 });
                 return null;
@@ -75,8 +77,10 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                 jdbc.query("SELECT DBR_ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM DBR_RECORDER", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
-                        retrivedDataIds.add(rs.getString(1));
-                        out.println(rs.getString(2));
+                        while (rs.next()) {
+                            retrivedDataIds.add(rs.getString(1));
+                            out.println(rs.getString(2));
+                        }
                     }
                 });
                 return null;
