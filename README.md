@@ -53,15 +53,16 @@ Procedure
 ### Prepare
 * get yourself a database and create this table:
   <pre>
-	CREATE  TABLE IF NOT EXISTS `mydb`.`qtable` (
-      `url` VARCHAR(1000) NOT NULL ,
-      `method` VARCHAR(100) NOT NULL ,
-      `headers` VARCHAR(2000) NOT NULL ,
-      `body` VARCHAR(4000) NOT NULL ,
-      `responseCode` INT NOT NULL ,
-      `responseHeaders` VARCHAR(2000) NOT NULL ,
-      `responseBody` VARCHAR(56000) NOT NULL ,
-      PRIMARY KEY (`id`) )
+  CREATE  TABLE IF NOT EXISTS `mydb`.`qtable` (
+    `id` BIGINT NOT NULL ,
+    `url` VARCHAR(1000) NOT NULL ,
+    `method` VARCHAR(100) NOT NULL ,
+    `headers` VARCHAR(2000) NOT NULL ,
+    `body` VARCHAR(4000) NOT NULL ,
+    `responseCode` INT NOT NULL ,
+    `responseHeaders` VARCHAR(2000) NOT NULL ,
+    `responseBody` VARCHAR(56000) NOT NULL ,
+    PRIMARY KEY (`id`) )
   </pre>
 * Set up your jetty server to use the filter ResponseFilter (see HelloWorld for an example)
 * Ensure your jdbc db driver is on the classpath
@@ -71,7 +72,10 @@ Procedure
 * Make calls to the db server, and see the table in the db populate. Note that this will use resources in the webserver and synchronously write to the db, so make sure you test this in your QA environment
 
 ### Replay
-* Please make sure you have regexps configured for translating any production hosts to qa..., and also firewalls to prevent mistakes
+* Please make sure you have regexps configured for translating any production hosts to qa..., and also ensure you have firewalls to prevent mistakes
+* To handle sessionids and cookies to group together requests and propagate new ids during replay set the two properties 
+    - -DcookiesToUpdate=<commaseparated list of cookieNames> - any Set-Cookie header in one reply will be propagated to future calls
+    - -DcookiesToDrop=<commaseparated list of cookieNames> - prevents this cookie from being sent on any request 
 * launch DbUrlFetcher setting the same db properties as above, and
     java DbUrlFetcher regexps.txt
 * The output will contain info about every url mentioned in the db (it compares returnCode, headers and the body)

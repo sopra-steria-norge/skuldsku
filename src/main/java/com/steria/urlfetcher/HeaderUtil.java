@@ -1,34 +1,36 @@
 package com.steria.urlfetcher;
 
-import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Simple utility class for converting and parsing http headers
  */
 public class HeaderUtil {
 
-	public static HashMap<String, String> parseHeaders(String headers){
-		HashMap<String, String> result = new HashMap<>();
+	public static List<HeaderLine> parseHeaders(String headers){
+		ArrayList<HeaderLine> h = new ArrayList<HeaderLine>();
 		String[] lines = headers.split("\n");
 		for(String line : lines){
 			String[] segments = line.split(": ",2);
-			result.put(segments[0], segments[1]);
+			h.add(new HeaderLine(segments[0], segments[1]));
 		}
-		return result;
+		return h;
 	}
 	
 	public static String makeCanonic(String headers){
 		return makeCanonic(parseHeaders(headers));
 	}
 	
-	public static String makeCanonic(HashMap<String, String> headers){
+	public static String makeCanonic(List<HeaderLine> header){
+		Collections.sort(header, new HeaderLineKeyComparator());
 		String result = "";
-		SortedSet<String> keys = new TreeSet<String>(headers.keySet());
-		for (String key : keys) { 
-		   result += key + ": "+ headers.get(key)+"\n";
+		for (HeaderLine hl: header) { 
+		   result += hl.getKey() + ": "+ hl.getValue() +"\n";
 		}
 		return result;
 	}
 }
+
+

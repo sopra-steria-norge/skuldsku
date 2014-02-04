@@ -5,9 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
-
-import com.steria.urlfetcher.HeaderUtil;
+import com.steria.urlfetcher.RecordedRequestResponse;
 import com.steria.urlfetcher.Response;
 import com.steria.urlfetcher.UrlFetcher;
 
@@ -23,44 +21,27 @@ public class DbUrlFetcher extends UrlFetcher{
 	
 	DbUrlFetcher(String regexpFile) throws Exception {
 		super();
-		List<RegExp> regExps = parseRegExps(regexpFile);
+		parseRegExps(regexpFile);
 		Connection con = createConnection();
 		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery("select * from qtable");
+		ResultSet rs = stmt.executeQuery("select * from qtable order by id asc");
 		while (rs.next()) {
 			String url = rs.getString("url");
 			String method = rs.getString("method");
 			String headers = rs.getString("headers");
 			String body = rs.getString("body");
+			//String sessionId = rs.getString("sessionId");
 			int responseCode = rs.getInt("responseCode");
 			String responseHeaders = rs.getString("responseHeaders");
 			String responseBody = rs.getString("responseBody");
 
-			for (RegExp re : regExps) {
-				url = re.apply(url);
-				headers = re.apply(headers);
-				responseHeaders = re.apply(responseHeaders);
-				responseBody = re.apply(responseBody);
-			}			
+			RecordedRequestResponse requestResponse = new RecordedRequestResponse(url, method, headers, body, responseCode, responseHeaders, responseBody);
 
-			Response response = makeCall(url, method, HeaderUtil.parseHeaders(headers), body);
-			if(response.getCode() != responseCode){
-				System.out.println("URL:"+url+" ResponseCode expected "+ responseCode + " got " + response.getCode());
-			}else	{
-				String newBody = response.getBody();
-				String canonicResponseHeaders = HeaderUtil.makeCanonic(responseHeaders);
-				String canonicNewHeaders = HeaderUtil.makeCanonic(response.getHeaders());
-				if(!responseBody.equals(newBody)){
-					System.out.println("URL:"+url+" ResponseBody expected "+ responseBody + " got " + newBody);
-				}else if(!canonicNewHeaders.equals(canonicResponseHeaders)){
-					System.out.println("URL:"+url+" ResponseHeader expected "+ canonicResponseHeaders + " got " + canonicNewHeaders);
-				}else{
-				  System.out.println("URL:"+ url +" OK");
-				}
-			}
+			Response response = makeCall(requestResponse);
+			compareResponse(requestResponse, response);
 		}
 	}
-	
+
 	private Connection createConnection() throws ClassNotFoundException, SQLException {
 		String driverName = System.getProperty("RequestLoggerDBDriver",	"com.mysql.jdbc.Driver");
 		String dburl = System.getProperty("RequestLoggerDBUrl", "jdbc:mysql://localhost:3306/mydb");

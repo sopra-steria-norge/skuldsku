@@ -1,10 +1,13 @@
 package com.steria.urlfetcher;
 
-import java.util.HashMap;
+import java.util.List;
 
+/**
+ * Represents a parsed http response
+ */
 public class Response {
 	private int code = -1;
-	private HashMap<String, String> headers;
+	private List<HeaderLine> headers;
 	private String body;
 	
 	public String getBody() {
@@ -13,10 +16,10 @@ public class Response {
 	public void setBody(String body) {
 		this.body = body;
 	}
-	public HashMap<String, String> getHeaders() {
+	public List<HeaderLine> getHeaders() {
 		return headers;
 	}
-	public void setHeaders(HashMap<String, String> headers) {
+	public void setHeaders(List<HeaderLine> headers) {
 		this.headers = headers;
 	}
 	public int getCode() {

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Calendar;
 
 import javax.servlet.annotation.WebFilter;
 
@@ -11,6 +12,7 @@ import javax.servlet.annotation.WebFilter;
 public class JDBCResponseLogger implements IResponseLogger{
 	Connection con;
 	PreparedStatement stmt;
+	private long sequenceNumber;
 
 	@Override
 	public void init() throws Exception{
@@ -24,8 +26,10 @@ public class JDBCResponseLogger implements IResponseLogger{
 			System.out.println("Making a connection to: " + url);
 			
 			con = DriverManager.getConnection(url, user, password);
-			stmt = con.prepareStatement("INSERT INTO qtable (url, method, headers, body, responseCode, responseHeaders, responseBody) VALUES (?, ?, ?, ?, ?, ?, ?)");
+			stmt = con.prepareStatement("INSERT INTO qtable (id, url, method, headers, body, responseCode, responseHeaders, responseBody) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
+			//avoid clashes if the server is restarted
+			sequenceNumber = Calendar.getInstance().getTimeInMillis();
 			System.out.println("Connection successful.\n");
 	}
 
@@ -43,15 +47,22 @@ public class JDBCResponseLogger implements IResponseLogger{
 
 	@SuppressWarnings("nls")
 	@Override
-	public void persist(String url, String method, String requestHeaders, String requestBody, int responseCode,
-			String responseBody, String responseHeaders) throws Exception {
-		stmt.setString(1, url);
-		stmt.setString(2, method);
-		stmt.setString(3, requestHeaders);
-		stmt.setString(4, requestBody);
-		stmt.setInt(5, responseCode);
-		stmt.setString(6, responseHeaders);
-		stmt.setString(7, responseBody);
+	public void persist(String url, String method, String requestHeaders, String requestBody, String sessionId, 
+			int responseCode,	String responseBody, String responseHeaders) throws Exception {
+		long id;
+		synchronized(this){
+			sequenceNumber++;
+			id = sequenceNumber;
+		}
+		stmt.setLong(1, id);
+		stmt.setString(2, url);
+		stmt.setString(3, method);
+		stmt.setString(4, requestHeaders);
+		stmt.setString(5, requestBody);
+		stmt.setInt(6, responseCode);
+		stmt.setString(7, responseHeaders);
+		stmt.setString(8, responseBody);
+		
 		int rst = stmt.executeUpdate();
 		if (rst != 1) {
 			throw new Exception("Bad result code: " + rst);

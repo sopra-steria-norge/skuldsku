@@ -12,6 +12,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
@@ -75,8 +76,26 @@ public class ResponseFilter implements Filter {
 			String requestHeaders = "";
 			Enumeration<String> headerNames = request.getHeaderNames();
 			while (headerNames.hasMoreElements()) {
-				String header = headerNames.nextElement();
-				requestHeaders += header + ": " + request.getHeader(header) + "\n";
+				String headerName = headerNames.nextElement();
+				Enumeration<String> headers = request.getHeaders(headerName);
+				while(headers.hasMoreElements()){
+					String nextElement = headers.nextElement();
+					//ensure we persist each cookie as a separate header line, so we're consistent across all api:s...
+					if("CookieZZZ".equals(headerName)){
+						String[] cookies = nextElement.split("; ");
+						for(String cookie: cookies){
+							requestHeaders += headerName + ": " + cookie + "\n";
+						}
+					}else{
+						requestHeaders += headerName + ": " + nextElement + "\n";
+					}
+				}				
+			}
+			
+			HttpSession session = request.getSession(false);
+			String sessionId = "";
+			if(session != null){
+				sessionId = session.getId();
 			}
 			String requestBody = "";
 			String line= null;
@@ -89,8 +108,11 @@ public class ResponseFilter implements Filter {
 			
 			String responseHeaders = "";
 			Collection<String> responseHeaderNames = response.getHeaderNames();
-			for(String header: responseHeaderNames){
-				responseHeaders += header + ": " + response.getHeader(header) + "\n";
+			for (String headerName: responseHeaderNames) {
+				Collection<String> headers = response.getHeaders(headerName);
+				for(String header: headers){
+					responseHeaders += headerName + ": " + header + "\n";	
+				}				
 			}
 			responseHeaders += "Content-Length: "+responseBody.length()+"\n";
 			responseHeaders += "Server: "+"SERVER_REPLACE_ME_IN_REGEXP_FILE"+"\n";
@@ -102,7 +124,7 @@ public class ResponseFilter implements Filter {
 			}
 			String r = request.getRequestURL() + query;
 			
-			responseLogger.persist(r, method, requestHeaders, requestBody, response.getStatus(), responseBody, responseHeaders);
+			responseLogger.persist(r, method, requestHeaders, requestBody, sessionId, response.getStatus(), responseBody, responseHeaders);
 	}
 	
 	@Override

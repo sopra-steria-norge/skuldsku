@@ -25,7 +25,9 @@ public class RequestItemTest {
 		assertEquals("http://www.vg.no/content/tjenester.php?p=5", item.getUrl());
 		assertNotNull(item.getRequest());
 		assertTrue(item.getHeaders().contains("Accept-Language"));
-		assertEquals("en-gb,en;q=0.5", HeaderUtil.parseHeaders(item.getHeaders()).get("Accept-Language"));
+		//
+		assertEquals("Accept-Language", HeaderUtil.parseHeaders(item.getHeaders()).get(3).getKey());
+		assertEquals("en-gb,en;q=0.5", HeaderUtil.parseHeaders(item.getHeaders()).get(3).getValue());
 	}
 	
 	@Test
@@ -40,7 +42,7 @@ public class RequestItemTest {
 		assertEquals("http://localhost:9000/mongo/init", item.getUrl());
 		assertNotNull(item.getRequest());
 		assertTrue(item.getHeaders().contains("Accept-Language"));
-		assertEquals("no,nb;q=0.8,en-GB;q=0.6,en;q=0.4,en-US;q=0.2,sv;q=0.2,da;q=0.2", HeaderUtil.parseHeaders(item.getHeaders()).get("Accept-Language"));
+		assertEquals("no,nb;q=0.8,en-GB;q=0.6,en;q=0.4,en-US;q=0.2,sv;q=0.2,da;q=0.2", HeaderUtil.parseHeaders(item.getHeaders()).get(10).getValue());
 		assertEquals("{\"councilFilter\":\"1151\", \"uri\":\"mongodb://localhost:27017/?replicaSet=rep\"}", item.getBody());
 	
 	}

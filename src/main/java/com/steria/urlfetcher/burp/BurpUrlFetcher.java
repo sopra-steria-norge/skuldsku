@@ -2,12 +2,10 @@ package com.steria.urlfetcher.burp;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 
-import com.steria.urlfetcher.HeaderUtil;
 import com.steria.urlfetcher.Response;
 import com.steria.urlfetcher.UrlFetcher;
 
@@ -22,17 +20,10 @@ public class BurpUrlFetcher extends UrlFetcher{
 	
 	BurpUrlFetcher(String requestFile, String regexpFile)
 			throws Exception {
-		List<RegExp> regExps = parseRegExps(regexpFile);
+		parseRegExps(regexpFile);
 		RequestItems items = parseRequests(requestFile);
 		int requestCount = 0;
 		for (RequestItem item : items.getItemList()) {
-			for (RegExp re : regExps) {
-				item.setUrl(re.apply(item.getUrl()));
-				item.setHeaders(re.apply(item.getHeaders()));
-				item.setBody(re.apply(item.getBody()));
-				// item.setRequest(re.apply(item.getRequest()));
-				System.out.println(item.getUrl());
-			}
 			makeCall(item, "" + requestCount++);
 		}
 	}
@@ -50,14 +41,9 @@ public class BurpUrlFetcher extends UrlFetcher{
 		return items;
 	}
 	
-	static void makeCall(RequestItem requestItem, String outputFilePrefix)
+	void makeCall(RequestItem requestItem, String outputFilePrefix)
 			throws Exception {
-		Response response = makeCall(
-				requestItem.getUrl(), 
-				requestItem.getMethod(), 
-				HeaderUtil.parseHeaders(requestItem.getHeaders()),
-				requestItem.getBody()
-				);
+		Response response = makeCall(requestItem);
 		System.out.println(response.getCode());
 
 		if (response.getCode() != 200) {

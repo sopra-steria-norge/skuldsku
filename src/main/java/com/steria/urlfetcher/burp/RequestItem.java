@@ -2,11 +2,14 @@ package com.steria.urlfetcher.burp;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.steria.urlfetcher.IRequest;
+
 /**
  * An "item" in the xml of requests from BurpSuite
  */
 @XmlRootElement(name="item")
-class RequestItem{
+public
+class RequestItem implements IRequest{
 	private String url;
 	private String request;
 	private String headers;
@@ -81,5 +84,25 @@ class RequestItem{
 	
 	public void setHeaders(String headers){
 		this.headers = headers;
+	}
+
+	@Override
+	public String getRequestHeaders() {
+		return getHeaders();
+	}
+
+	@Override
+	public void setRequestHeaders(String requestHeaders) {
+		setHeaders(requestHeaders);		
+	}
+
+	@Override
+	public String getRequestBody() {
+		return getBody();
+	}
+
+	@Override
+	public void setRequestBody(String requestBody) {
+		setBody(requestBody);		
 	}
 }

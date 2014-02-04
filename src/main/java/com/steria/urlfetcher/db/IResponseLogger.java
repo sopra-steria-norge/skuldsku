@@ -10,6 +10,6 @@ public interface IResponseLogger {
 
 	void destroy();
 	
-	void persist(String url, String method, String requestHeaders, String requestBody, int responseCode,
-			String responseBody, String responseHeaders) throws Exception;
+	void persist(String url, String method, String requestHeaders, String requestBody, String sessionId, 
+			int responseCode,	String responseBody, String responseHeaders) throws Exception;
 }
