@@ -1,6 +1,8 @@
 package com.steria.urlfetcher.jetty;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Enumeration;
 
@@ -99,7 +101,10 @@ public class ResponseFilter implements Filter {
 			}
 			String requestBody = "";
 			String line= null;
-			while((line=request.getReader().readLine()) != null){
+			BufferedReader in = new BufferedReader( 
+          new InputStreamReader( 
+                  request.getInputStream()));
+			while((line=in.readLine()) != null){
 				if(!"".equals(requestBody)){
 					requestBody += "\n";
 				}

@@ -1,6 +1,75 @@
-This project contains two aspects:
+This project contains three aspects:
 * Record web interactions from within a running jetty instance, and replay/diff later. Note that this logs everything, so make sure you're happy for all your client data to appear in the db (unencrypted etc)
+* Record using a standalone (probably) serverside proxy (othwise the same as above). Works for HTTP but not HTTPS
 * Record web interactions using a client proxy, and allow for replaying against multiple targets later and capturing output (diff will then be done externally)
+
+Using internal jetty recorder
+=============================
+
+Purpose
+-------
+Allow capturing all requests (with headers and method) and responses (with headers and responseCode) into a db. Afterwards, you can launch to run the queries against another instance (with some optional regexp mangling) and compare the responses
+
+Required Software
+-----------------
+* A db with a jdbc driver (or implement IResponseLogger and set the ResponseLoggerClass property to the full classname)
+* and you need to tweak your jetty configuration
+
+Procedure
+---------
+### Prepare
+* get yourself a database and create this table:
+  <pre>
+  CREATE  TABLE IF NOT EXISTS `mydb`.`qtable` (
+    `id` BIGINT NOT NULL ,
+    `url` VARCHAR(1000) NOT NULL ,
+    `method` VARCHAR(100) NOT NULL ,
+    `headers` VARCHAR(2000) NOT NULL ,
+    `body` VARCHAR(4000) NOT NULL ,
+    `responseCode` INT NOT NULL ,
+    `responseHeaders` VARCHAR(2000) NOT NULL ,
+    `responseBody` VARCHAR(56000) NOT NULL ,
+    PRIMARY KEY (`id`) )
+  </pre>
+* Set up your jetty server to use the filter ResponseFilter (see HelloWorld for an example)
+* Ensure your jdbc db driver is on the classpath (or alternative writer)
+* Launch your jetty with these system properties set, default values in brackets: RequestLoggerDBDriver (com.mysql.jdbc.Driver), RequestLoggerDBUrl (jdbc:mysql://localhost:3306/mydb), RequestLoggerDBUser (root), RequestLoggerDBPass (no default)
+
+### Record
+* Make calls to the web server, and see the table in the db populate. Note that this will use resources in the webserver and synchronously write to the db, so make sure you test this in your QA environment
+
+### Replay
+* Please make sure you have regexps configured for translating any production hosts to qa..., and also ensure you have firewalls to prevent mistakes
+* To handle sessionids and cookies to group together requests and propagate new ids during replay set the two properties 
+    - -DcookiesToUpdate=<commaseparated list of cookieNames> - any Set-Cookie header in one reply will be propagated to future calls
+    - -DcookiesToDrop=<commaseparated list of cookieNames> - prevents this cookie from being sent on any request 
+* launch DbUrlFetcher setting the same db properties as above, and
+    java DbUrlFetcher regexps.txt
+* The output will contain info about every url mentioned in the db (it compares returnCode, headers and the body)
+
+Using standalone proxy
+======================
+
+Purpose
+-------
+Allow capturing all requests (with headers and method) and responses (with headers and responseCode) into a db. Afterwards, you can launch to run the queries against another instance (with some optional regexp mangling) and compare the responses
+
+Required Software
+-----------------
+* A db with a jdbc driver (or implement IResponseLogger and set the ResponseLoggerClass property to the full classname)
+
+Procedure
+---------
+### Prepare
+* create the same db table as described for the internal recorder
+* Ensure your jdbc db driver is on the classpath (or alternative writer)
+* launch <pre>java Proxy <host:port></pre> where the argument is the host and port to redirect the query to. If you need a different URL rewrite you have to modify the class Proxy)
+
+### Record
+* Make calls to the proxy, and see the table in the db populate. Note that this will gather the entire request/response in memory and then synchronously write it to the db, so make sure you test this in your QA environment
+
+### Replay
+See description of internal recorder
 
 Using client proxy
 ==================
@@ -36,46 +105,3 @@ Procedure
   - the name will be n-xxx where n is the request number and xxx is the http return code
   - the content of the files will be the data that is retrieved
     
-Using internal jetty recorder
-===============================
-
-Purpose
--------
-Allow capturing all requests (with headers and method) and responses (with headers and responseCode) into a db. Afterwards, you can launch to run the queries against another instance (with some optional regexp mangling) and compare the responses
-
-Required Software
------------------
-* A db with a jdbc driver (or implement IResponseLogger and set the ResponseLoggerClass property to the full classname)
-* and you need to tweak your jetty configuration
-
-Procedure
----------
-### Prepare
-* get yourself a database and create this table:
-  <pre>
-  CREATE  TABLE IF NOT EXISTS `mydb`.`qtable` (
-    `id` BIGINT NOT NULL ,
-    `url` VARCHAR(1000) NOT NULL ,
-    `method` VARCHAR(100) NOT NULL ,
-    `headers` VARCHAR(2000) NOT NULL ,
-    `body` VARCHAR(4000) NOT NULL ,
-    `responseCode` INT NOT NULL ,
-    `responseHeaders` VARCHAR(2000) NOT NULL ,
-    `responseBody` VARCHAR(56000) NOT NULL ,
-    PRIMARY KEY (`id`) )
-  </pre>
-* Set up your jetty server to use the filter ResponseFilter (see HelloWorld for an example)
-* Ensure your jdbc db driver is on the classpath
-* Launch your jetty with these system properties set, default values in brackets: RequestLoggerDBDriver (com.mysql.jdbc.Driver), RequestLoggerDBUrl (jdbc:mysql://localhost:3306/mydb), RequestLoggerDBUser (root), RequestLoggerDBPass (no default)
-
-### Record
-* Make calls to the db server, and see the table in the db populate. Note that this will use resources in the webserver and synchronously write to the db, so make sure you test this in your QA environment
-
-### Replay
-* Please make sure you have regexps configured for translating any production hosts to qa..., and also ensure you have firewalls to prevent mistakes
-* To handle sessionids and cookies to group together requests and propagate new ids during replay set the two properties 
-    - -DcookiesToUpdate=<commaseparated list of cookieNames> - any Set-Cookie header in one reply will be propagated to future calls
-    - -DcookiesToDrop=<commaseparated list of cookieNames> - prevents this cookie from being sent on any request 
-* launch DbUrlFetcher setting the same db properties as above, and
-    java DbUrlFetcher regexps.txt
-* The output will contain info about every url mentioned in the db (it compares returnCode, headers and the body)
