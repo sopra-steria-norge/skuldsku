@@ -22,7 +22,7 @@ public final class JdbcImpl implements Jdbc {
             statement.execute(sql);
             statement.close();
         } catch (SQLException e) {
-            throw new JdbcException(e);
+            throw new JdbcWrappedException(e);
         }
     }
     
@@ -64,7 +64,7 @@ public final class JdbcImpl implements Jdbc {
             }
             statement.close();
         } catch (SQLException e) {
-            throw new JdbcException(e);
+            throw new JdbcWrappedException(e);
         }
     }
 }

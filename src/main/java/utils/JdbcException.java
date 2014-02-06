@@ -8,11 +8,11 @@ public class JdbcException extends RuntimeException {
         super(message);
     }
             
-    public JdbcException(String message, Exception rootCause) {
+    protected JdbcException(String message, Exception rootCause) {
         super(message, rootCause);
     }
     
-    public JdbcException(Exception rootCause) {
+    protected JdbcException(Exception rootCause) {
         super(rootCause);
     }
 }
