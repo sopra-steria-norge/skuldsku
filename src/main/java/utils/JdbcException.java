@@ -1,5 +1,11 @@
 package utils;
 
+/**
+ * The super class for all exceptions returned by this JDBC-helper
+ * package.
+ * 
+ * @see JdbcWrappedException
+ */
 public class JdbcException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
