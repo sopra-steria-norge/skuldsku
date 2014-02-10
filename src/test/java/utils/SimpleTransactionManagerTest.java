@@ -55,7 +55,7 @@ public class SimpleTransactionManagerTest {
         verify(connection, times(1)).close();
     }
     
-    @Test(expected=JdbcWrappedException.class)
+    @Test
     public void execptionPropagationOk() throws Exception {
         final DataSource dataSource = mock(DataSource.class);
         final Connection connection = mock(Connection.class);
@@ -64,19 +64,22 @@ public class SimpleTransactionManagerTest {
         
         final TransactionManager tm = new SimpleTransactionManager(dataSource);
         
-        tm.doInTransaction(new TransactionCallback<String>() {
-            @Override
-            public String callback(Jdbc jdbc) {
-                jdbc.execute("NOPE");
-                return null;
-            }
-        });
+        try {
+            tm.doInTransaction(new TransactionCallback<String>() {
+                @Override
+                public String callback(Jdbc jdbc) {
+                    jdbc.execute("NOPE");
+                    return null;
+                }
+            });
+            Assert.fail("Expected exception before this statement.");
+        } catch (JdbcWrappedException e) {}
         
         verify(connection, times(1)).rollback();
         verify(connection, times(1)).close();
     }
     
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void execptionPropagationOk2() throws Exception {
         final DataSource dataSource = mock(DataSource.class);
         final Connection connection = mock(Connection.class);
@@ -85,13 +88,17 @@ public class SimpleTransactionManagerTest {
         
         final TransactionManager tm = new SimpleTransactionManager(dataSource);
         
-        tm.doInTransaction(new TransactionCallback<String>() {
-            @Override
-            public String callback(Jdbc jdbc) {
-                jdbc.execute("NOPE");
-                return null;
-            }
-        });
+        try {
+            tm.doInTransaction(new TransactionCallback<String>() {
+                @Override
+                public String callback(Jdbc jdbc) {
+                    jdbc.execute("NOPE");
+                    return null;
+                }
+            });
+            Assert.fail("Expected exception before this statement.");
+        } catch (IllegalStateException e) {}
+        
         
         verify(connection, times(1)).rollback();
         verify(connection, times(1)).close();
@@ -112,7 +119,7 @@ public class SimpleTransactionManagerTest {
         });
     }
     
-    @Test(expected=NullPointerException.class)
+    @Test
     public void missingCallback() throws Exception {
         final DataSource dataSource = mock(DataSource.class);
         final Connection connection = mock(Connection.class);
@@ -121,7 +128,10 @@ public class SimpleTransactionManagerTest {
         
         final TransactionManager tm = new SimpleTransactionManager(dataSource);
         
-        tm.doInTransaction(null);
+        try {
+            tm.doInTransaction(null);
+            Assert.fail("Expected exception before this statement.");
+        } catch (NullPointerException e) {}
         
         verify(dataSource, times(0)).getConnection();
     }
