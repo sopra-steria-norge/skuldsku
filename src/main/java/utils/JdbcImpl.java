@@ -17,16 +17,27 @@ public final class JdbcImpl implements Jdbc {
     }
     
     public void execute(String sql) {
+        if (sql == null) {
+            throw new NullPointerException("sql == null");
+        }
+        Statement statement = null;
         try {
-            final Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             statement.execute(sql);
-            statement.close();
         } catch (SQLException e) {
             throw new JdbcWrappedException(e);
+        } finally {
+            closeStatement(statement);
         }
     }
     
     public <T> List<T> queryForList(String sql, Class<T> type, Object... parameters) {
+        if (sql == null) {
+            throw new NullPointerException("sql == null");
+        }
+        if (type == null) {
+            throw new NullPointerException("type == null");
+        }
         final List<T> result = new ArrayList<T>();
         query(sql, new ResultSetCallback() {
             @SuppressWarnings("unchecked")
@@ -45,26 +56,50 @@ public final class JdbcImpl implements Jdbc {
     }
     
     public void query(String sql, ResultSetCallback callback, Object... parameters) {
+        if (sql == null) {
+            throw new NullPointerException("sql == null");
+        }
+        if (callback == null) {
+            throw new NullPointerException("callback == null");
+        }
+        PreparedStatement statement = null;
         try {
-            final PreparedStatement statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(sql);
             for (int i=0; i<parameters.length; i++) {
                 statement.setObject(i+1, parameters[i]);
             }
             statement.execute();
-            final ResultSet resultSet = statement.getResultSet();
+            ResultSet resultSet = null;
             try {
+                resultSet = statement.getResultSet();
                 callback.extractData(resultSet);
             } finally {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    // Logging?
-                    e.printStackTrace();
-                }
+                closeResultSet(resultSet);
             }
-            statement.close();
         } catch (SQLException e) {
             throw new JdbcWrappedException(e);
+        } finally {
+            closeStatement(statement);
+        }
+    }
+    
+    private void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                // Logging?
+            }
+        }
+    }
+    
+    private void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                // Logging?
+            }
         }
     }
 }
