@@ -22,39 +22,87 @@ public final class SimpleTransactionManager implements TransactionManager {
     private final DataSource dataSource;
     
     
+    /**
+     * Creates a <code>SimpleTransactionManager</code>.
+     * 
+     * @param dataSource The <code>DataSource</code> to be used for making
+     *          connections to the database when calling
+     *          {@link #doInTransaction(TransactionCallback)}.
+     */
     public SimpleTransactionManager(DataSource dataSource) {
         this.dataSource = dataSource;
     }
     
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> T doInTransaction(TransactionCallback<T> transactionCallback) {
+        if (transactionCallback == null) {
+            throw new NullPointerException("transactionCallback == null");
+        }
         Connection connection = null;
         try {
-            connection = dataSource.getConnection();
-            final T result = transactionCallback.callback(new JdbcImpl(connection));
-            connection.commit();
+            connection = getConnection(dataSource);
+            final T result = executeCallback(transactionCallback, connection);
+            commitTransaction(connection);
             return result;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         } catch (RuntimeException e) {
-            if (connection != null) { 
-                try {
-                    connection.rollback();
-                } catch (SQLException e1) {
-                    // TODO: Logging.
-                    e1.printStackTrace();
-                }
-            }
+            rollbackTransaction(connection);
             throw e;
         } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    // TODO: Logging.
-                    e.printStackTrace();
-                }
+            close(connection);
+        }
+    }
+
+    /**
+     * Opens a <code>Connection</code> to the database.
+     * 
+     * @param dataSource The <code>DataSource</code> to use for opening
+     *          the <code>Connection</code>
+     * @return The <code>Connection</code>.
+     * @throws JdbcWrappedException if an <code>SQLException</code> occurs while
+     *          trying to open the <code>Connection</code>.
+     */
+    private static Connection getConnection(final DataSource dataSource) {
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new JdbcWrappedException("SQLException while trying to get a connection to the database.", e);
+        }
+    }
+    
+    private static <T> T executeCallback(TransactionCallback<T> transactionCallback, final Connection connection) {
+        return transactionCallback.callback(new JdbcImpl(connection));
+    }
+    
+    private static void commitTransaction(final Connection connection) {
+        try {
+            connection.commit();
+        } catch (SQLException e) {
+            throw new JdbcWrappedException("SQLException while trying to commit the transaction.", e);
+        }
+    }
+    
+    private static void rollbackTransaction(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback();
+            } catch (SQLException e1) {
+                // TODO: Logging.
+                e1.printStackTrace();
+            }
+        }
+    }
+    
+    private static void close(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                // TODO: Logging.
+                e.printStackTrace();
             }
         }
     }
