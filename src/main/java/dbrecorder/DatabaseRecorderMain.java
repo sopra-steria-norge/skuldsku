@@ -10,15 +10,14 @@ import com.jolbox.bonecp.BoneCPDataSource;
 import dbchange.DatabaseChangeRollback;
 import dbrecorder.impl.oracle.OracleDatabaseRecorder;
 
-
+/**
+ * Support for running the <code>DatbaseRecorder</code> from the command-line.
+ * 
+ * @see DatabaseRecorder
+ */
 public final class DatabaseRecorderMain {
-    /*
-     * exec dbms_session.set_identifier(USER||'foobar');
-     * SELECT sys_context('USERENV', 'CLIENT_IDENTIFIER') FROM DUAL;
-     */
     
     private DatabaseRecorderMain() {}
-    
     
     static DataSource createDataSource(String jdbcUrl, String username, String password) {
         try {
@@ -35,9 +34,13 @@ public final class DatabaseRecorderMain {
         return dataSource;
     }
 
+    static void printUsage() {
+        System.out.println("Usage: dbrecorder JDBC_URL USERNAME PASSWORD setup|start|stop|export FILE|tearDown|rollback FILE");
+    }
+    
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.out.println("Usage: dbrecorder JDBC_URL USERNAME PASSWORD setup|start|stop|export FILE|tearDown|rollback FILE");
+            printUsage();
             System.exit(1);
         }
         
@@ -45,35 +48,46 @@ public final class DatabaseRecorderMain {
         final String username = args[1];
         final String password = args[2];
         
-        final DataSource dataSource = createDataSource(jdbcUrl, username, password);
+        final DataSource dataSource = createDataSource(jdbcUrl, username, password);       
         final DatabaseRecorder databaseRecorder = new OracleDatabaseRecorder(dataSource);
         final DatabaseChangeRollback rollback = new DatabaseChangeRollback(dataSource);
         
-        if (args[3].equals("setup")) {
-            databaseRecorder.setup();
-            System.out.println("Database recorder initialized but not started. Invoke \"start\" to begin recording.");
-        } else if (args[3].equals("start")) {
-            databaseRecorder.start();
-            System.out.println("Database recording started.");
-        } else if (args[3].equals("stop")) {
-            databaseRecorder.stop();
-            System.out.println("Database recording stopped.");
-        } else if (args[3].equals("exportTo")) {
-            final String exportFile = args[4];
-            final PrintWriter out = new PrintWriter(exportFile);
-            try {
-                databaseRecorder.exportTo(out);
-            } finally {
-                out.close();
+        int i = 3;
+        
+        while (i < args.length) {
+            if (args[i].equals("setup")) {
+                databaseRecorder.setup();
+                System.out.println("Database recorder initialized but not started. Invoke \"start\" to begin recording.");
+            } else if (args[i].equals("start")) {
+                databaseRecorder.start();
+                System.out.println("Database recording started.");
+            } else if (args[i].equals("stop")) {
+                databaseRecorder.stop();
+                System.out.println("Database recording stopped.");
+            } else if (args[i].equals("exportTo")) {
+                i++;
+                final String exportFile = args[i];
+                final PrintWriter out = new PrintWriter(exportFile);
+                try {
+                    databaseRecorder.exportTo(out);
+                } finally {
+                    out.close();
+                }
+                System.out.println("Data exported to: " + exportFile);
+            } else if (args[i].equals("tearDown")) {
+                databaseRecorder.tearDown();
+                System.out.println("Database recording stopped and data cleared.");
+            } else if (args[i].equals("rollback")) {
+                i++;
+                final File rollbackFile = new File(args[i]);
+                rollback.rollback(rollbackFile);
+                System.out.println("Database changes rolled back: " + args[i]);
+            } else {
+                printUsage();
+                System.err.println("Unknown parameter: " + args[i]);
+                System.exit(1);
             }
-            System.out.println("Stopped recording and exported data to: " + exportFile);
-        } else if (args[3].equals("tearDown")) {
-            databaseRecorder.tearDown();
-            System.out.println("Database recording stopped and data cleared.");
-        } else if (args[3].equals("rollback")) {
-            final File rollbackFile = new File(args[4]);
-            rollback.rollback(rollbackFile);
-            System.out.println("Database changes rolled back: " + args[4]);
+            i++;
         }
     }
 }
