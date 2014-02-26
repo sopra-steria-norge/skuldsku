@@ -1,17 +1,30 @@
 package no.steria.httpspy.jetty;
 
+import org.fest.assertions.Assertions;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class ServerFunctionsTest {
+
+    private JettyServer jettyServer;
+
+    @Before
+    public void setUp() throws Exception {
+        System.setProperty("log4j.defaultInitOverride","true");
+        jettyServer = new JettyServer(0);
+        jettyServer.start();
+    }
+
     @Test
     public void shouldReturnName() throws Exception {
-        JettyServer jettyServer = new JettyServer(0);
-        jettyServer.start();
 
         int port = jettyServer.getPort();
 
@@ -31,8 +44,12 @@ public class ServerFunctionsTest {
         try (InputStream is = conn.getInputStream()) {
             res = toString(is);
         }
-        System.out.println(res);
+        JSONObject received = new JSONObject(res);
+        assertThat(received.getString("name")).isEqualTo("Darth Vader");
+    }
 
+    @After
+    public void tearDown() throws Exception {
         jettyServer.stop();
     }
 
