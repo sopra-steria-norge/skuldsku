@@ -11,4 +11,6 @@ public abstract class ServletFilter implements Filter{
         chain.doFilter(request,response);
     }
 
+    public abstract CallReporter getReporter();
+
 }
