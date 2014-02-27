@@ -13,7 +13,6 @@ import java.io.*;
 public class DataServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("I am in post method");
         String name;
         try (InputStream inputStream = req.getInputStream()) {
             JSONObject jsonObject;
@@ -34,6 +33,7 @@ public class DataServlet extends HttpServlet {
     }
 
     private static String toString(InputStream inputStream) throws IOException {
+        // Yes this will close the InputStream twice. Implemented, to see that our logger handles that
         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
             StringBuilder result = new StringBuilder();
             int c;

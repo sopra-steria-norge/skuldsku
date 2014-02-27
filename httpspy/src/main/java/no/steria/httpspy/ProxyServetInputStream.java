@@ -15,57 +15,22 @@ public class ProxyServetInputStream extends ServletInputStream {
     }
 
     @Override
-    public int readLine(byte[] b, int off, int len) throws IOException {
-        return delegate.readLine(b, off, len);
-    }
-
-    @Override
     public int read() throws IOException {
         int readb = delegate.read();
-        char c = (char) readb;
-        result.append(c);
+        if (readb != -1) {
+            char c = (char) readb;
+            result.append(c);
+        }
         return readb;
     }
 
     @Override
-    public int read(byte[] b) throws IOException {
-        return delegate.read(b);
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        return delegate.read(b, off, len);
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-        return delegate.skip(n);
-    }
-
-    @Override
-    public int available() throws IOException {
-        return delegate.available();
-    }
-
-    @Override
     public void close() throws IOException {
-        callReporter.reportCall(result.toString());
+        if (result != null) {
+            callReporter.reportCall(result.toString());
+            result = null;
+        }
         delegate.close();
-    }
-
-    @Override
-    public void mark(int readlimit) {
-        delegate.mark(readlimit);
-    }
-
-    @Override
-    public void reset() throws IOException {
-        delegate.reset();
-    }
-
-    @Override
-    public boolean markSupported() {
-        return delegate.markSupported();
     }
 
 }

@@ -41,11 +41,11 @@ public class ServerFunctionsTest {
 
             String res;
             try (InputStream is = conn.getInputStream()) {
-                res = toString(is);
+                res = toString(conn.getInputStream());
             }
             JSONObject received = new JSONObject(res);
             assertThat(received.getString("name")).isEqualTo("Darth Vader");
-            //verify(callReporter).reportCall(res);
+            verify(callReporter).reportCall(postObj.toString());
         } finally {
             jettyServer.stop();
 
