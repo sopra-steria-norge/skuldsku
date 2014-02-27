@@ -21,21 +21,9 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     @Override
     public ServletInputStream getInputStream() throws IOException {
         final ServletInputStream servletIS = super.getInputStream();
-        final StringBuilder s=new StringBuilder();
 
-        return new ServletInputStream() {
-            @Override
-            public int read() throws IOException {
-                int iread = servletIS.read();
-                s.append((char) iread);
-                return iread;
-            }
+        return new ProxyServetInputStream(servletIS,callReporter);
 
-            @Override
-            public void close() throws IOException {
-                callReporter.reportCall(s.toString());
-                servletIS.close();
-            }
-        };
+
     }
 }

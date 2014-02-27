@@ -21,6 +21,7 @@ public class ServerFunctionsTest {
     @Test
     public void shouldReturnName() throws Exception {
         CallReporter callReporter = mock(CallReporter.class);
+        TestFilter.setReporter(callReporter);
         JettyServer jettyServer = new JettyServer(0);
         jettyServer.start();
 

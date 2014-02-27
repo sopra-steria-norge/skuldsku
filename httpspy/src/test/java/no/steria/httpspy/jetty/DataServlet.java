@@ -13,6 +13,7 @@ import java.io.*;
 public class DataServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("I am in post method");
         String name;
         try (InputStream inputStream = req.getInputStream()) {
             JSONObject jsonObject;
