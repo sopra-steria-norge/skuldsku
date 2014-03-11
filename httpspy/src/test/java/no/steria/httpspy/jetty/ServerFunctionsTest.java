@@ -52,7 +52,12 @@ public class ServerFunctionsTest {
         }
     }
 
+    
+    @After
+    public void tearDown() throws Exception {
+        TestFilter.setReporter(null);
 
+    }
 
     private static String toString(InputStream inputStream) throws IOException {
         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {

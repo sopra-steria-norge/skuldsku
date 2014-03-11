@@ -13,6 +13,14 @@
         <servlet-name>dataServlet</servlet-name>
         <url-pattern>data/*</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>postServlet</servlet-name>
+        <servlet-class>no.steria.httpspy.jetty.PostFormServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>postServlet</servlet-name>
+        <url-pattern>post/*</url-pattern>
+    </servlet-mapping>
     <filter>
         <filter-name>logFilter</filter-name>
         <filter-class>no.steria.httpspy.jetty.TestFilter</filter-class>
