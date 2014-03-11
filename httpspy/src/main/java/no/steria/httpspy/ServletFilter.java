@@ -10,8 +10,10 @@ public abstract class ServletFilter implements Filter{
 
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        RequestWrapper requestSpy = new RequestWrapper((HttpServletRequest) request, getReporter());
+        ReportObject reportObject = new ReportObject();
+        RequestWrapper requestSpy = new RequestWrapper((HttpServletRequest) request, reportObject);
         chain.doFilter(requestSpy,response);
+        getReporter().reportCall(reportObject);
     }
 
     public abstract CallReporter getReporter();

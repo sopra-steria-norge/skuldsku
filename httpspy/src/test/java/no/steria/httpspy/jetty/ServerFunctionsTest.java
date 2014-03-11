@@ -1,11 +1,13 @@
 package no.steria.httpspy.jetty;
 
 import no.steria.httpspy.CallReporter;
+import no.steria.httpspy.ReportObject;
 import org.fest.assertions.Assertions;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.openqa.selenium.By;
@@ -48,7 +50,12 @@ public class ServerFunctionsTest {
             }
             JSONObject received = new JSONObject(res);
             assertThat(received.getString("name")).isEqualTo("Darth Vader");
-            verify(callReporter).reportCall(postObj.toString());
+            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
+            verify(callReporter).reportCall(captor.capture());
+            ReportObject reportObject = captor.getValue();
+
+            assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
+
         } finally {
             jettyServer.stop();
 

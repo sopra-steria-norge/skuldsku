@@ -11,18 +11,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RequestWrapper extends HttpServletRequestWrapper {
-    private CallReporter callReporter;
 
-    public RequestWrapper(HttpServletRequest request,CallReporter callReporter) {
+    private final ReportObject reportObject;
+
+    public RequestWrapper(HttpServletRequest request, ReportObject reportObject) {
         super(request);
-        this.callReporter = callReporter;
+        this.reportObject = reportObject;
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
         final ServletInputStream servletIS = super.getInputStream();
 
-        return new ProxyServetInputStream(servletIS,callReporter);
+        return new ProxyServetInputStream(servletIS,reportObject);
 
 
     }
