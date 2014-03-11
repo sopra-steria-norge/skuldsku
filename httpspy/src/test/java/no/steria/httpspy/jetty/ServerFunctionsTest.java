@@ -8,6 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 import java.io.*;
 import java.net.URL;
@@ -52,7 +55,34 @@ public class ServerFunctionsTest {
         }
     }
 
-    
+    @Test
+    public void shouldHandleBasicForms() throws Exception {
+        CallReporter callReporter = mock(CallReporter.class);
+        TestFilter.setReporter(callReporter);
+        JettyServer jettyServer = new JettyServer(0);
+        jettyServer.start();
+
+
+        try {
+            int port = jettyServer.getPort();
+
+            WebDriver browser = new HtmlUnitDriver();
+            browser.get("http://localhost:" + port + "/post");
+            browser.findElement(By.name("firstname")).sendKeys("Darth");
+            browser.findElement(By.name("lastname")).sendKeys("Vader");
+            browser.findElement(By.name("doPerson")).click();
+
+            assertThat(browser.getPageSource()).contains("Your name is Darth Vader");
+
+            //verify(callReporter).reportCall("xyz");
+        } finally {
+            jettyServer.stop();
+
+        }
+
+
+    }
+
     @After
     public void tearDown() throws Exception {
         TestFilter.setReporter(null);
