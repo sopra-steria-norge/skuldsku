@@ -2,14 +2,10 @@ package no.steria.httpspy.jetty;
 
 import no.steria.httpspy.CallReporter;
 import no.steria.httpspy.ReportObject;
-import org.fest.assertions.Assertions;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
@@ -17,6 +13,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -81,7 +78,14 @@ public class ServerFunctionsTest {
 
             assertThat(browser.getPageSource()).contains("Your name is Darth Vader");
 
-            //verify(callReporter).reportCall("xyz");
+            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
+            verify(callReporter,times(2)).reportCall(captor.capture());
+            ReportObject reportObject = captor.getAllValues().get(1);
+
+            Map<String,String> parameters = reportObject.getParametersRead();
+            assertThat(parameters.keySet()).hasSize(2);
+            assertThat(parameters.get("firstname")).isEqualTo("Darth");
+            assertThat(parameters.get("lastname")).isEqualTo("Vader");
         } finally {
             jettyServer.stop();
 

@@ -17,6 +17,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public RequestWrapper(HttpServletRequest request, ReportObject reportObject) {
         super(request);
         this.reportObject = reportObject;
+
     }
 
     @Override
@@ -27,4 +28,12 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
 
     }
+
+    @Override
+    public String getParameter(String name) {
+        String parameter = super.getParameter(name);
+        reportObject.getParametersRead().put(name,parameter);
+        return parameter;
+    }
+
 }
