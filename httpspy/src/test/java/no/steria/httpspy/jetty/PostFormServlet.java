@@ -12,7 +12,7 @@ public class PostFormServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         PrintWriter writer = resp.getWriter();
         resp.setContentType("text/html");
-        writer.append("<form method='POST' action='post'>");
+        writer.append("<form method='POST' action='something'>");
         writer.append("<input type='text' name='firstname' />");
         writer.append("<input type='text' name='lastname'/>");
         writer.append("<input type='submit' name='doPerson' value='Do it'/>");

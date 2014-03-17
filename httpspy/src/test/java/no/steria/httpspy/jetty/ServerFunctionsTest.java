@@ -72,7 +72,7 @@ public class ServerFunctionsTest {
             int port = jettyServer.getPort();
 
             WebDriver browser = new HtmlUnitDriver();
-            browser.get("http://localhost:" + port + "/post");
+            browser.get("http://localhost:" + port + "/post/more");
             browser.findElement(By.name("firstname")).sendKeys("Darth");
             browser.findElement(By.name("lastname")).sendKeys("Vader");
             browser.findElement(By.name("doPerson")).click();
@@ -90,7 +90,9 @@ public class ServerFunctionsTest {
             assertThat(parameters.get("lastname")).isEqualTo("Vader");
 
             assertThat(allValues.get(0).getMethod()).isEqualTo("GET");
+            assertThat(allValues.get(0).getPath()).isEqualTo("/post/more");
             assertThat(allValues.get(1).getMethod()).isEqualTo("POST");
+            assertThat(allValues.get(1).getPath()).isEqualTo("/post/something");
         } finally {
             jettyServer.stop();
 
