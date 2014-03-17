@@ -13,6 +13,7 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -80,12 +81,16 @@ public class ServerFunctionsTest {
 
             ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
             verify(callReporter,times(2)).reportCall(captor.capture());
-            ReportObject reportObject = captor.getAllValues().get(1);
+            List<ReportObject> allValues = captor.getAllValues();
+            ReportObject reportObject = allValues.get(1);
 
             Map<String,String> parameters = reportObject.getParametersRead();
             assertThat(parameters.keySet()).hasSize(2);
             assertThat(parameters.get("firstname")).isEqualTo("Darth");
             assertThat(parameters.get("lastname")).isEqualTo("Vader");
+
+            assertThat(allValues.get(0).getMethod()).isEqualTo("GET");
+            assertThat(allValues.get(1).getMethod()).isEqualTo("POST");
         } finally {
             jettyServer.stop();
 
