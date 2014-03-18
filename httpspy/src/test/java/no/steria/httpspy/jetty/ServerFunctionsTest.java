@@ -53,6 +53,7 @@ public class ServerFunctionsTest {
             ReportObject reportObject = captor.getValue();
 
             assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
+            assertThat(reportObject.getOutput()).isEqualTo(res);
 
         } finally {
             jettyServer.stop();

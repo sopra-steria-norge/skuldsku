@@ -2,6 +2,7 @@ package no.steria.httpspy;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public abstract class ServletFilter implements Filter{
@@ -16,7 +17,15 @@ public abstract class ServletFilter implements Filter{
         reportObject.setPath(req.getServletPath() + req.getPathInfo());
 
         RequestWrapper requestSpy = new RequestWrapper(req, reportObject);
-        chain.doFilter(requestSpy,response);
+
+        HttpServletResponse resp = (HttpServletResponse) response;
+
+        ResponseWrapper responseSpy = new ResponseWrapper(resp);
+
+        chain.doFilter(requestSpy,responseSpy);
+
+        reportObject.setOutput(responseSpy.getWritten());
+
         getReporter().reportCall(reportObject);
     }
 

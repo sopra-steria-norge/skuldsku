@@ -8,6 +8,7 @@ public class ReportObject {
     private Map<String,String> parameters = new HashMap<>();
     private String method;
     private String path;
+    private String output;
 
     public void setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
@@ -35,5 +36,13 @@ public class ReportObject {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getOutput() {
+        return output;
+    }
+
+    public void setOutput(String output) {
+        this.output = output;
     }
 }
