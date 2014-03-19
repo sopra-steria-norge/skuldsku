@@ -14,7 +14,7 @@ public abstract class ServletFilter implements Filter{
 
         ReportObject reportObject = new ReportObject();
         reportObject.setMethod(req.getMethod());
-        reportObject.setPath(req.getServletPath() + req.getPathInfo());
+        recordPath(req, reportObject);
 
         RequestWrapper requestSpy = new RequestWrapper(req, reportObject);
 
@@ -27,6 +27,16 @@ public abstract class ServletFilter implements Filter{
         reportObject.setOutput(responseSpy.getWritten());
 
         getReporter().reportCall(reportObject);
+    }
+
+    private void recordPath(HttpServletRequest req, ReportObject reportObject) {
+        StringBuilder path = new StringBuilder(req.getServletPath());
+        String pathInfo = req.getPathInfo();
+        if (pathInfo != null) {
+            path.append(pathInfo);
+        }
+
+        reportObject.setPath(path.toString());
     }
 
     public abstract CallReporter getReporter();

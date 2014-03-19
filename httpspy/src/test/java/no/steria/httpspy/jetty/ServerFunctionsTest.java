@@ -44,7 +44,7 @@ public class ServerFunctionsTest {
 
             String res;
             try (InputStream is = conn.getInputStream()) {
-                res = toString(conn.getInputStream());
+                res = toString(is);
             }
             JSONObject received = new JSONObject(res);
             assertThat(received.getString("name")).isEqualTo("Darth Vader");
@@ -52,6 +52,8 @@ public class ServerFunctionsTest {
             verify(callReporter).reportCall(captor.capture());
             ReportObject reportObject = captor.getValue();
 
+            assertThat(reportObject.getMethod()).isEqualTo("POST");
+            assertThat(reportObject.getPath()).isEqualTo("/data");
             assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
             assertThat(reportObject.getOutput()).isEqualTo(res);
 
