@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+    <title>Test</title>
+    <script src="js/angular.min.js"></script>
+    <script src="js/inputController.js"></script>
+</head>
+<body ng-controller="InputController">
+    <h1>Hello world</h1>
+    <p>
+    <input type="text" ng-model="firstname" placeholder="First name"/>
+    <input type="text" ng-model="lastname" placeholder="Last name"/>
+    <button ng-click="postName()">Post it</button>
+    </p>
+    <p>Name is {{name}}</p>
+</body>
+</html>
