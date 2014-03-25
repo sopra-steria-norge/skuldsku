@@ -1,4 +1,4 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpplayer;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;

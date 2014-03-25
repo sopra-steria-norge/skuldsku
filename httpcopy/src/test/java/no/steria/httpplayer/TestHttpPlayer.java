@@ -1,6 +1,5 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpplayer;
 
-import no.steria.httpplayer.HttpPlayer;
 import no.steria.httpspy.CallReporter;
 import no.steria.httpspy.ReportObject;
 import org.json.JSONObject;

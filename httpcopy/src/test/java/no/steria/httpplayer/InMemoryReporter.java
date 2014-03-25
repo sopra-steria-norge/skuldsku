@@ -1,4 +1,4 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpplayer;
 
 import no.steria.httpspy.CallReporter;
 import no.steria.httpspy.ReportObject;

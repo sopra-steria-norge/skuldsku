@@ -1,4 +1,4 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpplayer;
 
 import org.json.JSONException;
 import org.json.JSONObject;

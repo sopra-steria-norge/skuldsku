@@ -83,6 +83,11 @@
             <version>1.4.01</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>no.steria</groupId>
+            <artifactId>http.spy</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
