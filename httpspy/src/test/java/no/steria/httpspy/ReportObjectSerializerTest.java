@@ -21,6 +21,9 @@ public class ReportObjectSerializerTest {
 
         assertThat(copy).isNotNull();
 
+        assertThat(copy.getMethod()).isEqualTo("GET");
+        assertThat(copy.getParametersRead()).isEmpty();
+
 
     }
 }

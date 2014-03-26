@@ -52,21 +52,11 @@ public class ReportObject implements Serializable {
     }
 
     public String serializedString() {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(os)) {
-            objectOutputStream.writeObject(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return os.toString();
+        String serialized = new ClassSerializer().asString(this);
+        return serialized;
     }
 
     public static ReportObject fromString(String serializedStr) {
-        try {
-            ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(serializedStr.getBytes()));
-            return (ReportObject) objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        return (ReportObject) new ClassSerializer().asObject(serializedStr);
     }
 }
