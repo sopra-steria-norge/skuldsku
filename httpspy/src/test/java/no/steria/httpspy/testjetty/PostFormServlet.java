@@ -1,4 +1,4 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpspy.testjetty;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

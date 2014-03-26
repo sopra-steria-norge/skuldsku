@@ -1,7 +1,7 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpspy;
 
-import no.steria.httpspy.CallReporter;
-import no.steria.httpspy.ReportObject;
+import no.steria.httpspy.testjetty.JettyServer;
+import no.steria.httpspy.testjetty.TestFilter;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Test;

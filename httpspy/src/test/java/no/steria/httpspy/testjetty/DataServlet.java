@@ -1,10 +1,9 @@
-package no.steria.httpspy.jetty;
+package no.steria.httpspy.testjetty;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

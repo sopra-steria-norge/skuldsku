@@ -1,17 +1,19 @@
 package no.steria.httpspy;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReportObject {
+public class ReportObject implements Serializable {
     private String readInputStream;
     private Map<String,String> parameters = new HashMap<>();
     private String method;
     private String path;
     private String output;
 
-    public void setReadInputStream(String readInputStream) {
+    public ReportObject setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
+        return this;
     }
 
     public String getReadInputStream() {
@@ -26,23 +28,45 @@ public class ReportObject {
         return method;
     }
 
-    public void setMethod(String method) {
+    public ReportObject setMethod(String method) {
         this.method = method;
+        return this;
     }
 
     public String getPath() {
         return path;
     }
 
-    public void setPath(String path) {
+    public ReportObject setPath(String path) {
         this.path = path;
+        return this;
     }
 
     public String getOutput() {
         return output;
     }
 
-    public void setOutput(String output) {
+    public ReportObject setOutput(String output) {
         this.output = output;
+        return this;
+    }
+
+    public String serializedString() {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(os)) {
+            objectOutputStream.writeObject(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return os.toString();
+    }
+
+    public static ReportObject fromString(String serializedStr) {
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(serializedStr.getBytes()));
+            return (ReportObject) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
