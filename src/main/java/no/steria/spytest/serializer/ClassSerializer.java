@@ -8,9 +8,7 @@ import org.joda.time.format.DateTimeFormatter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ClassSerializer {
     private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
@@ -59,7 +57,7 @@ public class ClassSerializer {
         if (serializedValue.indexOf("=") == -1) {
             try {
                 Class<?> clazz=null;
-                if ("list".equals(parts[0])) {
+                if ("list".equals(parts[0]) || "map".equals(parts[0])) {
                     return objectValueFromString(serializedValue,null);
                 }
                 return objectValueFromString(parts[1], Class.forName(parts[0]));
@@ -217,8 +215,32 @@ public class ClassSerializer {
 
             return resList;
         }
+        if ("map".equals(parts[0])) {
+            Map<Object,Object> resMap = new HashMap<>();
+
+            for (int i=0;i<parts.length-1;i++) {
+                Object key = extractObject(parts[i + 1]);
+                i++;
+                Object value = extractObject(parts[i +  1]);
+                resMap.put(key,value);
+            }
+
+            return resMap;
+        }
 
         return asObject(fieldValue);
+    }
+
+    private Object extractObject(String part) {
+        String codeStr = part;
+        String[] valType = splitToParts(codeStr);
+        Class<?> aClass;
+        try {
+            aClass = Class.forName(valType[0]);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return objectValueFromString(valType[1], aClass);
     }
 
 
@@ -242,6 +264,21 @@ public class ClassSerializer {
             for (Object objectInList : listValues) {
                 res.append(";");
                 res.append("<" + objectInList.getClass().getName() + ";" + encodeValue(objectInList) + ">");
+            }
+            res.append(">");
+            return res.toString();
+        }
+        if (fieldValue instanceof Map) {
+            Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
+            StringBuilder res = new StringBuilder("<map");
+            for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
+                Object val = entry.getKey();
+                res.append(";");
+                res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+                val = entry.getValue();
+                res.append(";");
+                res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+
             }
             res.append(">");
             return res.toString();

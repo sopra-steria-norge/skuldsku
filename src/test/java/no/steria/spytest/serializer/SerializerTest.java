@@ -4,6 +4,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -70,13 +72,35 @@ public class SerializerTest {
     @Test
     public void shouldHandleArraysAndCollections() throws Exception {
         String arrval[] = {"a","b","c"};
-        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval);
+        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval).setNumbers(Arrays.asList(1,2,4));
 
         String serialized = serializer.asString(classWithCollection);
+        System.out.println(serialized);
 
         ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
 
         assertThat(cloned.getArrVal()).containsOnly("a", "b", "c");
+        assertThat(cloned.getNumbers()).containsOnly(1,2,4);
+    }
+
+    @Test
+    public void shouldHandleClassWithMap() throws Exception {
+        ClassWithMap classWithMap = new ClassWithMap();
+        Map<String,String> myMap = new HashMap<>();
+        myMap.put("key2","value2");
+        myMap.put("key1","value1");
+        classWithMap.setMyMap(myMap);
+
+        String serialized = serializer.asString(classWithMap);
+
+        assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithMap;myMap=<map;<java.lang.String;key2>;<java.lang.String;value2>;<java.lang.String;key1>;<java.lang.String;value1>>>");
+
+        ClassWithMap cloned = (ClassWithMap) serializer.asObject(serialized);
+
+        Map<String, String> clonedMap = classWithMap.getMyMap();
+        assertThat(clonedMap.size()).isEqualTo(2);
+        assertThat(clonedMap.get("key1")).isEqualTo("value1");
+        assertThat(clonedMap.get("key2")).isEqualTo("value2");
     }
 
     @Test
