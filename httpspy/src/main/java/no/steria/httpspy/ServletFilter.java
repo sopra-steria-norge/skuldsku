@@ -22,11 +22,17 @@ public abstract class ServletFilter implements Filter{
 
         ResponseWrapper responseSpy = new ResponseWrapper(resp);
 
+        logHeaders(req,reportObject);
+
         chain.doFilter(requestSpy,responseSpy);
 
         reportObject.setOutput(responseSpy.getWritten());
 
         getReporter().reportCall(reportObject);
+    }
+
+    private void logHeaders(HttpServletRequest req, ReportObject reportObject) {
+        
     }
 
     private void recordPath(HttpServletRequest req, ReportObject reportObject) {
