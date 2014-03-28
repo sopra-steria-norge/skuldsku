@@ -17,7 +17,7 @@ public class ReportObjectSerializerTest {
 
         String serialized = reportObject.serializedString();
 
-        ReportObject copy = ReportObject.fromString(serialized);
+        ReportObject copy = ReportObject.parseFromString(serialized);
 
         assertThat(copy).isNotNull();
 

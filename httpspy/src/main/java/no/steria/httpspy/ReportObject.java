@@ -2,6 +2,7 @@ package no.steria.httpspy;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ReportObject implements Serializable {
@@ -10,6 +11,7 @@ public class ReportObject implements Serializable {
     private String method;
     private String path;
     private String output;
+    private Map<String, List<String>> headers;
 
     public ReportObject setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
@@ -56,7 +58,15 @@ public class ReportObject implements Serializable {
         return serialized;
     }
 
-    public static ReportObject fromString(String serializedStr) {
+    public static ReportObject parseFromString(String serializedStr) {
         return (ReportObject) new ClassSerializer().asObject(serializedStr);
+    }
+
+    public void setHeaders(Map<String, List<String>> headers) {
+        this.headers = headers;
+    }
+
+    public Map<String, List<String>> getHeaders() {
+        return headers;
     }
 }

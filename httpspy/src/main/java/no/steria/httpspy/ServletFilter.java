@@ -4,6 +4,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.*;
 
 public abstract class ServletFilter implements Filter{
 
@@ -32,7 +33,19 @@ public abstract class ServletFilter implements Filter{
     }
 
     private void logHeaders(HttpServletRequest req, ReportObject reportObject) {
-        
+        Map<String,List<String>> headers = new HashMap<>();
+
+        Enumeration<String> headerNames = req.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            Enumeration<String> headerValues = req.getHeaders(headerName);
+            List<String> values = new ArrayList<>();
+            while (headerValues.hasMoreElements()) {
+                values.add(headerValues.nextElement());
+            }
+            headers.put(headerName,values);
+        }
+        reportObject.setHeaders(headers);
     }
 
     private void recordPath(HttpServletRequest req, ReportObject reportObject) {

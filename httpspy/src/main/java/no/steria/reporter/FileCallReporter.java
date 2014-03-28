@@ -1,4 +1,4 @@
-package no.steria.httpspy.no.steria.httpspy.reporter;
+package no.steria.reporter;
 
 import no.steria.httpspy.CallReporter;
 import no.steria.httpspy.ReportObject;
@@ -48,8 +48,8 @@ public class FileCallReporter implements CallReporter {
 
         List<ReportObject> result = new ArrayList<>();
 
-        for (String serialized : serializedObjects.split("\n")) {
-            ReportObject reportObject = ReportObject.fromString(serialized);
+        for (String serializedStr : serializedObjects.split("\n")) {
+            ReportObject reportObject = ReportObject.parseFromString(serializedStr);
             result.add(reportObject);
         }
 
