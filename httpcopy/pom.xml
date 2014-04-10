@@ -88,6 +88,11 @@
             <artifactId>http.spy</artifactId>
             <version>0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>oracle.jars</groupId>
+            <artifactId>ojdbc</artifactId>
+            <version>1.4</version>
+        </dependency>
     </dependencies>
 
     <build>

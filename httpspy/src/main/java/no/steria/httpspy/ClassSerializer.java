@@ -232,6 +232,9 @@ public class ClassSerializer {
     }
 
     private Object extractObject(String part) {
+        if ("&null".equals(part)) {
+            return null;
+        }
         String codeStr = part;
         String[] valType = splitToParts(codeStr);
         Class<?> aClass;
@@ -252,8 +255,7 @@ public class ClassSerializer {
             Object[] arr=(Object[]) fieldValue;
             StringBuilder res = new StringBuilder("<array");
             for (Object objInArr : arr) {
-                res.append(";");
-                res.append("<" + objInArr.getClass().getName() + ";" + encodeValue(objInArr) + ">");
+                encode(res, objInArr);
             }
             res.append(">");
             return res.toString();
@@ -262,8 +264,7 @@ public class ClassSerializer {
             List<Object> listValues = (List<Object>) fieldValue;
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
-                res.append(";");
-                res.append("<" + objectInList.getClass().getName() + ";" + encodeValue(objectInList) + ">");
+                encode(res, objectInList);
             }
             res.append(">");
             return res.toString();
@@ -273,11 +274,9 @@ public class ClassSerializer {
             StringBuilder res = new StringBuilder("<map");
             for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
                 Object val = entry.getKey();
-                res.append(";");
-                res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+                encode(res, val);
                 val = entry.getValue();
-                res.append(";");
-                res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+                encode(res, val);
 
             }
             res.append(">");
@@ -304,6 +303,15 @@ public class ClassSerializer {
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
         return "<" + classname + fieldsCode + ">";
+    }
+
+    private void encode(StringBuilder res, Object val) {
+        res.append(";");
+        if (val == null) {
+            res.append("&null");
+            return;
+        }
+        res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
     }
 
 }

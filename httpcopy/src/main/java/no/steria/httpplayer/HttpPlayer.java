@@ -29,6 +29,7 @@ public class HttpPlayer {
     }
 
     private void doPlayStep(ReportObject playStep) throws IOException {
+        System.out.println(String.format("Step: %s %s ***",playStep.getMethod(),playStep.getPath()));
 
         URL url = new URL(baseUrl + playStep.getPath());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -67,7 +68,6 @@ public class HttpPlayer {
             }
 
         }
-        System.out.println("Step***");
         System.out.println(result);
     }
 }
