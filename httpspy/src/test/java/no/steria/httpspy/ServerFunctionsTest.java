@@ -85,12 +85,8 @@ public class ServerFunctionsTest {
             ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
             verify(callReporter,times(2)).reportCall(captor.capture());
             List<ReportObject> allValues = captor.getAllValues();
-            ReportObject reportObject = allValues.get(1);
 
-            Map<String,String> parameters = reportObject.getParametersRead();
-            assertThat(parameters.keySet()).hasSize(2);
-            assertThat(parameters.get("firstname")).isEqualTo("Darth");
-            assertThat(parameters.get("lastname")).isEqualTo("Vader");
+            assertThat(allValues.get(1).getReadInputStream()).isEqualTo("firstname=Darth&lastname=Vader&doPerson=Do+it");
 
             assertThat(allValues.get(0).getMethod()).isEqualTo("GET");
             assertThat(allValues.get(0).getPath()).isEqualTo("/post/more");
