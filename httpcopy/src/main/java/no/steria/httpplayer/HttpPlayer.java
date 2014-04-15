@@ -43,7 +43,7 @@ public class HttpPlayer {
                 conn.setRequestProperty(entry.getKey(),entry.getValue().get(0));
             }
         }
-        String readInputStream = recordObject.getReadInputStream();
+        String readInputStream = playStep.inputToSend();
         if (readInputStream != null) {
             conn.setDoOutput(true);
             try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(), "utf-8"))) {

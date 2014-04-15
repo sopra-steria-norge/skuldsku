@@ -14,12 +14,14 @@ public class PlayStepTest {
 
         PlayStep recodedStep = new PlayStep(reportObject);
 
-        PlayStep postStep = new PlayStep(null);
+        ReportObject postReportObj = new ReportObject();
+        postReportObj.setReadInputStream("firstname=Darth&lastname=Vader&token=secret52720&doPerson=Do+it");
+        PlayStep postStep = new PlayStep(postReportObj);
 
         postStep.setReplacement("token",recodedStep);
         recodedStep.record(recordedHtml);
 
-        assertThat(recodedStep.replacement()).isEqualTo("secret30574");
+        assertThat(postStep.inputToSend()).isEqualTo("firstname=Darth&lastname=Vader&token=secret30574&doPerson=Do+it");
 
     }
 }

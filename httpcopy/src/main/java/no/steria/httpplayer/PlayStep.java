@@ -27,15 +27,37 @@ public class PlayStep {
 
     public void setReplacement(String parameterName, PlayStep copyFrom) {
         copyFrom.recordField = parameterName;
+        this.copyFrom = copyFrom;
     }
 
     private String recordField;
+    private PlayStep copyFrom;
 
-    public String getRecordField() {
-        return recordField;
+    public String inputToSend() {
+        String readInputStream = reportObject.getReadInputStream();
+        if (copyFrom == null) {
+            return readInputStream;
+        }
+        String field = copyFrom.recordField;
+        String replacementVal = copyFrom.replacement();
+
+        StringBuilder inpStr = new StringBuilder(readInputStream);
+        String searchStr = field + "=";
+        String replacement = field + "=" + replacementVal;
+        for (int pos = inpStr.indexOf(searchStr);pos != -1;pos = inpStr.indexOf(searchStr,pos+1)) {
+            int endpos = inpStr.indexOf("&",pos);
+            if (endpos == -1) {
+                endpos = inpStr.length();
+            }
+
+            inpStr.replace(pos,endpos,replacement);
+        }
+        return inpStr.toString();
     }
 
-    public String replacement() {
+
+
+    private String replacement() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser;
         try {
@@ -59,6 +81,7 @@ public class PlayStep {
     public void record(String output) {
         this.recorded = output;
     }
+
 
     private static class ParsingAborted extends SAXException {
 
