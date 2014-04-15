@@ -29,7 +29,10 @@ public abstract class ServletFilter implements Filter{
 
         reportObject.setOutput(responseSpy.getWritten());
 
-        getReporter().reportCall(reportObject);
+        CallReporter reporter = getReporter();
+        if (reporter != null) {
+            reporter.reportCall(reportObject);
+        }
     }
 
     private void logHeaders(HttpServletRequest req, ReportObject reportObject) {

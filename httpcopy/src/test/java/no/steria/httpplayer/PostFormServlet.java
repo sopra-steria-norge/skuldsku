@@ -4,31 +4,48 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Random;
 
 public class PostFormServlet extends HttpServlet {
+    private Random random = new Random();
+    private static String myToken;
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String token = "secret" + random.nextInt(100000);
+        myToken = token;
         PrintWriter writer = resp.getWriter();
         resp.setContentType("text/html");
-        writer.append("<form method='POST' action='something'>");
+        writer.append("<form method='POST' action='post/something'>");
         writer.append("<input type='text' name='firstname' />");
         writer.append("<input type='text' name='lastname'/>");
+        writer.append("<input type='hidden' name='token' value='" + token + "'/>");
         writer.append("<input type='submit' name='doPerson' value='Do it'/>");
         writer.append("</form>");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("text/html");
+        PrintWriter writer = resp.getWriter();
+
+        String paratoken = req.getParameter("token");
+        if (!myToken.equals(paratoken)) {
+            writer.append("Sorry your token is wrong");
+            writer.close();
+            return;
+        }
+
+
         String firstname = req.getParameter("firstname");
         String lastname = req.getParameter("lastname");
 
         String name = firstname + " " + lastname;
 
-        resp.setContentType("text/html");
-
-        resp.getWriter().append("Your name is " + name);
+        writer.append("Your name is " + name);
+        writer.close();
 
     }
 }
