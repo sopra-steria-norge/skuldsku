@@ -18,8 +18,8 @@ public class HttpPlayer {
     }
 
 
-    public void play(List<ReportObject> playbook) {
-        for (ReportObject playStep : playbook) {
+    public void play(List<PlayStep> playbook) {
+        for (PlayStep playStep : playbook) {
             try {
                 doPlayStep(playStep);
             } catch (IOException e) {
@@ -28,20 +28,22 @@ public class HttpPlayer {
         }
     }
 
-    private void doPlayStep(ReportObject playStep) throws IOException {
-        System.out.println(String.format("Step: %s %s ***",playStep.getMethod(),playStep.getPath()));
+    private void doPlayStep(PlayStep playStep) throws IOException {
+        ReportObject recordObject = playStep.getReportObject();
 
-        URL url = new URL(baseUrl + playStep.getPath());
+        System.out.println(String.format("Step: %s %s ***", recordObject.getMethod(), recordObject.getPath()));
+
+        URL url = new URL(baseUrl + recordObject.getPath());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        String method = playStep.getMethod();
+        String method = recordObject.getMethod();
         conn.setRequestMethod(method);
-        if (playStep.getHeaders() != null) {
-            Set<Map.Entry<String, List<String>>> entries = playStep.getHeaders().entrySet();
+        if (recordObject.getHeaders() != null) {
+            Set<Map.Entry<String, List<String>>> entries = recordObject.getHeaders().entrySet();
             for (Map.Entry<String, List<String>> entry : entries) {
                 conn.setRequestProperty(entry.getKey(),entry.getValue().get(0));
             }
         }
-        String readInputStream = playStep.getReadInputStream();
+        String readInputStream = recordObject.getReadInputStream();
         if (readInputStream != null) {
             conn.setDoOutput(true);
             try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(), "utf-8"))) {
@@ -49,7 +51,7 @@ public class HttpPlayer {
             }
         }
 
-        String parameters = playStep.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
+        String parameters = recordObject.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
         if (parameters != null) {
             conn.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
@@ -68,6 +70,8 @@ public class HttpPlayer {
             }
 
         }
+
+        playStep.record(result.toString());
         System.out.println(result);
     }
 }

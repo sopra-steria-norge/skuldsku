@@ -53,7 +53,7 @@ public class TestHttpPlayer {
 
             String baseurl = "http://localhost:" + port;
             HttpPlayer player = new HttpPlayer(baseurl);
-            player.play(reporter.getPlayBook());
+            player.play(reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList()));
 
             ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
             verify(callReporter).reportCall(captor.capture());
@@ -96,7 +96,9 @@ public class TestHttpPlayer {
 
             String baseurl = "http://localhost:" + port;
             HttpPlayer player = new HttpPlayer(baseurl);
-            player.play(reporter.getPlayBook());
+            List<PlayStep> playbook = reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
+            playbook.get(1).setReplacement("token",playbook.get(0));
+            player.play(playbook);
 
             ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
             verify(callReporter,times(2)).reportCall(captor.capture());
