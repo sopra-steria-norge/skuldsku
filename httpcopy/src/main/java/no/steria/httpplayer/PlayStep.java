@@ -57,9 +57,12 @@ public class PlayStep {
 
 
 
-    private String replacement() {
+    protected String replacement() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser;
+        factory.setValidating(false);
+        factory.setNamespaceAware(false);
+
+        SAXParser saxParser;
         try {
             saxParser = factory.newSAXParser();
         } catch (ParserConfigurationException | SAXException e) {

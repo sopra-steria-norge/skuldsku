@@ -26,9 +26,16 @@ public class OraclePlayback {
                 script.add(reportObject);
             }
         }
+
         System.out.println("Starting...");
 
         HttpPlayer httpPlayer = new HttpPlayer("http://localhost:21110/wimpel");
-        httpPlayer.play(script.stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList()));
+        List<PlayStep> playSteps = script.stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
+        PlayStep playStep = playSteps.get(13);
+        PlayStep recordStep = playSteps.get(6);
+        playStep.setReplacement("oracle.adf.faces.STATE_TOKEN",recordStep);
+        List<PlayStep> playbook = playSteps;
+
+        httpPlayer.play(playbook);
     }
 }
