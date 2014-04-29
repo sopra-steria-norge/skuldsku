@@ -6,12 +6,15 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HttpPlayer {
     private String baseUrl;
+    private Map<String,String> myCookies = new HashMap<>();
 
     public HttpPlayer(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -37,19 +40,57 @@ public class HttpPlayer {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         String method = recordObject.getMethod();
         conn.setRequestMethod(method);
+        String readInputStream = playStep.inputToSend();
+        System.out.println(readInputStream);
         if (recordObject.getHeaders() != null) {
             Set<Map.Entry<String, List<String>>> entries = recordObject.getHeaders().entrySet();
             for (Map.Entry<String, List<String>> entry : entries) {
-                conn.setRequestProperty(entry.getKey(),entry.getValue().get(0));
+                String key = entry.getKey();
+                if ("Cookie".equals(key)) {
+                    //myCookies.entrySet().stream().map(ent -> ent.getKey() + "=" + ent.getValue()).forEach(it -> conn.addRequestProperty("Cookie",it));
+                    List<String> collect = myCookies.entrySet().stream().map(ent -> ent.getKey() + "=" + ent.getValue()).collect(Collectors.toList());
+                    for (String cs : collect) {
+                        conn.addRequestProperty("Cookie",cs);
+                    }
+                } else {
+                    for (String propval : entry.getValue()) {
+                        String val = propval;
+                        if ("Content-Length".equals(key) && "POST".equals(method) && readInputStream != null) {
+                            val = "" + readInputStream.length();
+                        }
+                        conn.addRequestProperty(key, val);
+                    }
+                }
             }
         }
-        String readInputStream = playStep.inputToSend();
-        if (readInputStream != null) {
+        if (readInputStream != null && !readInputStream.isEmpty()) {
             conn.setDoOutput(true);
             try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(), "utf-8"))) {
                 printWriter.append(readInputStream);
             }
         }
+        Map<String, List<String>> headerFields = conn.getHeaderFields();
+        List<String> cookies = headerFields.get("Set-Cookie");
+        if (cookies != null) {
+            for (String cookieStr : cookies) {
+                String[] parts = cookieStr.split(";");
+                if (parts == null) {
+                    continue;
+                }
+                for (String part : parts) {
+                    int ind = part.indexOf("=");
+                    if (ind < 0) {
+                        continue;
+                    }
+                    String cookieName = part.substring(0,ind);
+                    if ("expires".equalsIgnoreCase(cookieName) || "domain".equalsIgnoreCase(cookieName) || "path".equalsIgnoreCase(cookieName)) {
+                        continue;
+                    }
+                    myCookies.put(cookieName,part.substring(ind+1));
+                }
+            }
+        }
+
 
         String parameters = recordObject.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
         if (parameters != null) {
@@ -59,6 +100,8 @@ public class HttpPlayer {
             wr.flush();
             wr.close();
         }
+
+
 
         StringBuilder result = new StringBuilder();
         try (InputStream is = conn.getInputStream()) {

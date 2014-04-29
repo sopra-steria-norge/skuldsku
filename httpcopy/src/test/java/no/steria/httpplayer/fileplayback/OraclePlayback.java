@@ -16,7 +16,7 @@ public class OraclePlayback {
     public static void main(String[] args) throws Exception {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         System.out.println("OK");
-        Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb", "wimpel_dba", "xxx");
+        Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb", "wimpel_dba", args[0]);
         List<ReportObject> script = new ArrayList<>();
         try (PreparedStatement stmnt = connection.prepareStatement("select data from trtable order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
@@ -31,9 +31,12 @@ public class OraclePlayback {
 
         HttpPlayer httpPlayer = new HttpPlayer("http://localhost:21110/wimpel");
         List<PlayStep> playSteps = script.stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
-        PlayStep playStep = playSteps.get(13);
-        PlayStep recordStep = playSteps.get(6);
-        playStep.setReplacement("oracle.adf.faces.STATE_TOKEN",recordStep);
+
+        PlayStep firstGet = playSteps.get(0);
+        PlayStep postSakslistge = playSteps.get(2);
+        PlayStep postTollnedsettelse = playSteps.get(4);
+        postSakslistge.setReplacement("oracle.adf.faces.STATE_TOKEN",firstGet);
+        postTollnedsettelse.setReplacement("oracle.adf.faces.STATE_TOKEN",postSakslistge);
         List<PlayStep> playbook = playSteps;
 
         httpPlayer.play(playbook);

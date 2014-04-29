@@ -2,6 +2,7 @@ package no.steria.httpplayer;
 
 import org.fest.assertions.Assertions;
 import org.junit.Test;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 import java.io.*;
 
