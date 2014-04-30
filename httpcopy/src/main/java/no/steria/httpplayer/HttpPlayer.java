@@ -14,10 +14,11 @@ import java.util.stream.Collectors;
 
 public class HttpPlayer {
     private String baseUrl;
-    private Map<String,String> myCookies = new HashMap<>();
+    private PlaybackManipulator playbackManipulator;
 
     public HttpPlayer(String baseUrl) {
         this.baseUrl = baseUrl;
+        playbackManipulator = new CookieHandler();
     }
 
 
@@ -42,21 +43,19 @@ public class HttpPlayer {
         conn.setRequestMethod(method);
         String readInputStream = playStep.inputToSend();
         System.out.println(readInputStream);
-        if (recordObject.getHeaders() != null) {
-            Set<Map.Entry<String, List<String>>> entries = recordObject.getHeaders().entrySet();
+        Map<String, List<String>> headers = recordObject.getHeaders();
+        headers = playbackManipulator.getHeaders(headers);
+        if (headers != null) {
+            Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
+
             for (Map.Entry<String, List<String>> entry : entries) {
                 String key = entry.getKey();
-                if ("Cookie".equals(key)) {
-                    myCookies.entrySet().stream().map(ent -> ent.getKey() + "=" + ent.getValue()).forEach(it -> conn.addRequestProperty("Cookie",it));
-
-                } else {
-                    for (String propval : entry.getValue()) {
-                        String val = propval;
-                        if ("Content-Length".equals(key) && "POST".equals(method) && readInputStream != null) {
-                            val = "" + readInputStream.length();
-                        }
-                        conn.addRequestProperty(key, val);
+                for (String propval : entry.getValue()) {
+                    String val = propval;
+                    if ("Content-Length".equals(key) && "POST".equals(method) && readInputStream != null) {
+                        val = "" + readInputStream.length();
                     }
+                    conn.addRequestProperty(key, val);
                 }
             }
         }
@@ -67,26 +66,7 @@ public class HttpPlayer {
             }
         }
         Map<String, List<String>> headerFields = conn.getHeaderFields();
-        List<String> cookies = headerFields.get("Set-Cookie");
-        if (cookies != null) {
-            for (String cookieStr : cookies) {
-                String[] parts = cookieStr.split(";");
-                if (parts == null) {
-                    continue;
-                }
-                for (String part : parts) {
-                    int ind = part.indexOf("=");
-                    if (ind < 0) {
-                        continue;
-                    }
-                    String cookieName = part.substring(0,ind);
-                    if ("expires".equalsIgnoreCase(cookieName) || "domain".equalsIgnoreCase(cookieName) || "path".equalsIgnoreCase(cookieName)) {
-                        continue;
-                    }
-                    myCookies.put(cookieName,part.substring(ind+1));
-                }
-            }
-        }
+        playbackManipulator.reportHeaderFields(headerFields);
 
 
         String parameters = recordObject.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
