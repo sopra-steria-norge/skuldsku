@@ -6,19 +6,18 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HttpPlayer {
     private String baseUrl;
-    private PlaybackManipulator playbackManipulator;
+    private List<PlaybackManipulator> manipulators = new ArrayList<>();
 
     public HttpPlayer(String baseUrl) {
         this.baseUrl = baseUrl;
-        playbackManipulator = new CookieHandler();
+        manipulators.add(new CookieHandler());
     }
 
 
@@ -32,7 +31,26 @@ public class HttpPlayer {
         }
     }
 
+    public void addManipulator(PlaybackManipulator manipulator) {
+        manipulators.add(manipulator);
+    }
+
+    private <S> S doAllmanipulatorsx(Stream<Function<S,S>> doIt, S start) {
+        Optional<Function<S, S>> reduce = doIt.reduce((a, b) -> a.andThen(b));
+        if (!reduce.isPresent()) {
+            return start;
+        }
+        S result = reduce.get().apply(start);
+        return result;
+    }
+
+
+
+
+
+
     private void doPlayStep(PlayStep playStep) throws IOException {
+
         ReportObject recordObject = playStep.getReportObject();
 
         System.out.println(String.format("Step: %s %s ***", recordObject.getMethod(), recordObject.getPath()));
@@ -41,10 +59,21 @@ public class HttpPlayer {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         String method = recordObject.getMethod();
         conn.setRequestMethod(method);
-        String readInputStream = playStep.inputToSend();
+
+        //String readInputStream = playStep.inputToSend();
+        String readInputStream = playStep.getReportObject().getReadInputStream();
+
+        for (PlaybackManipulator manipulator : manipulators) {
+            readInputStream = manipulator.computePayload(readInputStream);
+        }
+
         System.out.println(readInputStream);
         Map<String, List<String>> headers = recordObject.getHeaders();
-        headers = playbackManipulator.getHeaders(headers);
+
+        for (PlaybackManipulator manipulator : manipulators) {
+            headers = manipulator.getHeaders(headers);
+        }
+
         if (headers != null) {
             Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
 
@@ -65,8 +94,9 @@ public class HttpPlayer {
                 printWriter.append(readInputStream);
             }
         }
-        Map<String, List<String>> headerFields = conn.getHeaderFields();
-        playbackManipulator.reportHeaderFields(headerFields);
+        final Map<String, List<String>> headerFields = conn.getHeaderFields();
+
+        manipulators.forEach(m -> m.reportHeaderFields(headerFields));
 
 
         String parameters = recordObject.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
@@ -80,7 +110,7 @@ public class HttpPlayer {
 
 
 
-        StringBuilder result = new StringBuilder();
+        final StringBuilder result = new StringBuilder();
         try (InputStream is = conn.getInputStream()) {
             try (Reader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 int c;
@@ -92,6 +122,8 @@ public class HttpPlayer {
         }
 
         playStep.record(result.toString());
+
+        manipulators.forEach(m -> m.reportResult(result.toString()));
         System.out.println(result);
     }
 }

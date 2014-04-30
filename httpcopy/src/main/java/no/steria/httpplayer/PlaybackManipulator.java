@@ -10,5 +10,11 @@ public interface PlaybackManipulator {
         return headers;
     }
 
+    public default String computePayload(String payload) {
+        return payload;
+    }
+
     public default void reportHeaderFields(Map<String, List<String>> headerFields) {};
+
+    public default void reportResult(String result) {};
 }

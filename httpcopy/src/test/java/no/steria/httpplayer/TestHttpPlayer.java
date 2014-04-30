@@ -97,8 +97,9 @@ public class TestHttpPlayer {
             String baseurl = "http://localhost:" + port;
             HttpPlayer player = new HttpPlayer(baseurl);
             List<PlayStep> playbook = reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
-            System.out.println("++" + playbook.get(1).getReportObject().getReadInputStream());
-            playbook.get(1).setReplacement("token",playbook.get(0));
+            //System.out.println("++" + playbook.get(1).getReportObject().getReadInputStream());
+            //playbook.get(1).setReplacement("token",playbook.get(0));
+            player.addManipulator(new HiddenFieldManipulator("token"));
             player.play(playbook);
 
             assertThat(playbook.get(1).getRecorded()).contains("Your name is Darth Vader");
