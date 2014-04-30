@@ -101,12 +101,7 @@ public class TestHttpPlayer {
             playbook.get(1).setReplacement("token",playbook.get(0));
             player.play(playbook);
 
-            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
-            verify(callReporter,times(2)).reportCall(captor.capture());
-
-            List<ReportObject> allValues = captor.getAllValues();
-            assertThat(allValues.stream().map(ro -> ro.getMethod()).collect(Collectors.toList())).containsExactly("GET","POST");
-            assertThat(allValues.get(1).getOutput()).isEqualTo("Your name is Darth Vader");
+            assertThat(playbook.get(1).getRecorded()).contains("Your name is Darth Vader");
         } finally {
             jettyServer.stop();
 

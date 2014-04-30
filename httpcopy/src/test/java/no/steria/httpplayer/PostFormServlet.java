@@ -1,10 +1,7 @@
 package no.steria.httpplayer;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Random;
@@ -12,6 +9,7 @@ import java.util.Random;
 public class PostFormServlet extends HttpServlet {
     private Random random = new Random();
     private static String myToken;
+    private static String cookieValue;
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = "secret" + random.nextInt(100000);
@@ -24,6 +22,10 @@ public class PostFormServlet extends HttpServlet {
         writer.append("<input type='hidden' name='token' value='" + token + "'/>");
         writer.append("<input type='submit' name='doPerson' value='Do it'/>");
         writer.append("</form>");
+        cookieValue = "cookie" + random.nextInt(100000);
+        Cookie userCookie = new Cookie("myCookie",cookieValue);
+        userCookie.setMaxAge(120);
+        resp.addCookie(userCookie);
     }
 
     @Override
@@ -34,6 +36,21 @@ public class PostFormServlet extends HttpServlet {
         String paratoken = req.getParameter("token");
         if (!myToken.equals(paratoken)) {
             writer.append("Sorry your token is wrong");
+            writer.close();
+            return;
+        }
+
+        boolean foundCookie = false;
+
+        Cookie[] cookies = req.getCookies();
+        for (Cookie cookie : cookies) {
+            if ("myCookie".equals(cookie.getName()) && cookieValue.equals(cookie.getValue())) {
+                foundCookie = true;
+                break;
+            }
+        }
+        if (!foundCookie) {
+            writer.append("Sorry your cookie is wrong");
             writer.close();
             return;
         }

@@ -191,4 +191,8 @@ public class PlayStep {
 
         }
     }
+
+    public String getRecorded() {
+        return recorded;
+    }
 }

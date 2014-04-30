@@ -47,11 +47,8 @@ public class HttpPlayer {
             for (Map.Entry<String, List<String>> entry : entries) {
                 String key = entry.getKey();
                 if ("Cookie".equals(key)) {
-                    //myCookies.entrySet().stream().map(ent -> ent.getKey() + "=" + ent.getValue()).forEach(it -> conn.addRequestProperty("Cookie",it));
-                    List<String> collect = myCookies.entrySet().stream().map(ent -> ent.getKey() + "=" + ent.getValue()).collect(Collectors.toList());
-                    for (String cs : collect) {
-                        conn.addRequestProperty("Cookie",cs);
-                    }
+                    myCookies.entrySet().stream().map(ent -> ent.getKey() + "=" + ent.getValue()).forEach(it -> conn.addRequestProperty("Cookie",it));
+
                 } else {
                     for (String propval : entry.getValue()) {
                         String val = propval;
