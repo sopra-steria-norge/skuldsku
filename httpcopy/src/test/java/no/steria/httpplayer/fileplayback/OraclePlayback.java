@@ -1,5 +1,6 @@
 package no.steria.httpplayer.fileplayback;
 
+import no.steria.httpplayer.HiddenFieldManipulator;
 import no.steria.httpplayer.HttpPlayer;
 import no.steria.httpplayer.PlayStep;
 import no.steria.httpspy.ReportObject;
@@ -31,12 +32,15 @@ public class OraclePlayback {
 
         HttpPlayer httpPlayer = new HttpPlayer("http://localhost:21110/wimpel");
         List<PlayStep> playSteps = script.stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
+        httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN"));
 
-        PlayStep firstGet = playSteps.get(0);
+        /*PlayStep firstGet = playSteps.get(0);
         PlayStep postSakslistge = playSteps.get(2);
         PlayStep postTollnedsettelse = playSteps.get(4);
         postSakslistge.setReplacement("oracle.adf.faces.STATE_TOKEN",firstGet);
         postTollnedsettelse.setReplacement("oracle.adf.faces.STATE_TOKEN",postSakslistge);
+        */
+
         List<PlayStep> playbook = playSteps;
 
         httpPlayer.play(playbook);

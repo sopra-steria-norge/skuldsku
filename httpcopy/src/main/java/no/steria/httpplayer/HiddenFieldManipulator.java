@@ -37,7 +37,10 @@ public class HiddenFieldManipulator implements PlaybackManipulator {
 
     @Override
     public void reportResult(String recorded) {
-        value = replacement(recorded);
+        String replacement = replacement(recorded);
+        if (replacement != null) {
+            value = replacement;
+        }
     }
 
     public String replacement(String recorded) {
