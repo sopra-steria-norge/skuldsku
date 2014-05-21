@@ -84,6 +84,7 @@ public class SerializerTest {
     }
 
     @Test
+    @Ignore
     public void shouldHandleClassWithMap() throws Exception {
         ClassWithMap classWithMap = new ClassWithMap();
         Map<String,String> myMap = new HashMap<>();
