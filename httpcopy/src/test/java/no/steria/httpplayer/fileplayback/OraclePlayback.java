@@ -9,6 +9,7 @@ import no.steria.httpspy.ReportObject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,30 @@ public class OraclePlayback {
             return true;
         }
 
+        public String reportDiff(Played played) {
+            if (equals(played)) {
+                return null;
+            }
+            List<String> diff = new ArrayList<>();
+            if (!nullSafeEquals(method,played.method)) {
+                diff.add("method");
+            }
+            if (!nullSafeEquals(parameters,played.parameters)) {
+                diff.add("parameters");
+            }if (!nullSafeEquals(result,played.result)) {
+                diff.add("result");
+            }if (!nullSafeEquals(service,played.service)) {
+                diff.add("service");
+            }
+            return diff.stream().reduce((a,b) -> a + "," + b).get();
+        }
+
+        private <T> boolean nullSafeEquals(T a, T b) {
+            return a != null ? a.equals(b) : b == null;
+        }
+
+
+
         @Override
         public int hashCode() {
             int result1 = service != null ? service.hashCode() : 0;
@@ -66,7 +91,12 @@ public class OraclePlayback {
         public String getResult() {
             return result;
         }
+
+
     }
+
+
+
     public static void main(String[] args) throws Exception {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         System.out.println("OK");
@@ -95,14 +125,39 @@ public class OraclePlayback {
 
         recordOne = filterUnwanted(recordOne);
         recordTwo = filterUnwanted(recordTwo);
+        compare(recordOne, recordTwo);
+    }
 
-        Consumer<Played> action = p -> System.out.println(p.getService() + "->" + p.getMethod());
-        recordOne.stream().forEach(action);
-        System.out.println("***");
-        recordTwo.stream().forEach(action);
 
-        boolean equals = recordOne.equals(recordTwo);
-        System.out.println("Equals: " + equals);
+    private static void matchAndReport(List<Played> recordOne,List<Played> recordTwo,BiFunction<Played,Played,String> analyze) {
+        for (int i=0;i<recordOne.size();i++) {
+            Played one = recordOne.get(i);
+            Played two = recordTwo.get(i);
+            String res = analyze.apply(one,two);
+            if (res != null) {
+                System.out.println(i + ". " + res);
+            }
+        }
+    }
+
+    private static void compare(List<Played> recordOne, List<Played> recordTwo) {
+        System.out.println("Sizes: " + recordOne.size() + "," + recordTwo.size());
+        if (recordOne.size() != recordTwo.size()) {
+            return;
+        }
+
+        matchAndReport(recordOne,recordTwo,(one,two) -> one.getMethod() + " <=> " + two.getMethod());
+
+        matchAndReport(recordOne,recordTwo,(one,two) -> {
+            String method = one.getMethod();
+            String report = one.reportDiff(two);
+            if (report != null) {
+               return String.format("%s => %s", method, report);
+            }
+            return null;
+        });
+
+
     }
 
     private static List<Played> filterUnwanted(List<Played> recordOne) {
@@ -119,7 +174,7 @@ public class OraclePlayback {
     private static List<Played> getPlayed(Connection connection) throws SQLException {
         List<Played> recordOne;
         recordOne = new ArrayList<>();
-        try (PreparedStatement stmnt = connection.prepareStatement("select SERVICE, METHOD, PARAMETERS, RESULT from t_java_logg order by CREATED")) {
+        try (PreparedStatement stmnt = connection.prepareStatement("select SERVICE, METHOD, PARAMETERS, RESULT from t_java_logg order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
             while (resultSet.next()) {
                 String service = resultSet.getString(1);
