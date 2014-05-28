@@ -13,15 +13,15 @@ public class LogRunner implements Runnable {
     private final String methodName;
     private final Object[] args;
     private final Object result;
-    private final AsyncMode asyncMode;
+    private final SpyConfig spyConfig;
 
-    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, AsyncMode asyncMode) {
+    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
         this.reportCallback = reportCallback;
         this.className = className;
         this.methodName = methodName;
         this.args = args;
         this.result = result;
-        this.asyncMode = asyncMode;
+        this.spyConfig = spyConfig;
     }
 
     private boolean doLog() {
@@ -47,9 +47,9 @@ public class LogRunner implements Runnable {
 
 
 
-    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, AsyncMode asyncMode) {
-        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, asyncMode);
-
+    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
+        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, spyConfig);
+        AsyncMode asyncMode = spyConfig.getAsyncMode();
         if (asyncMode == AsyncMode.ALL_ASYNC) {
             executorService.submit(logRunner);
             return;
@@ -65,7 +65,7 @@ public class LogRunner implements Runnable {
 
     @Override
     public void run() {
-        if (asyncMode == AsyncMode.ALL_ASYNC && !doLog()) {
+        if (spyConfig.getAsyncMode() == AsyncMode.ALL_ASYNC && !doLog()) {
             return;
         }
         logEvent();

@@ -16,7 +16,7 @@ public class SpyWrapperTest {
 
     @Before
     public void setUp() throws Exception {
-        serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, AsyncMode.ALL_SYNC);
+        serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, SpyConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
     }
 
     @Test
