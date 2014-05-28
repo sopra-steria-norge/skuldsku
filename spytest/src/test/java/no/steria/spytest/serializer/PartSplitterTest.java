@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class PartSplitterTest {
-    private ClassSerializer classSerializer = new ClassSerializer();
+    private final ClassSerializer classSerializer = new ClassSerializer();
 
     @Test
     public void shouldSplitBasic() throws Exception {

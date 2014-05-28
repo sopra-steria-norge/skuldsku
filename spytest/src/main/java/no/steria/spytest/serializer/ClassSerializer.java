@@ -54,9 +54,8 @@ public class ClassSerializer {
         }
         String[] parts = splitToParts(serializedValue);
 
-        if (serializedValue.indexOf("=") == -1) {
+        if (!serializedValue.contains("=")) {
             try {
-                Class<?> clazz=null;
                 if ("list".equals(parts[0]) || "map".equals(parts[0])) {
                     return objectValueFromString(serializedValue,null);
                 }
@@ -87,7 +86,7 @@ public class ClassSerializer {
         return object;
     }
 
-    protected String[] splitToParts(String serializedValue) {
+    String[] splitToParts(String serializedValue) {
         List<String> result = new ArrayList<>();
 
         int level = 0;
@@ -112,13 +111,12 @@ public class ClassSerializer {
             if (c == ';' && level == 1) {
                 result.add(serializedValue.substring(prevpos,pos));
                 prevpos=pos+1;
-                continue;
             }
         }
 
 
 
-        return result.toArray(new String[0]);
+        return result.toArray(new String[result.size()]);
     }
 
     private void setFieldValue(Object object, String fieldValue, Field field) {
@@ -147,7 +145,7 @@ public class ClassSerializer {
         }
     }
 
-    protected Object objectValueFromString(String fieldValue, Class<?> type) {
+    Object objectValueFromString(String fieldValue, Class<?> type) {
         Object value;
 
         if ("&null".equals(fieldValue)) {
@@ -182,7 +180,7 @@ public class ClassSerializer {
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);
         if ("array".equals(parts[0])) {
-            Object arr = (Object[]) Array.newInstance(type.getComponentType(), parts.length - 1);
+            Object arr = Array.newInstance(type.getComponentType(), parts.length - 1);
 
             for (int i=0;i<parts.length-1;i++) {
                 String codeStr = parts[i + 1];
@@ -232,8 +230,7 @@ public class ClassSerializer {
     }
 
     private Object extractObject(String part) {
-        String codeStr = part;
-        String[] valType = splitToParts(codeStr);
+        String[] valType = splitToParts(part);
         Class<?> aClass;
         try {
             aClass = Class.forName(valType[0]);
@@ -244,7 +241,7 @@ public class ClassSerializer {
     }
 
 
-    protected String encodeValue(Object fieldValue) {
+    String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "<null>";
         }
@@ -253,13 +250,13 @@ public class ClassSerializer {
             StringBuilder res = new StringBuilder("<array");
             for (Object objInArr : arr) {
                 res.append(";");
-                res.append("<" + objInArr.getClass().getName() + ";" + encodeValue(objInArr) + ">");
+                res.append("<").append(objInArr.getClass().getName()).append(";").append(encodeValue(objInArr)).append(">");
             }
             res.append(">");
             return res.toString();
         }
         if (fieldValue instanceof  List) {
-            List<Object> listValues = (List<Object>) fieldValue;
+            @SuppressWarnings("unchecked") List<Object> listValues = (List<Object>) fieldValue;
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
                 res.append(";");
@@ -274,7 +271,7 @@ public class ClassSerializer {
             for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
                 Object val = entry.getKey();
                 res.append(";");
-                res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+                res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
                 val = entry.getValue();
                 res.append(";");
                 res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
@@ -283,9 +280,7 @@ public class ClassSerializer {
             res.append(">");
             return res.toString();
         }
-        if (fieldValue == null) {
-            return "&null";
-        }
+
         if (Date.class.equals(fieldValue.getClass())) {
             return dateFormat.print(new DateTime(fieldValue));
         }

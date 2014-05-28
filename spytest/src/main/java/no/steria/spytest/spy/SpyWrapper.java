@@ -1,7 +1,5 @@
 package no.steria.spytest.spy;
 
-import no.steria.spytest.serializer.ClassSerializer;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -9,7 +7,7 @@ import java.lang.reflect.Proxy;
 public class SpyWrapper implements java.lang.reflect.InvocationHandler {
     private static AsyncMode asyncMode;
     private Object obj;
-    private ReportCallback reportCallback;
+    private final ReportCallback reportCallback;
 
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, AsyncMode asyncMode) {

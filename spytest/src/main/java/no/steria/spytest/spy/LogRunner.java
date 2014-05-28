@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LogRunner implements Runnable {
-    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final ReportCallback reportCallback;
     private final String className;
@@ -25,10 +25,7 @@ public class LogRunner implements Runnable {
     }
 
     private boolean doLog() {
-        if (!reportCallback.doReport()) {
-            return false;
-        }
-        return reportCallback.doReport(className,methodName);
+        return reportCallback.doReport() && reportCallback.doReport(className, methodName);
     }
 
     private void logEvent() {
@@ -57,13 +54,12 @@ public class LogRunner implements Runnable {
             executorService.submit(logRunner);
             return;
         }
-        if (!logRunner.doLog()) {
-            return;
-        }
-        if (asyncMode == AsyncMode.ALL_SYNC) {
-            logRunner.logEvent();
-        } else {
-            executorService.submit(logRunner);
+        if (logRunner.doLog()) {
+            if (asyncMode == AsyncMode.ALL_SYNC) {
+                logRunner.logEvent();
+            } else {
+                executorService.submit(logRunner);
+            }
         }
     }
 

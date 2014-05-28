@@ -47,7 +47,7 @@ public class SpyWrapperTest {
         assertThat(simpleFields).isNotNull();
         assertThat(simpleFields.getIntval()).isEqualTo(42);
 
-       List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
+       @SuppressWarnings("unchecked") List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
        assertThat(recodredResult).containsOnly("This","is","not","null");
     }
 
