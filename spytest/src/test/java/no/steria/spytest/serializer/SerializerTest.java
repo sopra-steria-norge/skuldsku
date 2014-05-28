@@ -84,7 +84,6 @@ public class SerializerTest {
     }
 
     @Test
-    @Ignore
     public void shouldHandleClassWithMap() throws Exception {
         ClassWithMap classWithMap = new ClassWithMap();
         Map<String,String> myMap = new HashMap<>();
@@ -94,11 +93,10 @@ public class SerializerTest {
 
         String serialized = serializer.asString(classWithMap);
 
-        assertThat(serialized).isEqualTo("<no.steria.spytest.serializer.ClassWithMap;myMap=<map;<java.lang.String;key2>;<java.lang.String;value2>;<java.lang.String;key1>;<java.lang.String;value1>>>");
 
         ClassWithMap cloned = (ClassWithMap) serializer.asObject(serialized);
 
-        Map<String, String> clonedMap = classWithMap.getMyMap();
+        Map<String, String> clonedMap = cloned.getMyMap();
         assertThat(clonedMap.size()).isEqualTo(2);
         assertThat(clonedMap.get("key1")).isEqualTo("value1");
         assertThat(clonedMap.get("key2")).isEqualTo("value2");
