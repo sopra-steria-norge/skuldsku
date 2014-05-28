@@ -1,9 +1,0 @@
-CREATE TABLE DBR_RECORDER (
-    DBR_ID             NUMBER,
-    CLIENT_IDENTIFIER  VARCHAR2(256),
-    SESSION_USER       VARCHAR2(256),
-    SESSIONID          VARCHAR2(256),
-    TABLE_NAME         VARCHAR2(30),
-    ACTION             VARCHAR2(6),
-    DATAROW            CLOB    
-)
