@@ -34,17 +34,24 @@ public class LogRunner implements Runnable {
         if (args != null) {
             boolean first = true;
             for (Object para : args) {
+                Object toLog = logObject(para);
                 if (!first) {
                     parameters.append(";");
                 }
                 first = false;
-                parameters.append(classSerializer.asString(para));
+                parameters.append(classSerializer.asString(toLog));
             }
         }
         String resultStr = classSerializer.asString(result);
         reportCallback.event(className,methodName,parameters.toString(),resultStr);
     }
 
+    private Object logObject(Object para) {
+        if (spyConfig.isIgnored(className,methodName,para)) {
+            return null;
+        }
+        return para;
+    }
 
 
     public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
