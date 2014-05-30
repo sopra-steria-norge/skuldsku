@@ -13,6 +13,7 @@ import java.util.*;
 public class ClassSerializer {
     private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
 
+
     public String asString(Object object) {
         String encval = encodeValue(object);
         if (object != null && !encval.startsWith("<")) {
@@ -260,13 +261,13 @@ public class ClassSerializer {
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
                 res.append(";");
-                res.append("<" + objectInList.getClass().getName() + ";" + encodeValue(objectInList) + ">");
+                res.append("<").append(objectInList.getClass().getName()).append(";").append(encodeValue(objectInList)).append(">");
             }
             res.append(">");
             return res.toString();
         }
         if (fieldValue instanceof Map) {
-            Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
+            @SuppressWarnings("unchecked") Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
             StringBuilder res = new StringBuilder("<map");
             for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
                 Object val = entry.getKey();
@@ -274,7 +275,7 @@ public class ClassSerializer {
                 res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
                 val = entry.getValue();
                 res.append(";");
-                res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+                res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
 
             }
             res.append(">");
