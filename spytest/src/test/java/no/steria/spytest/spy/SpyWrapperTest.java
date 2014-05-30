@@ -52,6 +52,28 @@ public class SpyWrapperTest {
     }
 
     @Test
+    public void shouldIgnoreParametersCall() throws Exception {
+        Class<?> ignore = ServiceParameterClass.class;
+        SpyConfig spyConfig = SpyConfig.factory()
+                .withAsyncMode(AsyncMode.ALL_SYNC)
+                .ignore(ServiceClass.class, null, ignore)
+                .create();
+        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, spyConfig);
+
+        ServiceParameterClass para = new ServiceParameterClass();
+        para.setInfo("This is it");
+        String result = serviceClass.doWithPara(para);
+
+        assertThat(result).isEqualTo("This is it");
+
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.spytest.spy.ServiceClass");
+        assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
+        assertThat(reportCallback.getParameters()).isEqualTo("<null>");
+        assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
+
+    }
+
+    @Test
     public void shouldHandleListsAsResults() throws Exception {
         ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, SpyConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         List<String> result = serviceClass.returnList(new ClassWithSimpleFields().setIntval(42));

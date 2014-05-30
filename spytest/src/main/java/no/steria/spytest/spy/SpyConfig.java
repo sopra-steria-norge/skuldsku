@@ -14,7 +14,7 @@ public class SpyConfig {
         }
         for (IgnorePara ignorePara : ignores) {
             if (ignorePara.getServiceClass().getName().equals(className) &&
-                    ignorePara.getServiceMethod().getName().equals(methodName) &&
+                    (ignorePara.getServiceMethod() == null || ignorePara.getServiceMethod().getName().equals(methodName)) &&
                     para.getClass().isAssignableFrom(ignorePara.getIgnore())
                     ) {
                 return true;
