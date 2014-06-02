@@ -1,5 +1,7 @@
 package no.steria.copito.httpspy;
 
+import no.steria.copito.spytest.serializer.ClassSerializer;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;

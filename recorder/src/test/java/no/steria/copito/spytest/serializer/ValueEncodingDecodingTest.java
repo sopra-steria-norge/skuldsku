@@ -1,6 +1,5 @@
 package no.steria.copito.spytest.serializer;
 
-import no.steria.copito.httpspy.ClassSerializer;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

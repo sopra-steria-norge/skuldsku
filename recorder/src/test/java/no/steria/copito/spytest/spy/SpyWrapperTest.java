@@ -1,12 +1,10 @@
 package no.steria.copito.spytest.spy;
 
-import no.steria.copito.httpspy.ClassSerializer;
+import no.steria.copito.spytest.serializer.ClassSerializer;
 import no.steria.copito.spytest.serializer.ClassWithSimpleFields;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;

@@ -4,7 +4,7 @@ package no.steria.copito.spytest.spy;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import no.steria.copito.httpspy.ClassSerializer;
+import no.steria.copito.spytest.serializer.ClassSerializer;
 
 public class LogRunner implements Runnable {
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();

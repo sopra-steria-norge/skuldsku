@@ -1,6 +1,6 @@
 package no.steria.copito.httpspy;
 
-import no.steria.copito.httpspy.ClassSerializer;
+import no.steria.copito.spytest.serializer.ClassSerializer;
 import org.junit.Test;
 
 public class ClassSerializerTest {

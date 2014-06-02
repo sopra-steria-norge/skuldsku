@@ -1,6 +1,5 @@
 package no.steria.copito.spytest.serializer;
 
-import no.steria.copito.httpspy.ClassSerializer;
 import org.junit.Ignore;
 import org.junit.Test;
 

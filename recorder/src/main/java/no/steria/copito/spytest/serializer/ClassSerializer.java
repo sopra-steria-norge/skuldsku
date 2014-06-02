@@ -1,4 +1,4 @@
-package no.steria.spytest.serializer;
+package no.steria.copito.spytest.serializer;
 
 import org.joda.time.DateTime;
 import org.joda.time.ReadableInstant;
@@ -12,7 +12,6 @@ import java.util.*;
 
 public class ClassSerializer {
     private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
-
 
     public String asString(Object object) {
         String encval = encodeValue(object);
@@ -55,8 +54,9 @@ public class ClassSerializer {
         }
         String[] parts = splitToParts(serializedValue);
 
-        if (!serializedValue.contains("=")) {
+        if (serializedValue.indexOf("=") == -1) {
             try {
+                Class<?> clazz=null;
                 if ("list".equals(parts[0]) || "map".equals(parts[0])) {
                     return objectValueFromString(serializedValue,null);
                 }
@@ -87,7 +87,7 @@ public class ClassSerializer {
         return object;
     }
 
-    String[] splitToParts(String serializedValue) {
+    public String[] splitToParts(String serializedValue) {
         List<String> result = new ArrayList<>();
 
         int level = 0;
@@ -112,12 +112,13 @@ public class ClassSerializer {
             if (c == ';' && level == 1) {
                 result.add(serializedValue.substring(prevpos,pos));
                 prevpos=pos+1;
+                continue;
             }
         }
 
 
 
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
     }
 
     private void setFieldValue(Object object, String fieldValue, Field field) {
@@ -146,7 +147,7 @@ public class ClassSerializer {
         }
     }
 
-    Object objectValueFromString(String fieldValue, Class<?> type) {
+    public Object objectValueFromString(String fieldValue, Class<?> type) {
         Object value;
 
         if ("&null".equals(fieldValue)) {
@@ -181,7 +182,7 @@ public class ClassSerializer {
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);
         if ("array".equals(parts[0])) {
-            Object arr = Array.newInstance(type.getComponentType(), parts.length - 1);
+            Object arr = (Object[]) Array.newInstance(type.getComponentType(), parts.length - 1);
 
             for (int i=0;i<parts.length-1;i++) {
                 String codeStr = parts[i + 1];
@@ -231,7 +232,11 @@ public class ClassSerializer {
     }
 
     private Object extractObject(String part) {
-        String[] valType = splitToParts(part);
+        if ("&null".equals(part)) {
+            return null;
+        }
+        String codeStr = part;
+        String[] valType = splitToParts(codeStr);
         Class<?> aClass;
         try {
             aClass = Class.forName(valType[0]);
@@ -242,7 +247,7 @@ public class ClassSerializer {
     }
 
 
-    String encodeValue(Object fieldValue) {
+    public String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "<null>";
         }
@@ -250,38 +255,36 @@ public class ClassSerializer {
             Object[] arr=(Object[]) fieldValue;
             StringBuilder res = new StringBuilder("<array");
             for (Object objInArr : arr) {
-                res.append(";");
-                res.append("<").append(objInArr.getClass().getName()).append(";").append(encodeValue(objInArr)).append(">");
+                encode(res, objInArr);
             }
             res.append(">");
             return res.toString();
         }
         if (fieldValue instanceof  List) {
-            @SuppressWarnings("unchecked") List<Object> listValues = (List<Object>) fieldValue;
+            List<Object> listValues = (List<Object>) fieldValue;
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
-                res.append(";");
-                res.append("<").append(objectInList.getClass().getName()).append(";").append(encodeValue(objectInList)).append(">");
+                encode(res, objectInList);
             }
             res.append(">");
             return res.toString();
         }
         if (fieldValue instanceof Map) {
-            @SuppressWarnings("unchecked") Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
+            Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
             StringBuilder res = new StringBuilder("<map");
             for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
                 Object val = entry.getKey();
-                res.append(";");
-                res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
+                encode(res, val);
                 val = entry.getValue();
-                res.append(";");
-                res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
+                encode(res, val);
 
             }
             res.append(">");
             return res.toString();
         }
-
+        if (fieldValue == null) {
+            return "&null";
+        }
         if (Date.class.equals(fieldValue.getClass())) {
             return dateFormat.print(new DateTime(fieldValue));
         }
@@ -300,6 +303,15 @@ public class ClassSerializer {
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
         return "<" + classname + fieldsCode + ">";
+    }
+
+    private void encode(StringBuilder res, Object val) {
+        res.append(";");
+        if (val == null) {
+            res.append("&null");
+            return;
+        }
+        res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
     }
 
 }
