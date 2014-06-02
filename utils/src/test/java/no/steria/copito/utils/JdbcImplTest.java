@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

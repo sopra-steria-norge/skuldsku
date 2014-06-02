@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 import java.util.Collections;
 import java.util.Iterator;

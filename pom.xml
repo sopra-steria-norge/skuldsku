@@ -8,7 +8,7 @@
     <artifactId>copito-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0</version>
-    <name>Multi Chapter Simple Parent Project</name>
+    <name>COpy Production Lightweight framework</name>
 
     <modules>
         <module>recorder</module>

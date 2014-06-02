@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 /**
  * Represents an entity that can initiate and commit/rollback a database transaction.

@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 /**
  * A wrapper class for <code>SQLException</code>.

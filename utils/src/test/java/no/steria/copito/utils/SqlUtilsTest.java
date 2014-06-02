@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import utils.SqlUtils;
+import no.steria.copito.utils.SqlUtils;
 
 public class SqlUtilsTest {
 

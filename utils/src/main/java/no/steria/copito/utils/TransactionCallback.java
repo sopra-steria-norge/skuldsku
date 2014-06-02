@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 /**
  * A callback method to be executed from within a transaction.

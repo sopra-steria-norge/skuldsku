@@ -1,4 +1,4 @@
-package utils;
+package no.steria.copito.utils;
 
 /**
  * The super class for all exceptions returned by this JDBC-helper
