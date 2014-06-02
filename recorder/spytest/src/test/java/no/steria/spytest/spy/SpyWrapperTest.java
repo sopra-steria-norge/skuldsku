@@ -5,6 +5,8 @@ import no.steria.spytest.serializer.ClassWithSimpleFields;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -12,15 +14,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SpyWrapperTest {
 
     private final DummyReportCallback reportCallback = new DummyReportCallback();
-    private ServiceInterface serviceClass;
-
-    @Before
-    public void setUp() throws Exception {
-        serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, AsyncMode.ALL_SYNC);
-    }
 
     @Test
     public void shouldHandleBasic() throws Exception {
+        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, SpyConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
         assertThat(result).isEqualTo("Hello MyName");
@@ -32,7 +29,53 @@ public class SpyWrapperTest {
     }
 
     @Test
+    public void shouldIgnoreFields() throws Exception {
+        Method doWithPara = ServiceClass.class.getMethod("doWithPara", ServiceParameterClass.class);
+        Class<?> ignore = ServiceParameterClass.class;
+        SpyConfig spyConfig = SpyConfig.factory()
+                .withAsyncMode(AsyncMode.ALL_SYNC)
+                .ignore(ServiceClass.class, doWithPara, ignore)
+                .create();
+        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, spyConfig);
+
+        ServiceParameterClass para = new ServiceParameterClass();
+        para.setInfo("This is it");
+        String result = serviceClass.doWithPara(para);
+
+        assertThat(result).isEqualTo("This is it");
+
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.spytest.spy.ServiceClass");
+        assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
+        assertThat(reportCallback.getParameters()).isEqualTo("<null>");
+        assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
+
+    }
+
+    @Test
+    public void shouldIgnoreParametersCall() throws Exception {
+        Class<?> ignore = ServiceParameterClass.class;
+        SpyConfig spyConfig = SpyConfig.factory()
+                .withAsyncMode(AsyncMode.ALL_SYNC)
+                .ignore(ServiceClass.class, null, ignore)
+                .create();
+        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, spyConfig);
+
+        ServiceParameterClass para = new ServiceParameterClass();
+        para.setInfo("This is it");
+        String result = serviceClass.doWithPara(para);
+
+        assertThat(result).isEqualTo("This is it");
+
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.spytest.spy.ServiceClass");
+        assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
+        assertThat(reportCallback.getParameters()).isEqualTo("<null>");
+        assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
+
+    }
+
+    @Test
     public void shouldHandleListsAsResults() throws Exception {
+        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, SpyConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         List<String> result = serviceClass.returnList(new ClassWithSimpleFields().setIntval(42));
 
         assertThat(result).containsOnly("This","is","not","null");
@@ -47,7 +90,7 @@ public class SpyWrapperTest {
         assertThat(simpleFields).isNotNull();
         assertThat(simpleFields.getIntval()).isEqualTo(42);
 
-       List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
+       @SuppressWarnings("unchecked") List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
        assertThat(recodredResult).containsOnly("This","is","not","null");
     }
 

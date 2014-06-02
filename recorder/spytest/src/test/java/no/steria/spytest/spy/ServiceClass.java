@@ -10,6 +10,14 @@ public class ServiceClass implements ServiceInterface {
         return "Hello " + input;
     }
 
+    @Override
+    public String doWithPara(ServiceParameterClass para) {
+        if (para == null) {
+            return null;
+        }
+        return para.getInfo();
+    }
+
     public List<String> returnList(ClassWithSimpleFields simple) {
         if (simple == null) {
             return Arrays.asList("This","is","null");

@@ -6,29 +6,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LogRunner implements Runnable {
-    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final ReportCallback reportCallback;
     private final String className;
     private final String methodName;
     private final Object[] args;
     private final Object result;
-    private final AsyncMode asyncMode;
+    private final SpyConfig spyConfig;
 
-    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, AsyncMode asyncMode) {
+    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
         this.reportCallback = reportCallback;
         this.className = className;
         this.methodName = methodName;
         this.args = args;
         this.result = result;
-        this.asyncMode = asyncMode;
+        this.spyConfig = spyConfig;
     }
 
     private boolean doLog() {
-        if (!reportCallback.doReport()) {
-            return false;
-        }
-        return reportCallback.doReport(className,methodName);
+        return reportCallback.doReport() && reportCallback.doReport(className, methodName);
     }
 
     private void logEvent() {
@@ -37,39 +34,45 @@ public class LogRunner implements Runnable {
         if (args != null) {
             boolean first = true;
             for (Object para : args) {
+                Object toLog = logObject(para);
                 if (!first) {
                     parameters.append(";");
                 }
                 first = false;
-                parameters.append(classSerializer.asString(para));
+                parameters.append(classSerializer.asString(toLog));
             }
         }
         String resultStr = classSerializer.asString(result);
         reportCallback.event(className,methodName,parameters.toString(),resultStr);
     }
 
+    private Object logObject(Object para) {
+        if (spyConfig.isIgnored(className,methodName,para)) {
+            return null;
+        }
+        return para;
+    }
 
 
-    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, AsyncMode asyncMode) {
-        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, asyncMode);
-
+    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
+        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, spyConfig);
+        AsyncMode asyncMode = spyConfig.getAsyncMode();
         if (asyncMode == AsyncMode.ALL_ASYNC) {
             executorService.submit(logRunner);
             return;
         }
-        if (!logRunner.doLog()) {
-            return;
-        }
-        if (asyncMode == AsyncMode.ALL_SYNC) {
-            logRunner.logEvent();
-        } else {
-            executorService.submit(logRunner);
+        if (logRunner.doLog()) {
+            if (asyncMode == AsyncMode.ALL_SYNC) {
+                logRunner.logEvent();
+            } else {
+                executorService.submit(logRunner);
+            }
         }
     }
 
     @Override
     public void run() {
-        if (asyncMode == AsyncMode.ALL_ASYNC && !doLog()) {
+        if (spyConfig.getAsyncMode() == AsyncMode.ALL_ASYNC && !doLog()) {
             return;
         }
         logEvent();

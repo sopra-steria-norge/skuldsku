@@ -3,7 +3,6 @@ package no.steria.spytest.serializer;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -48,7 +47,7 @@ public class ValueEncodingDecodingTest {
         String serializedVal = serializer.encodeValue(primes);
         assertThat(serializedVal).isEqualTo("<list;<java.lang.Integer;1>;<java.lang.Integer;2>;<java.lang.Integer;3>;<java.lang.Integer;5>;<java.lang.Integer;7>;<java.lang.Integer;11>>");
 
-        List<Integer> clonedPrimes= (List<Integer>) serializer.objectValueFromString(serializedVal,Integer.class);
+        @SuppressWarnings("unchecked") List<Integer> clonedPrimes= (List<Integer>) serializer.objectValueFromString(serializedVal,Integer.class);
 
         assertThat(clonedPrimes).isEqualTo(primes);
 
