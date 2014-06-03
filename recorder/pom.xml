@@ -73,6 +73,11 @@
               <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>oracle.jars</groupId>
+            <artifactId>ojdbc</artifactId>
+            <version>1.4</version>
+        </dependency>
 
         <!-- COMPILE SCOPE -->
         <dependency>
