@@ -90,7 +90,7 @@
         <!-- PRODUCTION SCOPE -->
         <dependency>
             <groupId>copito</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>utils</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
