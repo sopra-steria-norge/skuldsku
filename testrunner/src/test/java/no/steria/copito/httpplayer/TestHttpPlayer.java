@@ -1,7 +1,7 @@
 package no.steria.copito.httpplayer;
 
-import no.steria.httpspy.CallReporter;
-import no.steria.httpspy.ReportObject;
+import no.steria.copito.httpspy.CallReporter;
+import no.steria.copito.httpspy.ReportObject;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

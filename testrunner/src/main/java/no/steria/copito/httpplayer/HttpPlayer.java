@@ -1,6 +1,6 @@
 package no.steria.copito.httpplayer;
 
-import no.steria.httpspy.ReportObject;
+import no.steria.copito.httpspy.ReportObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;

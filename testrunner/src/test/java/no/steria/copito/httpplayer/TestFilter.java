@@ -1,7 +1,7 @@
 package no.steria.copito.httpplayer;
 
-import no.steria.httpspy.CallReporter;
-import no.steria.httpspy.ServletFilter;
+import no.steria.copito.httpspy.CallReporter;
+import no.steria.copito.httpspy.ServletFilter;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;

@@ -2,8 +2,8 @@ package no.steria.copito.httpplayer.fileplayback;
 
 import no.steria.copito.httpplayer.HttpPlayer;
 import no.steria.copito.httpplayer.PlayStep;
-import no.steria.httpspy.ReportObject;
-import no.steria.reporter.FileCallReporter;
+import no.steria.copito.httpspy.ReportObject;
+import no.steria.copito.httpspy.reporter.FileCallReporter;
 
 import java.util.List;
 import java.util.stream.Collectors;
