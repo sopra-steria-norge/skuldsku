@@ -7,7 +7,7 @@
 
     <servlet>
         <servlet-name>dataServlet</servlet-name>
-        <servlet-class>no.steria.copito.httpplayer.DataServlet</servlet-class>
+        <servlet-class>no.steria.copito.testrunner.httpspy.testjetty.DataServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>dataServlet</servlet-name>
@@ -15,7 +15,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>postServlet</servlet-name>
-        <servlet-class>no.steria.copito.httpplayer.PostFormServlet</servlet-class>
+        <servlet-class>no.steria.copito.testrunner.httpspy.testjetty.PostFormServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>postServlet</servlet-name>
@@ -23,7 +23,7 @@
     </servlet-mapping>
     <filter>
         <filter-name>logFilter</filter-name>
-        <filter-class>no.steria.copito.httpplayer.TestFilter</filter-class>
+        <filter-class>no.steria.copito.testrunner.httpspy.testjetty.TestFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>logFilter</filter-name>
