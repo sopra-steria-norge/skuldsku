@@ -88,11 +88,7 @@
         </dependency>
 
         <!-- PRODUCTION SCOPE -->
-        <dependency>
-            <groupId>copito</groupId>
-            <artifactId>utils</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+        
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>

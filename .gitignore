@@ -1,3 +1,6 @@
 /target
 .DS_Store
 .idea
+recorder/db-recorder.iml
+recorder/target/
+testrunner/target/
