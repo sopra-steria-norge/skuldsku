@@ -23,7 +23,7 @@
     </servlet-mapping>
     <filter>
         <filter-name>logFilter</filter-name>
-        <filter-class>no.steria.copito.testrunner.httpspy.testjetty.TestFilter</filter-class>
+        <filter-class>no.steria.copito.httpspy.testjetty.TestFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>logFilter</filter-name>
