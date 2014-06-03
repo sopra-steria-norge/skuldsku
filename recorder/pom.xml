@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    <groupId>stian</groupId>
+
+    <groupId>no.steria.copito</groupId>
     <artifactId>db-recorder</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    
+
     <developers>
         <developer>
             <id>sgr</id>
@@ -16,46 +17,37 @@
                 <role>Systemutvikler</role>
             </roles>
         </developer>
+        <developer>
+            <id>ingaholen</id>
+            <name>Inga Holen</name>
+            <email>ikh@steria.no</email>
+            <roles>
+                <role>Software Engineer</role>
+            </roles>
+        </developer>
     </developers>
-    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                <source>1.7</source>
-                <target>1.7</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
-		    </plugins>
+        </plugins>
     </build>
 
     <dependencies>
-	  <dependency>
-            <groupId>javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.12.1.GA</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>9.0.6.v20130930</version>
-        </dependency>
+
+        <!-- TEST SCOPE -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-plus</artifactId>
             <version>9.0.6.v20130930</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.easytesting</groupId>
@@ -64,33 +56,42 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20090211</version>
-        </dependency>
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.9</version>
-        </dependency>
-        <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-htmlunit-driver</artifactId>
             <version>2.40.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+              <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- COMPILE SCOPE -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${version.slf4j}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- PRODUCTION SCOPE -->
+        <dependency>
+            <groupId>copito</groupId>
+            <artifactId>util</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.0.6.v20130930</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -98,55 +99,15 @@
             <version>2.2</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <!-- <scope>test</scope> -->
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <!-- <artifactId>mockito-core</artifactId>  -->
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
-            <!-- <scope>test</scope> -->
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.14</version>
-        </dependency>
-        <dependency>
             <groupId>com.jolbox</groupId>
             <artifactId>bonecp</artifactId>
             <version>0.7.1.RELEASE</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${version.slf4j}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>oracle.jars</groupId>
-            <artifactId>ojdbc</artifactId>
-            <version>1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>2.3.1</version>
-            <scope>test</scope>
-        </dependency>
-		<dependency>
-		    <groupId>copito</groupId>
-            <artifactId>util</artifactId>
-            <version>1.0-SNAPSHOT</version>
-		</dependency>
     </dependencies>
-    
+
     <properties>
-		    <version.maven.assembly.plugin>2.2-beta-3</version.maven.assembly.plugin>
-		    <version.appassembler.maven.plugin>1.0-alpha-2</version.appassembler.maven.plugin>
-            <version.slf4j>1.7.5</version.slf4j>
-	  </properties>
+        <version.maven.assembly.plugin>2.2-beta-3</version.maven.assembly.plugin>
+        <version.appassembler.maven.plugin>1.0-alpha-2</version.appassembler.maven.plugin>
+        <version.slf4j>1.7.5</version.slf4j>
+    </properties>
 </project>

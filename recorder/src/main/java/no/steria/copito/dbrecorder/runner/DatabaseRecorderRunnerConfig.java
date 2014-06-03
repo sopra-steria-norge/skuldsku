@@ -20,7 +20,7 @@ public class DatabaseRecorderRunnerConfig {
         this.baseDirectory = new File("src/test/resources");
         this.databaseChangeVerifier = new BestFitDatabaseChangeVerifier();
         this.rollbackEnabled = true;
-        this.verifierResultHandler = new JUnitVerifierResultHandler();
+        this.verifierResultHandler = new VerifierResultHandlerImpl();
     }
 
     
