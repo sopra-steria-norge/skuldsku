@@ -8,25 +8,28 @@ public class SpyWrapper implements java.lang.reflect.InvocationHandler {
     private static SpyConfig spyConfig;
     private Object obj;
     private final ReportCallback reportCallback;
+    private Class<?> givenInterface;
 
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, SpyConfig spyConfig) {
         SpyWrapper.spyConfig = spyConfig;
-        SpyWrapper debugProxy = new SpyWrapper(obj,reportCallback);
+        SpyWrapper debugProxy = new SpyWrapper(obj,reportCallback,givenInterface);
         Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, debugProxy);
         return (T) o;
     }
 
-    private SpyWrapper(Object obj, ReportCallback reportCallback) {
+    private SpyWrapper(Object obj, ReportCallback reportCallback, Class<?> givenInterface) {
         this.obj = obj;
         this.reportCallback = reportCallback;
+        this.givenInterface = givenInterface;
     }
 
     public Object invoke(Object proxy, Method m, Object[] args)
             throws Throwable {
+        Object mock = MockRegistration.getMock(givenInterface);
         Object result = null;
         try {
-            result = m.invoke(obj, args);
+            result = m.invoke(mock != null ? mock : obj, args);
             return result;
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
