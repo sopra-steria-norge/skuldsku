@@ -26,10 +26,14 @@ public class SpyWrapper implements java.lang.reflect.InvocationHandler {
 
     public Object invoke(Object proxy, Method m, Object[] args)
             throws Throwable {
-        Object mock = MockRegistration.getMock(givenInterface);
+        MockInterface mock = MockRegistration.getMock(givenInterface);
         Object result = null;
         try {
-            result = m.invoke(mock != null ? mock : obj, args);
+            if (mock != null) {
+                result = mock.invoke(givenInterface,obj,m,args);
+            } else {
+                result = m.invoke(obj, args);
+            }
             return result;
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
