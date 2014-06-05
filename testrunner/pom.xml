@@ -5,7 +5,6 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.steria.copito</groupId>
     <artifactId>testrunner</artifactId>
-    <name>copito testrunner</name>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 

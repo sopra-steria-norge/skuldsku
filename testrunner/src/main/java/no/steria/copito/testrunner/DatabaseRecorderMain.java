@@ -1,3 +1,6 @@
+/**
+ * A command line interface for running the database recorder, and for rolling the database back.
+ */
 package no.steria.copito.testrunner;
 
 import java.io.File;
@@ -7,14 +10,14 @@ import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import no.steria.copito.dbrecorder.dbrecorder.DatabaseRecorder;
-import no.steria.copito.dbrecorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.dbrecorder.DatabaseRecorder;
+import no.steria.copito.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 
 /**
  * Support for running the <code>DatbaseRecorder</code> from the command-line.
  * 
- * @see no.steria.copito.dbrecorder.dbrecorder.DatabaseRecorder
+ * @see no.steria.copito.dbrecorder.DatabaseRecorder
  */
 public final class DatabaseRecorderMain {
     

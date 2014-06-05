@@ -4,10 +4,10 @@ import java.io.PrintWriter;
 
 import javax.sql.DataSource;
 
-import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderCallback;
-import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderControl;
-import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderRunner;
-import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderRunnerConfig;
+import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderCallback;
+import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderControl;
+import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderRunner;
+import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderRunnerConfig;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,8 +19,8 @@ import no.steria.copito.utils.TransactionManager;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import no.steria.copito.dbrecorder.dbrecorder.DatabaseRecorder;
-import no.steria.copito.dbrecorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.dbrecorder.DatabaseRecorder;
+import no.steria.copito.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 
 public class ExampleTest {
     
