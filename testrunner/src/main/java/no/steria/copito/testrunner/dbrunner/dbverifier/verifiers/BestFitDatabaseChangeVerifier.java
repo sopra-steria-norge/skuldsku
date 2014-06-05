@@ -1,4 +1,4 @@
-package no.steria.copito.dbrecorder.dbverifier.verifiers;
+package no.steria.copito.testrunner.dbrunner.dbverifier.verifiers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChange;
-import no.steria.copito.dbrecorder.dbverifier.DatabaseChangeVerifier;
-import no.steria.copito.dbrecorder.dbverifier.VerifierOptions;
-import no.steria.copito.dbrecorder.dbverifier.VerifierResult;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierOptions;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierResult;
 
 public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
 

@@ -1,4 +1,4 @@
-package no.steria.copito.dbrecorder.runner;
+package no.steria.copito.testrunner.dbrunner.runner;
 
 
 public interface DatabaseRecorderCallback {

@@ -1,8 +1,8 @@
-package no.steria.copito.dbrecorder.dbverifier;
+package no.steria.copito.testrunner.dbrunner.dbverifier;
 
 import java.util.List;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
 
 public interface DatabaseChangeVerifier {
 

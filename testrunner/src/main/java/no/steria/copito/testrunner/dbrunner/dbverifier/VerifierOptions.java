@@ -1,4 +1,4 @@
-package no.steria.copito.dbrecorder.dbverifier;
+package no.steria.copito.testrunner.dbrunner.dbverifier;
 
 import java.util.Collections;
 import java.util.HashSet;

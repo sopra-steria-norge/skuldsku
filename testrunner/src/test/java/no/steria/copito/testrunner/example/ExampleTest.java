@@ -1,17 +1,17 @@
-package no.steria.copito.dbrecorder.example;
+package no.steria.copito.testrunner.example;
 
 import java.io.PrintWriter;
 
 import javax.sql.DataSource;
 
+import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderCallback;
+import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderControl;
+import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderRunner;
+import no.steria.copito.testrunner.dbrunner.runner.DatabaseRecorderRunnerConfig;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import no.steria.copito.dbrecorder.runner.DatabaseRecorderCallback;
-import no.steria.copito.dbrecorder.runner.DatabaseRecorderControl;
-import no.steria.copito.dbrecorder.runner.DatabaseRecorderRunner;
-import no.steria.copito.dbrecorder.runner.DatabaseRecorderRunnerConfig;
 import no.steria.copito.utils.Jdbc;
 import no.steria.copito.utils.SimpleTransactionManager;
 import no.steria.copito.utils.TransactionCallback;

@@ -1,14 +1,16 @@
-package no.steria.copito.dbrecorder.dbverifier.verifiers;
+package no.steria.copito.testrunner.dbverifier.verifiers;
 
 import java.util.Collections;
 
 import junit.framework.Assert;
 
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierOptions;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierResult;
+import no.steria.copito.testrunner.dbrunner.dbverifier.verifiers.BestFitDatabaseChangeVerifier;
 import org.junit.Test;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChange;
-import no.steria.copito.dbrecorder.dbverifier.VerifierOptions;
-import no.steria.copito.dbrecorder.dbverifier.VerifierResult;
+
 
 public class BestFitDatabaseChangeVerifierTest {
     

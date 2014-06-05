@@ -1,10 +1,10 @@
-package no.steria.copito.dbrecorder.dbverifier;
+package no.steria.copito.testrunner.dbrunner.dbverifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
 
 public final class VerifierResult {
     

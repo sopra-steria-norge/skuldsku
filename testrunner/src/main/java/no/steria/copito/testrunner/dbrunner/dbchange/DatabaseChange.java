@@ -1,4 +1,4 @@
-package no.steria.copito.dbrecorder.dbchange;
+package no.steria.copito.testrunner.dbrunner.dbchange;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,4 +1,4 @@
-package no.steria.copito.dbrecorder.dbrecorder;
+package no.steria.copito.testrunner;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -7,13 +7,14 @@ import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChangeRollback;
+import no.steria.copito.dbrecorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.dbrecorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 
 /**
  * Support for running the <code>DatbaseRecorder</code> from the command-line.
  * 
- * @see DatabaseRecorder
+ * @see no.steria.copito.dbrecorder.dbrecorder.DatabaseRecorder
  */
 public final class DatabaseRecorderMain {
     

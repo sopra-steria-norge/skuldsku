@@ -1,8 +1,7 @@
-package no.steria.copito.dbrecorder.runner;
+package no.steria.copito.testrunner.dbrunner.runner;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChange;
-import no.steria.copito.dbrecorder.dbverifier.VerifierResult;
-import no.steria.copito.dbrecorder.dbverifier.VerifierResult.VerifierResultPair;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierResult;
 
 public class VerifierResultHandlerImpl implements VerifierResultHandler {
 
@@ -11,7 +10,7 @@ public class VerifierResultHandlerImpl implements VerifierResultHandler {
         for (DatabaseChange expectedDatabaseChange : result.getMissingFromActual()) {
             throw new IllegalStateException("Cannot find actual data matching expected data on line: " + expectedDatabaseChange.getLineNumber());
         }
-        for (VerifierResultPair pair : result.getNotEquals()) {
+        for (VerifierResult.VerifierResultPair pair : result.getNotEquals()) {
             throw new IllegalStateException("The actual data on line " + pair.getActual().getLineNumber()
                     + " does not match the expected data on line number " + pair.getExpected().getLineNumber());
         }

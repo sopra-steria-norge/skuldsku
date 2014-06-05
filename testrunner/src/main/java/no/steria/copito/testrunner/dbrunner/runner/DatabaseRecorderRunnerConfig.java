@@ -1,10 +1,10 @@
-package no.steria.copito.dbrecorder.runner;
+package no.steria.copito.testrunner.dbrunner.runner;
 
 import java.io.File;
 
-import no.steria.copito.dbrecorder.dbverifier.DatabaseChangeVerifier;
-import no.steria.copito.dbrecorder.dbverifier.VerifierOptions;
-import no.steria.copito.dbrecorder.dbverifier.verifiers.BestFitDatabaseChangeVerifier;
+import no.steria.copito.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierOptions;
+import no.steria.copito.testrunner.dbrunner.dbverifier.verifiers.BestFitDatabaseChangeVerifier;
 
 public class DatabaseRecorderRunnerConfig {
 

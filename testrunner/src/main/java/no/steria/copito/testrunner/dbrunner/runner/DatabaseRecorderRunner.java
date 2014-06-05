@@ -1,4 +1,4 @@
-package no.steria.copito.dbrecorder.runner;
+package no.steria.copito.testrunner.dbrunner.runner;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,13 +6,13 @@ import java.io.PrintWriter;
 
 import javax.sql.DataSource;
 
-import no.steria.copito.dbrecorder.dbchange.DatabaseChange;
-import no.steria.copito.dbrecorder.dbchange.DatabaseChangeRollback;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.copito.dbrecorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.dbrecorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
-import no.steria.copito.dbrecorder.dbverifier.DatabaseChangeVerifier;
-import no.steria.copito.dbrecorder.dbverifier.VerifierOptions;
-import no.steria.copito.dbrecorder.dbverifier.VerifierResult;
+import no.steria.copito.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierOptions;
+import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierResult;
 
 public final class DatabaseRecorderRunner {
 
