@@ -1,6 +1,6 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.copito.javainterfacerecorder.serializer.ClassSerializer;
+import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
