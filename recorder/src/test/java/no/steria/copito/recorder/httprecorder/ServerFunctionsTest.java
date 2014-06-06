@@ -1,8 +1,9 @@
-package no.steria.copito.testrunner.httprunner;
+package no.steria.copito.recorder.httprecorder;
 
-import no.steria.copito.recorder.httprecorder.CallReporter;
-import no.steria.copito.recorder.httprecorder.ReportObject;
+import no.steria.copito.recorder.httprecorder.testjetty.JettyServer;
+import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.openqa.selenium.By;
@@ -13,28 +14,28 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
-public class TestHttpPlayer {
+public class ServerFunctionsTest {
+
     @Test
-    public void shouldHandleJSONPost() throws Exception {
-        InMemoryReporter reporter = new InMemoryReporter();
-        TestFilter.setReporter(reporter);
+    public void shouldReturnName() throws Exception {
+        CallReporter callReporter = mock(CallReporter.class);
+        TestFilter.setReporter(callReporter);
         JettyServer jettyServer = new JettyServer(0);
         jettyServer.start();
 
 
         try {
             int port = jettyServer.getPort();
+            URLConnection conn = new URL("http://localhost:" + port + "/data").openConnection();
+
             JSONObject postObj = new JSONObject();
             postObj.put("firstname","Darth");
             postObj.put("lastname","Vader");
 
-            URLConnection conn = new URL("http://localhost:" + port + "/data").openConnection();
             conn.setDoOutput(true);
             try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(),"utf-8"))) {
                 printWriter.append(postObj.toString());
@@ -44,37 +45,27 @@ public class TestHttpPlayer {
             try (InputStream is = conn.getInputStream()) {
                 res = toString(is);
             }
-
-            CallReporter callReporter = mock(CallReporter.class);
-            TestFilter.setReporter(callReporter);
-
-
-            String baseurl = "http://localhost:" + port;
-            HttpPlayer player = new HttpPlayer(baseurl);
-            player.play(reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList()));
-
+            JSONObject received = new JSONObject(res);
+            assertThat(received.getString("name")).isEqualTo("Darth Vader");
             ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
             verify(callReporter).reportCall(captor.capture());
             ReportObject reportObject = captor.getValue();
 
+            assertThat(reportObject.getMethod()).isEqualTo("POST");
+            assertThat(reportObject.getPath()).isEqualTo("/data");
             assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
             assertThat(reportObject.getOutput()).isEqualTo(res);
 
-
-
         } finally {
             jettyServer.stop();
-            TestFilter.setReporter(null);
+
         }
-
-
     }
 
     @Test
     public void shouldHandleBasicForms() throws Exception {
-        InMemoryReporter reporter = new InMemoryReporter();
-        TestFilter.setReporter(reporter);
-
+        CallReporter callReporter = mock(CallReporter.class);
+        TestFilter.setReporter(callReporter);
         JettyServer jettyServer = new JettyServer(0);
         jettyServer.start();
 
@@ -88,19 +79,18 @@ public class TestHttpPlayer {
             browser.findElement(By.name("lastname")).sendKeys("Vader");
             browser.findElement(By.name("doPerson")).click();
 
-            CallReporter callReporter = mock(CallReporter.class);
-            TestFilter.setReporter(callReporter);
+            assertThat(browser.getPageSource()).contains("Your name is Darth Vader");
 
+            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
+            verify(callReporter,times(2)).reportCall(captor.capture());
+            List<ReportObject> allValues = captor.getAllValues();
 
-            String baseurl = "http://localhost:" + port;
-            HttpPlayer player = new HttpPlayer(baseurl);
-            List<PlayStep> playbook = reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
-            //System.out.println("++" + playbook.get(1).getReportObject().getReadInputStream());
-            //playbook.get(1).setReplacement("token",playbook.get(0));
-            player.addManipulator(new HiddenFieldManipulator("token"));
-            player.play(playbook);
+            assertThat(allValues.get(1).getReadInputStream()).isEqualTo("firstname=Darth&lastname=Vader&doPerson=Do+it");
 
-            assertThat(playbook.get(1).getRecorded()).contains("Your name is Darth Vader");
+            assertThat(allValues.get(0).getMethod()).isEqualTo("GET");
+            assertThat(allValues.get(0).getPath()).isEqualTo("/post/more");
+            assertThat(allValues.get(1).getMethod()).isEqualTo("POST");
+            assertThat(allValues.get(1).getPath()).isEqualTo("/post/something");
         } finally {
             jettyServer.stop();
 
@@ -109,7 +99,11 @@ public class TestHttpPlayer {
 
     }
 
+    @After
+    public void tearDown() throws Exception {
+        TestFilter.setReporter(null);
 
+    }
 
     private static String toString(InputStream inputStream) throws IOException {
         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {

@@ -1,6 +1,6 @@
 package no.steria.copito.testrunner.httprunner;
 
-import no.steria.copito.httprecorder.ReportObject;
+import no.steria.copito.recorder.httprecorder.ReportObject;
 
 public class PlayStep {
     private ReportObject reportObject;

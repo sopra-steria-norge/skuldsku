@@ -8,8 +8,8 @@ import javax.sql.DataSource;
 
 import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
-import no.steria.copito.dbrecorder.DatabaseRecorder;
-import no.steria.copito.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import no.steria.copito.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
 import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierOptions;
 import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierResult;

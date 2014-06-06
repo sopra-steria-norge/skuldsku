@@ -10,14 +10,14 @@ import javax.sql.DataSource;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import no.steria.copito.dbrecorder.DatabaseRecorder;
-import no.steria.copito.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 
 /**
  * Support for running the <code>DatbaseRecorder</code> from the command-line.
  * 
- * @see no.steria.copito.dbrecorder.DatabaseRecorder
+ * @see no.steria.copito.recorder.dbrecorder.DatabaseRecorder
  */
 public final class DatabaseRecorderMain {
     

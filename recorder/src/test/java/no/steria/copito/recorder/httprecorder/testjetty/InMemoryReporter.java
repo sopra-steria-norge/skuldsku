@@ -1,4 +1,4 @@
-package no.steria.copito.testrunner.httprunner;
+package no.steria.copito.recorder.httprecorder.testjetty;
 
 import no.steria.copito.recorder.httprecorder.CallReporter;
 import no.steria.copito.recorder.httprecorder.ReportObject;

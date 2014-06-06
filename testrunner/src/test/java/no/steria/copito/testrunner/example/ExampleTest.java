@@ -19,8 +19,8 @@ import no.steria.copito.utils.TransactionManager;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 
-import no.steria.copito.dbrecorder.DatabaseRecorder;
-import no.steria.copito.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 
 public class ExampleTest {
     

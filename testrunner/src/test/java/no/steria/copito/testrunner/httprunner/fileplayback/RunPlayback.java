@@ -1,7 +1,7 @@
 package no.steria.copito.testrunner.httprunner.fileplayback;
 
-import no.steria.copito.httprecorder.ReportObject;
-import no.steria.copito.httprecorder.reporter.FileCallReporter;
+import no.steria.copito.recorder.httprecorder.ReportObject;
+import no.steria.copito.recorder.httprecorder.reporter.FileCallReporter;
 import no.steria.copito.testrunner.httprunner.HttpPlayer;
 import no.steria.copito.testrunner.httprunner.PlayStep;
 

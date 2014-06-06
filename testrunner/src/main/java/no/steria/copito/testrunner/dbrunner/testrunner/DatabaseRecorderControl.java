@@ -1,6 +1,6 @@
 package no.steria.copito.testrunner.dbrunner.testrunner;
 
-import no.steria.copito.dbrecorder.DatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 
 public final class DatabaseRecorderControl {
     

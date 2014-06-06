@@ -7,7 +7,7 @@
 
     <servlet>
         <servlet-name>dataServlet</servlet-name>
-        <servlet-class>no.steria.copito.httprecorder.testjetty.DataServlet</servlet-class>
+        <servlet-class>no.steria.copito.recorder.httprecorder.testjetty.DataServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>dataServlet</servlet-name>
@@ -15,7 +15,7 @@
     </servlet-mapping>
     <servlet>
         <servlet-name>postServlet</servlet-name>
-        <servlet-class>no.steria.copito.httprecorder.testjetty.PostFormServlet</servlet-class>
+        <servlet-class>no.steria.copito.recorder.httprecorder.testjetty.PostFormServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>postServlet</servlet-name>
@@ -23,7 +23,7 @@
     </servlet-mapping>
     <filter>
         <filter-name>logFilter</filter-name>
-        <filter-class>no.steria.copito.httprecorder.testjetty.TestFilter</filter-class>
+        <filter-class>no.steria.copito.recorder.httprecorder.testjetty.TestFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>logFilter</filter-name>
