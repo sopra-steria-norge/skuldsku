@@ -1,4 +1,4 @@
-package no.steria.copito.javainterfacerecorder.spy;
+package no.steria.copito.javainterfacerecorder.interfacerecorder;
 
 
 import java.util.concurrent.ExecutorService;
@@ -14,15 +14,15 @@ public class LogRunner implements Runnable {
     private final String methodName;
     private final Object[] args;
     private final Object result;
-    private final SpyConfig spyConfig;
+    private final InterfaceRecorderConfig interfaceRecorderConfig;
 
-    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
+    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
         this.reportCallback = reportCallback;
         this.className = className;
         this.methodName = methodName;
         this.args = args;
         this.result = result;
-        this.spyConfig = spyConfig;
+        this.interfaceRecorderConfig = interfaceRecorderConfig;
     }
 
     private boolean doLog() {
@@ -48,16 +48,16 @@ public class LogRunner implements Runnable {
     }
 
     private Object logObject(Object para) {
-        if (spyConfig.isIgnored(className,methodName,para)) {
+        if (interfaceRecorderConfig.isIgnored(className,methodName,para)) {
             return null;
         }
         return para;
     }
 
 
-    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, SpyConfig spyConfig) {
-        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, spyConfig);
-        AsyncMode asyncMode = spyConfig.getAsyncMode();
+    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
+        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, interfaceRecorderConfig);
+        AsyncMode asyncMode = interfaceRecorderConfig.getAsyncMode();
         if (asyncMode == AsyncMode.ALL_ASYNC) {
             executorService.submit(logRunner);
             return;
@@ -73,7 +73,7 @@ public class LogRunner implements Runnable {
 
     @Override
     public void run() {
-        if (spyConfig.getAsyncMode() == AsyncMode.ALL_ASYNC && !doLog()) {
+        if (interfaceRecorderConfig.getAsyncMode() == AsyncMode.ALL_ASYNC && !doLog()) {
             return;
         }
         logEvent();

@@ -1,10 +1,10 @@
-package no.steria.copito.javainterfacerecorder.spy;
+package no.steria.copito.javainterfacerecorder.interfacerecorder;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SpyConfig {
+public class InterfaceRecorderConfig {
     private AsyncMode asyncMode;
     private List<IgnorePara> ignores = new ArrayList<>();
 
@@ -24,27 +24,27 @@ public class SpyConfig {
     }
 
     public static class Factory {
-        private SpyConfig spyConfig = new SpyConfig();
+        private InterfaceRecorderConfig interfaceRecorderConfig = new InterfaceRecorderConfig();
 
         private Factory() {
         }
 
         public Factory withAsyncMode(AsyncMode mode) {
-            spyConfig.asyncMode = mode;
+            interfaceRecorderConfig.asyncMode = mode;
             return this;
         }
 
-        public SpyConfig create() {
-            return spyConfig;
+        public InterfaceRecorderConfig create() {
+            return interfaceRecorderConfig;
         }
 
         public Factory ignore(Class<?> serviceClass, Method serviceMethod, Class<?> ignore) {
-            spyConfig.ignores.add(new IgnorePara(serviceClass,serviceMethod,ignore));
+            interfaceRecorderConfig.ignores.add(new IgnorePara(serviceClass,serviceMethod,ignore));
             return this;
         }
     }
 
-    private SpyConfig() {
+    private InterfaceRecorderConfig() {
 
     }
 

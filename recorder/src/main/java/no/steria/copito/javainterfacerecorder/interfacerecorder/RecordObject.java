@@ -1,4 +1,4 @@
-package no.steria.copito.javainterfacerecorder.spy;
+package no.steria.copito.javainterfacerecorder.interfacerecorder;
 
 public class RecordObject {
     private final String serviceName;

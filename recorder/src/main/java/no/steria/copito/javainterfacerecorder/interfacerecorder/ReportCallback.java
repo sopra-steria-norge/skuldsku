@@ -1,4 +1,4 @@
-package no.steria.copito.javainterfacerecorder.spy;
+package no.steria.copito.javainterfacerecorder.interfacerecorder;
 
 public interface ReportCallback {
     public boolean doReport();

@@ -1,4 +1,4 @@
-package no.steria.copito.javainterfacerecorder.spy;
+package no.steria.copito.javainterfacerecorder.interfacerecorder;
 
 import no.steria.copito.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.copito.javainterfacerecorder.serializer.ClassWithSimpleFields;
@@ -9,18 +9,18 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SpyWrapperTest {
+public class InterfaceRecorderWrapperTest {
 
     private final DummyReportCallback reportCallback = new DummyReportCallback();
 
     @Test
     public void shouldHandleBasic() throws Exception {
-        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, SpyConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
         assertThat(result).isEqualTo("Hello MyName");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.spy.ServiceClass");
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.interfacerecorder.ServiceClass");
         assertThat(reportCallback.getMethodname()).isEqualTo("doSimpleService");
         assertThat(reportCallback.getParameters()).isEqualTo("<java.lang.String;MyName>");
         assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;Hello MyName>");
@@ -30,11 +30,11 @@ public class SpyWrapperTest {
     public void shouldIgnoreFields() throws Exception {
         Method doWithPara = ServiceClass.class.getMethod("doWithPara", ServiceParameterClass.class);
         Class<?> ignore = ServiceParameterClass.class;
-        SpyConfig spyConfig = SpyConfig.factory()
+        InterfaceRecorderConfig interfaceRecorderConfig = InterfaceRecorderConfig.factory()
                 .withAsyncMode(AsyncMode.ALL_SYNC)
                 .ignore(ServiceClass.class, doWithPara, ignore)
                 .create();
-        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, spyConfig);
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
 
         ServiceParameterClass para = new ServiceParameterClass();
         para.setInfo("This is it");
@@ -42,7 +42,7 @@ public class SpyWrapperTest {
 
         assertThat(result).isEqualTo("This is it");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.spy.ServiceClass");
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.interfacerecorder.ServiceClass");
         assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
         assertThat(reportCallback.getParameters()).isEqualTo("<null>");
         assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
@@ -52,11 +52,11 @@ public class SpyWrapperTest {
     @Test
     public void shouldIgnoreParametersCall() throws Exception {
         Class<?> ignore = ServiceParameterClass.class;
-        SpyConfig spyConfig = SpyConfig.factory()
+        InterfaceRecorderConfig interfaceRecorderConfig = InterfaceRecorderConfig.factory()
                 .withAsyncMode(AsyncMode.ALL_SYNC)
                 .ignore(ServiceClass.class, null, ignore)
                 .create();
-        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, spyConfig);
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
 
         ServiceParameterClass para = new ServiceParameterClass();
         para.setInfo("This is it");
@@ -64,7 +64,7 @@ public class SpyWrapperTest {
 
         assertThat(result).isEqualTo("This is it");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.spy.ServiceClass");
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.interfacerecorder.ServiceClass");
         assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
         assertThat(reportCallback.getParameters()).isEqualTo("<null>");
         assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
@@ -73,12 +73,12 @@ public class SpyWrapperTest {
 
     @Test
     public void shouldHandleListsAsResults() throws Exception {
-        ServiceInterface serviceClass = SpyWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, SpyConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         List<String> result = serviceClass.returnList(new ClassWithSimpleFields().setIntval(42));
 
         assertThat(result).containsOnly("This","is","not","null");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.spy.ServiceClass");
+        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.javainterfacerecorder.interfacerecorder.ServiceClass");
         assertThat(reportCallback.getMethodname()).isEqualTo("returnList");
 
         ClassSerializer classSerializer = new ClassSerializer();

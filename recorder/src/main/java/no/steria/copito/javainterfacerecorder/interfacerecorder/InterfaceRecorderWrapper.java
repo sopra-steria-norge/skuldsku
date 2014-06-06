@@ -1,24 +1,24 @@
-package no.steria.copito.javainterfacerecorder.spy;
+package no.steria.copito.javainterfacerecorder.interfacerecorder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-public class SpyWrapper implements java.lang.reflect.InvocationHandler {
-    private static SpyConfig spyConfig;
+public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHandler {
+    private static InterfaceRecorderConfig interfaceRecorderConfig;
     private Object obj;
     private final ReportCallback reportCallback;
     private Class<?> givenInterface;
 
     @SuppressWarnings("unchecked")
-    public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, SpyConfig spyConfig) {
-        SpyWrapper.spyConfig = spyConfig;
-        SpyWrapper debugProxy = new SpyWrapper(obj,reportCallback,givenInterface);
+    public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, InterfaceRecorderConfig interfaceRecorderConfig) {
+        InterfaceRecorderWrapper.interfaceRecorderConfig = interfaceRecorderConfig;
+        InterfaceRecorderWrapper debugProxy = new InterfaceRecorderWrapper(obj,reportCallback,givenInterface);
         Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, debugProxy);
         return (T) o;
     }
 
-    private SpyWrapper(Object obj, ReportCallback reportCallback, Class<?> givenInterface) {
+    private InterfaceRecorderWrapper(Object obj, ReportCallback reportCallback, Class<?> givenInterface) {
         this.obj = obj;
         this.reportCallback = reportCallback;
         this.givenInterface = givenInterface;
@@ -43,7 +43,7 @@ public class SpyWrapper implements java.lang.reflect.InvocationHandler {
         } finally {
             String className = obj.getClass().getName();
             String methodName = m.getName();
-            LogRunner.log(reportCallback,className,methodName,args,result,spyConfig);
+            LogRunner.log(reportCallback,className,methodName,args,result, interfaceRecorderConfig);
 
         }
     }
