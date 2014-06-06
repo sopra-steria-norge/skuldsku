@@ -1,4 +1,4 @@
-package no.steria.copito.spytest.spy;
+package no.steria.copito.javainterfacerecorder.spy;
 
 import java.lang.reflect.Method;
 import java.util.List;

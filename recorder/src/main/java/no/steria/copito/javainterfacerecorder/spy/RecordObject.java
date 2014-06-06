@@ -1,4 +1,4 @@
-package no.steria.copito.spytest.spy;
+package no.steria.copito.javainterfacerecorder.spy;
 
 public class RecordObject {
     private final String serviceName;
