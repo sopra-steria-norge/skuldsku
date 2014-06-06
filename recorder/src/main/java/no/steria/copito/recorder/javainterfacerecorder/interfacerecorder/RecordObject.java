@@ -12,4 +12,20 @@ public class RecordObject {
         this.parameters = parameters;
         this.result = result;
     }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public String getParameters() {
+        return parameters;
+    }
+
+    public String getResult() {
+        return result;
+    }
 }
