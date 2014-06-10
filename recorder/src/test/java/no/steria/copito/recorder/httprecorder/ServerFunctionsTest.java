@@ -1,9 +1,11 @@
 package no.steria.copito.recorder.httprecorder;
 
+import no.steria.copito.recorder.RecorderFacade;
 import no.steria.copito.recorder.httprecorder.testjetty.JettyServer;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.openqa.selenium.By;
@@ -13,12 +15,19 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class ServerFunctionsTest {
+
+    @Before
+    public void setUp() throws SQLException {
+        RecorderFacade recorderFacade = new RecorderFacade(null);
+        recorderFacade.start();
+    }
 
     @Test
     public void shouldReturnName() throws Exception {

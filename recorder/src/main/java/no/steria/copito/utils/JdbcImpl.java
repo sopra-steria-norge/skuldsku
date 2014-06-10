@@ -38,7 +38,7 @@ public final class JdbcImpl implements Jdbc {
         if (type == null) {
             throw new NullPointerException("type == null");
         }
-        final List<T> result = new ArrayList<T>();
+        final List<T> result = new ArrayList<>();
         query(sql, new ResultSetCallback() {
             @SuppressWarnings("unchecked")
             @Override

@@ -1,5 +1,7 @@
 package no.steria.copito.recorder.httprecorder;
 
+import no.steria.copito.recorder.RecorderFacade;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +13,9 @@ public abstract class ServletFilter implements Filter{
 
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if(!RecorderFacade.recordingIsOn()){
+            return;
+        }
         HttpServletRequest req = (HttpServletRequest) request;
 
         ReportObject reportObject = new ReportObject();

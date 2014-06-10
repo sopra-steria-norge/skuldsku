@@ -1,5 +1,8 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
+import no.steria.copito.recorder.RecorderFacade;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -24,10 +27,15 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
         this.givenInterface = givenInterface;
     }
 
+    @Override
+    @Nullable
     public Object invoke(Object proxy, Method m, Object[] args)
             throws Throwable {
-        MockInterface mock = MockRegistration.getMock(givenInterface);
+        if(!RecorderFacade.recordingIsOn()){
+            return null;
+        }
         Object result = null;
+        MockInterface mock = MockRegistration.getMock(givenInterface);
         try {
             if (mock != null) {
                 result = mock.invoke(givenInterface,obj,m,args);

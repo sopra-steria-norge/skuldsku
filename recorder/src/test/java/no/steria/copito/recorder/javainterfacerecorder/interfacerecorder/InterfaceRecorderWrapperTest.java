@@ -1,10 +1,13 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
+import no.steria.copito.recorder.RecorderFacade;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -12,6 +15,14 @@ import static org.fest.assertions.Assertions.assertThat;
 public class InterfaceRecorderWrapperTest {
 
     private final DummyReportCallback reportCallback = new DummyReportCallback();
+
+    RecorderFacade recorderFacade;
+
+    @Before
+    public void setUp() throws SQLException {
+        recorderFacade = new RecorderFacade(null);
+        recorderFacade.start();
+    }
 
     @Test
     public void shouldHandleBasic() throws Exception {
@@ -76,7 +87,7 @@ public class InterfaceRecorderWrapperTest {
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         List<String> result = serviceClass.returnList(new ClassWithSimpleFields().setIntval(42));
 
-        assertThat(result).containsOnly("This","is","not","null");
+        assertThat(result).containsOnly("This", "is", "not", "null");
 
         assertThat(reportCallback.getClassName()).isEqualTo("no.steria.copito.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
         assertThat(reportCallback.getMethodname()).isEqualTo("returnList");
@@ -88,8 +99,8 @@ public class InterfaceRecorderWrapperTest {
         assertThat(simpleFields).isNotNull();
         assertThat(simpleFields.getIntval()).isEqualTo(42);
 
-       @SuppressWarnings("unchecked") List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
-       assertThat(recodredResult).containsOnly("This","is","not","null");
+        @SuppressWarnings("unchecked") List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
+        assertThat(recodredResult).containsOnly("This", "is", "not", "null");
     }
 
 
