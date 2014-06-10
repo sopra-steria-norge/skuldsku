@@ -1,6 +1,7 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -20,7 +22,7 @@ public class InterfaceRecorderWrapperTest {
 
     @Before
     public void setUp() throws SQLException {
-        recorderFacade = new RecorderFacade(null);
+        recorderFacade = new RecorderFacade(new ArrayList<DatabaseRecorder>(0));
         recorderFacade.start();
     }
 

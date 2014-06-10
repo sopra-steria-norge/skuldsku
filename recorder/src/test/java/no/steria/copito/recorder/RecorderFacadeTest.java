@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -16,14 +18,17 @@ import static org.mockito.Mockito.*;
 public class RecorderFacadeTest {
 
     @Mock
-    private DatabaseRecorder databaseRecorder;
+    private DatabaseRecorder databaseRecorder1;
+
+    @Mock
+    private DatabaseRecorder databaseRecorder2;
 
     private RecorderFacade recorderFacade;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        recorderFacade = new RecorderFacade(databaseRecorder);
+        recorderFacade = new RecorderFacade(Arrays.asList(databaseRecorder1, databaseRecorder2));
         recorderFacade.stop();
     }
 
@@ -41,7 +46,7 @@ public class RecorderFacadeTest {
 
     @Test
     public void shouldAlsoTurnOnAndOffWhenNoDatabaseRecorder() throws SQLException {
-        RecorderFacade recorderFacadeNoRecorder = new RecorderFacade(null);
+        RecorderFacade recorderFacadeNoRecorder = new RecorderFacade(new ArrayList<DatabaseRecorder>(0  ));
         assertFalse(RecorderFacade.recordingIsOn());
         recorderFacadeNoRecorder.start();
         assertTrue(RecorderFacade.recordingIsOn());
@@ -51,28 +56,33 @@ public class RecorderFacadeTest {
 
     @Test
     public void shouldNotTurnDbRecordingOffWhenAlreadyOff() {
-        verify(databaseRecorder, atMost(1)).stop(); // could be called from setUp()
+        verify(databaseRecorder1, atMost(1)).stop(); // could be called from setUp()
+        verify(databaseRecorder2, atMost(1)).stop(); // could be called from setUp()
         recorderFacade.stop();
-        verifyNoMoreInteractions(databaseRecorder);
+        verifyNoMoreInteractions(databaseRecorder1);
+        verifyNoMoreInteractions(databaseRecorder2);
     }
 
     @Test
     public void shouldTurnDbRecordingOnWhenRecordingTurnedOn() throws SQLException {
         recorderFacade.start();
-        verify(databaseRecorder, times(1)).start();
+        verify(databaseRecorder1, times(1)).start();
+        verify(databaseRecorder2, times(1)).start();
     }
 
     @Test
     public void shouldNotTurnDbRecordingOnWhenAlreadyOn() throws SQLException {
         recorderFacade.start();
         recorderFacade.start();
-        verify(databaseRecorder, times(1)).start();
+        verify(databaseRecorder1, times(1)).start();
+        verify(databaseRecorder2, times(1)).start();
     }
 
     @Test
     public void shouldTurnDbRecordingOffWhenRecordingTurnedOff() throws SQLException {
         recorderFacade.start();
         recorderFacade.stop();
-        verify(databaseRecorder, times(2)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
+        verify(databaseRecorder1, times(2)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
+        verify(databaseRecorder2, times(2)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
     }
 }

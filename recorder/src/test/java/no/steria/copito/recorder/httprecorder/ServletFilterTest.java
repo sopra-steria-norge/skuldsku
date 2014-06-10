@@ -1,13 +1,12 @@
 package no.steria.copito.recorder.httprecorder;
 
 import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -16,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -29,7 +29,7 @@ public class ServletFilterTest {
     private FilterChain chain;
 
     ServletFilter servletFilter = new TestFilter();
-    RecorderFacade recorderFacade = new RecorderFacade(null);
+    RecorderFacade recorderFacade = new RecorderFacade(new ArrayList<DatabaseRecorder>(0));
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
