@@ -23,9 +23,10 @@ import static org.mockito.Mockito.*;
 
 public class ServerFunctionsTest {
 
+    RecorderFacade recorderFacade = new RecorderFacade(null);
+
     @Before
     public void setUp() throws SQLException {
-        RecorderFacade recorderFacade = new RecorderFacade(null);
         recorderFacade.start();
     }
 
@@ -111,7 +112,7 @@ public class ServerFunctionsTest {
     @After
     public void tearDown() throws Exception {
         TestFilter.setReporter(null);
-
+        recorderFacade.stop();
     }
 
     private static String toString(InputStream inputStream) throws IOException {
