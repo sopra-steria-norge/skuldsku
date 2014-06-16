@@ -1,8 +1,10 @@
 package no.steria.copito.testrunner.httprunner;
 
+import no.steria.copito.recorder.RecorderFacade;
 import no.steria.copito.recorder.httprecorder.CallReporter;
 import no.steria.copito.recorder.httprecorder.ReportObject;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.openqa.selenium.By;
@@ -12,6 +14,8 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +24,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class TestHttpPlayer {
+
+    private final RecorderFacade recorderFacade = new RecorderFacade(new ArrayList<>(0));
+
+    @Before
+    public void setUp() throws SQLException {
+        recorderFacade.start();
+    }
+
     @Test
     public void shouldHandleJSONPost() throws Exception {
         InMemoryReporter reporter = new InMemoryReporter();
@@ -31,12 +43,12 @@ public class TestHttpPlayer {
         try {
             int port = jettyServer.getPort();
             JSONObject postObj = new JSONObject();
-            postObj.put("firstname","Darth");
-            postObj.put("lastname","Vader");
+            postObj.put("firstname", "Darth");
+            postObj.put("lastname", "Vader");
 
             URLConnection conn = new URL("http://localhost:" + port + "/data").openConnection();
             conn.setDoOutput(true);
-            try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(),"utf-8"))) {
+            try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(), "utf-8"))) {
                 printWriter.append(postObj.toString());
             }
 
@@ -51,7 +63,7 @@ public class TestHttpPlayer {
 
             String baseurl = "http://localhost:" + port;
             HttpPlayer player = new HttpPlayer(baseurl);
-            player.play(reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList()));
+            player.play(reporter.getPlayBook().stream().map(PlayStep::new).collect(Collectors.toList()));
 
             ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
             verify(callReporter).reportCall(captor.capture());
@@ -59,8 +71,6 @@ public class TestHttpPlayer {
 
             assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
             assertThat(reportObject.getOutput()).isEqualTo(res);
-
-
 
         } finally {
             jettyServer.stop();
@@ -92,9 +102,9 @@ public class TestHttpPlayer {
             TestFilter.setReporter(callReporter);
 
 
-            String baseurl = "http://localhost:" + port;
-            HttpPlayer player = new HttpPlayer(baseurl);
-            List<PlayStep> playbook = reporter.getPlayBook().stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
+            String baseUrl = "http://localhost:" + port;
+            HttpPlayer player = new HttpPlayer(baseUrl);
+            List<PlayStep> playbook = reporter.getPlayBook().stream().map(PlayStep::new).collect(Collectors.toList());
             //System.out.println("++" + playbook.get(1).getReportObject().getReadInputStream());
             //playbook.get(1).setReplacement("token",playbook.get(0));
             player.addManipulator(new HiddenFieldManipulator("token"));
@@ -110,13 +120,12 @@ public class TestHttpPlayer {
     }
 
 
-
     private static String toString(InputStream inputStream) throws IOException {
         try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
             StringBuilder result = new StringBuilder();
             int c;
             while ((c = reader.read()) != -1) {
-                result.append((char)c);
+                result.append((char) c);
             }
             return result.toString();
         }
