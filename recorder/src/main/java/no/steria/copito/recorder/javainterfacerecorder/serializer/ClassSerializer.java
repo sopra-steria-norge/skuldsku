@@ -14,39 +14,12 @@ public class ClassSerializer {
     private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
 
     public String asString(Object object) {
-        String encval = encodeValue(object);
-        if (object != null && !encval.startsWith("<")) {
-            return "<" + object.getClass().getName() + ";" + encval + ">";
+        String encodedValue = encodeValue(object);
+        if (object != null && !encodedValue.startsWith("<")) {
+            return "<" + object.getClass().getName() + ";" + encodedValue + ">";
         }
-        return encval;
+        return encodedValue;
     }
-
-    private String computeFields(Object object) {
-        Field[] declaredFields = object.getClass().getDeclaredFields();
-        StringBuilder result = new StringBuilder();
-        for (Field field : declaredFields) {
-            result.append(";");
-            result.append(field.getName());
-            result.append("=");
-            try {
-                boolean access = field.isAccessible();
-                if (!access) {
-                    field.setAccessible(true);
-                }
-                Object fieldValue = field.get(object);
-                String encodedValue = encodeValue(fieldValue);
-                result.append(encodedValue);
-                if (!access) {
-                    field.setAccessible(false);
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return result.toString();
-    }
-
-
 
     public Object asObject(String serializedValue) {
         if ("<null>".equals(serializedValue)) {
@@ -54,7 +27,7 @@ public class ClassSerializer {
         }
         String[] parts = splitToParts(serializedValue);
 
-        if (serializedValue.indexOf("=") == -1) {
+        if (!serializedValue.contains("=")) {
             try {
                 Class<?> clazz=null;
                 if ("list".equals(parts[0]) || "map".equals(parts[0])) {
@@ -112,39 +85,9 @@ public class ClassSerializer {
             if (c == ';' && level == 1) {
                 result.add(serializedValue.substring(prevpos,pos));
                 prevpos=pos+1;
-                continue;
             }
         }
-
-
-
-        return result.toArray(new String[0]);
-    }
-
-    private void setFieldValue(Object object, String fieldValue, Field field) {
-        Object value;
-        value = objectValueFromString(fieldValue, field.getType());
-
-        boolean access = field.isAccessible();
-        if (!access) {
-            field.setAccessible(true);
-        }
-        try {
-            field.set(object, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        if (!access) {
-            field.setAccessible(false);
-        }
-    }
-
-    private Object initObject(String classname) {
-        try {
-            return Class.forName(classname).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        return result.toArray(new String[result.size()]);
     }
 
     public Object objectValueFromString(String fieldValue, Class<?> type) {
@@ -179,10 +122,116 @@ public class ClassSerializer {
         return value;
     }
 
+    public String encodeValue(Object fieldValue) {
+        if (fieldValue == null) {
+            return "<null>";
+        }
+        if (fieldValue instanceof Object[]) {
+            Object[] arr=(Object[]) fieldValue;
+            StringBuilder res = new StringBuilder("<array");
+            for (Object objInArr : arr) {
+                encode(res, objInArr);
+            }
+            res.append(">");
+            return res.toString();
+        }
+        if (fieldValue instanceof  List) {
+            List<Object> listValues = (List<Object>) fieldValue;
+            StringBuilder res = new StringBuilder("<list");
+            for (Object objectInList : listValues) {
+                encode(res, objectInList);
+            }
+            res.append(">");
+            return res.toString();
+        }
+        if (fieldValue instanceof Map) {
+            Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
+            StringBuilder res = new StringBuilder("<map");
+            for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
+                Object val = entry.getKey();
+                encode(res, val);
+                val = entry.getValue();
+                encode(res, val);
+
+            }
+            res.append(">");
+            return res.toString();
+        }
+        if (Date.class.equals(fieldValue.getClass())) {
+            return dateFormat.print(new DateTime(fieldValue));
+        }
+        if (DateTime.class.equals(fieldValue.getClass())) {
+            return dateFormat.print((ReadableInstant) fieldValue);
+        }
+        String packageName = fieldValue.getClass().getPackage().getName();
+        if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
+            return fieldValue.toString()
+                    .replaceAll("&","&amp")
+                    .replaceAll(";","&semi")
+                    .replaceAll("<","&lt")
+                    .replaceAll(">","&gt")
+                    .replaceAll("=","&eq");
+        }
+        String classname = fieldValue.getClass().getName();
+        String fieldsCode = computeFields(fieldValue);
+        return "<" + classname + fieldsCode + ">";
+    }
+
+    private String computeFields(Object object) {
+        Field[] declaredFields = object.getClass().getDeclaredFields();
+        StringBuilder result = new StringBuilder();
+        for (Field field : declaredFields) {
+            result.append(";");
+            result.append(field.getName());
+            result.append("=");
+            try {
+                boolean access = field.isAccessible();
+                if (!access) {
+                    field.setAccessible(true);
+                }
+                Object fieldValue = field.get(object);
+                String encodedValue = encodeValue(fieldValue);
+                result.append(encodedValue);
+                if (!access) {
+                    field.setAccessible(false);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return result.toString();
+    }
+
+    private void setFieldValue(Object object, String fieldValue, Field field) {
+        Object value;
+        value = objectValueFromString(fieldValue, field.getType());
+
+        boolean access = field.isAccessible();
+        if (!access) {
+            field.setAccessible(true);
+        }
+        try {
+            field.set(object, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        if (!access) {
+            field.setAccessible(false);
+        }
+    }
+
+    private Object initObject(String classname) {
+        try {
+            return Class.forName(classname).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);
         if ("array".equals(parts[0])) {
-            Object arr = (Object[]) Array.newInstance(type.getComponentType(), parts.length - 1);
+            Object arr = Array.newInstance(type.getComponentType(), parts.length - 1);
 
             for (int i=0;i<parts.length-1;i++) {
                 String codeStr = parts[i + 1];
@@ -235,8 +284,7 @@ public class ClassSerializer {
         if ("&null".equals(part)) {
             return null;
         }
-        String codeStr = part;
-        String[] valType = splitToParts(codeStr);
+        String[] valType = splitToParts(part);
         Class<?> aClass;
         try {
             aClass = Class.forName(valType[0]);
@@ -246,72 +294,12 @@ public class ClassSerializer {
         return objectValueFromString(valType[1], aClass);
     }
 
-
-    public String encodeValue(Object fieldValue) {
-        if (fieldValue == null) {
-            return "<null>";
-        }
-        if (fieldValue instanceof Object[]) {
-            Object[] arr=(Object[]) fieldValue;
-            StringBuilder res = new StringBuilder("<array");
-            for (Object objInArr : arr) {
-                encode(res, objInArr);
-            }
-            res.append(">");
-            return res.toString();
-        }
-        if (fieldValue instanceof  List) {
-            List<Object> listValues = (List<Object>) fieldValue;
-            StringBuilder res = new StringBuilder("<list");
-            for (Object objectInList : listValues) {
-                encode(res, objectInList);
-            }
-            res.append(">");
-            return res.toString();
-        }
-        if (fieldValue instanceof Map) {
-            Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
-            StringBuilder res = new StringBuilder("<map");
-            for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
-                Object val = entry.getKey();
-                encode(res, val);
-                val = entry.getValue();
-                encode(res, val);
-
-            }
-            res.append(">");
-            return res.toString();
-        }
-        if (fieldValue == null) {
-            return "&null";
-        }
-        if (Date.class.equals(fieldValue.getClass())) {
-            return dateFormat.print(new DateTime(fieldValue));
-        }
-        if (DateTime.class.equals(fieldValue.getClass())) {
-            return dateFormat.print((ReadableInstant) fieldValue);
-        }
-        String packageName = fieldValue.getClass().getPackage().getName();
-        if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
-            return fieldValue.toString()
-                    .replaceAll("&","&amp")
-                    .replaceAll(";","&semi")
-                    .replaceAll("<","&lt")
-                    .replaceAll(">","&gt")
-                    .replaceAll("=","&eq");
-        }
-        String classname = fieldValue.getClass().getName();
-        String fieldsCode = computeFields(fieldValue);
-        return "<" + classname + fieldsCode + ">";
-    }
-
     private void encode(StringBuilder res, Object val) {
         res.append(";");
         if (val == null) {
             res.append("&null");
             return;
         }
-        res.append("<" + val.getClass().getName() + ";" + encodeValue(val) + ">");
+        res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
     }
-
 }

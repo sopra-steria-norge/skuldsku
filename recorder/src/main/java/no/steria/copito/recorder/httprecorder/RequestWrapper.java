@@ -22,7 +22,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() throws IOException {
         final ServletInputStream servletIS = super.getInputStream();
 
-        return new ProxyServetInputStream(servletIS,reportObject);
+        return new ProxyServletInputStream(servletIS,reportObject);
     }
 
 
@@ -62,14 +62,14 @@ public class RequestWrapper extends HttpServletRequestWrapper {
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
-            List<String> paravalues = parameters.get(key);
+            List<String> parameterValues = parameters.get(key);
 
-            if (paravalues == null) {
-                paravalues = new ArrayList<>();
-                parameters.put(key,paravalues);
+            if (parameterValues == null) {
+                parameterValues = new ArrayList<>();
+                parameters.put(key,parameterValues);
             }
 
-            paravalues.add(value);
+            parameterValues.add(value);
         }
 
     }

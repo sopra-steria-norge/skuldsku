@@ -14,6 +14,7 @@ public abstract class ServletFilter implements Filter{
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if(!RecorderFacade.recordingIsOn()){
+            // This block is not synchronized, it just makes the timing for recording slightly inaccurate.
             return;
         }
         HttpServletRequest req = (HttpServletRequest) request;
@@ -38,6 +39,11 @@ public abstract class ServletFilter implements Filter{
         if (reporter != null) {
             reporter.reportCall(reportObject);
         }
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        RecorderFacade.registerFilter(this);
     }
 
     private void logHeaders(HttpServletRequest req, ReportObject reportObject) {

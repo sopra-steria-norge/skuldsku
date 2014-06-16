@@ -3,13 +3,13 @@ package no.steria.copito.recorder.httprecorder;
 import javax.servlet.ServletInputStream;
 import java.io.IOException;
 
-public class ProxyServetInputStream extends ServletInputStream {
+public class ProxyServletInputStream extends ServletInputStream {
 
-    private ServletInputStream delegate;
-    private ReportObject reportObject;
+    private final ServletInputStream delegate;
+    private final ReportObject reportObject;
     private StringBuilder result = new StringBuilder();
 
-    public ProxyServetInputStream(ServletInputStream delegate, ReportObject reportObject) {
+    public ProxyServletInputStream(ServletInputStream delegate, ReportObject reportObject) {
         this.delegate = delegate;
         this.reportObject = reportObject;
     }

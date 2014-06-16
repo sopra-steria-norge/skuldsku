@@ -6,15 +6,23 @@ import no.steria.copito.recorder.httprecorder.ReportObject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
+/**
+ * Whenever the ServletFilter processes a ServletRequest or a ServletResponse, it will create a ReportObject, and call
+ * reportCall() on a CallReporter to handle the actual recording of the data.
+ *
+ * This specific CallReporter writes the ReportObjects to a file, with a name as specified in the constructor.
+ */
 public class FileCallReporter implements CallReporter {
     private PrintWriter writer;
+    private static File reportFile;
 
     public static FileCallReporter create(String filename) {
         FileCallReporter fileCallReporter = new FileCallReporter();
-        File file = new File(filename);
+        reportFile = new File(filename);
         try {
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(reportFile);
             fileCallReporter.writer = new PrintWriter(fw);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -31,11 +39,23 @@ public class FileCallReporter implements CallReporter {
     private FileCallReporter() {
     }
 
+    /**
+     *
+     * @param reportObject Data that should be reported
+     */
     @Override
-    public void reportCall(ReportObject reportObject) {
+        public void reportCall(ReportObject reportObject) {
         writer.append(reportObject.serializedString());
         writer.append("\n");
         writer.flush();
+    }
+
+    @Override
+    public String getRecordedData() throws FileNotFoundException {
+        Scanner scanner = new Scanner(reportFile);
+        String recordedData = scanner.useDelimiter("\\Z").next();
+        scanner.close();
+        return recordedData;
     }
 
     public static List<ReportObject> readReportedObjects(String filename) {
@@ -52,9 +72,7 @@ public class FileCallReporter implements CallReporter {
             ReportObject reportObject = ReportObject.parseFromString(serializedStr);
             result.add(reportObject);
         }
-
         return result;
-
     }
 
     private static String toString(InputStream inputStream) throws IOException {

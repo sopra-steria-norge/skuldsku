@@ -3,9 +3,13 @@ package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * This implementation of MockInterface delegates the handling of recording of interaction data to
+ * the mock service provided in the constructor.
+ */
 public class MockFromServiceImpl implements MockInterface {
 
-    private Object mockService;
+    private final Object mockService;
 
     public MockFromServiceImpl(Object mockService) {
 
