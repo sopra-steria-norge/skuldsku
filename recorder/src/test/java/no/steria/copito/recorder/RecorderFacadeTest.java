@@ -106,14 +106,17 @@ public class RecorderFacadeTest {
 
     @Test
     public void shouldTurnDbRecordingOffWhenRecordingTurnedOff() throws SQLException {
+        verify(databaseRecorder1, atMost(1)).stop(); // could be called from setUp()
+        verify(databaseRecorder2, atMost(1)).stop(); // could be called from setUp()
         recorderFacade.start();
         recorderFacade.stop();
-        verify(databaseRecorder1, times(2)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
-        verify(databaseRecorder2, times(2)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
+        verify(databaseRecorder1, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
+        verify(databaseRecorder2, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
     }
 
     @Test
     public void shouldExportDbInteractionsToFile() throws IOException {
+        recorderFacade.resetFilterRegister();
         File file = prepareFile();
         recorderFacade.exportTo(file);
         verify(databaseRecorder1, times(1)).exportTo(any(PrintWriter.class));
