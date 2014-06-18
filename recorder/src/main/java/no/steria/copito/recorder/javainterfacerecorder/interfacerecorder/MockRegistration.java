@@ -3,17 +3,15 @@ package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Each proxy for recording Java APIs has a corresponding Mock, which is registered in the mocks Map
- * in this class. This way the data is registered on the mock itself, so that the mock can be played
- * back later. After recording, the mock will be serialized and saved to file, and before running a test, the mock
- * will be read back from file, and is thus ready for playing.
+ * Each Java API that should be mocked when playing back tests, has a corresponding proxy (created by
+ * @link no.steria.copito.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper).
+ * When Copito is in playback mode, it will attempt to call the corresponding mock to handle the call. It will look up
+ * the mock from this class, based on the interface
  */
 public class MockRegistration {
-    // todo: ikh: Assumes that only one interface/class of each type will need to be recorded?
     private static Map<Class<?>,MockInterface> mocks = new HashMap<>();
     public static void registerMock(Class<?> mockClass, MockInterface mock) {
         mocks.put(mockClass,mock);
@@ -26,14 +24,5 @@ public class MockRegistration {
         }
 
         return mocks.get(givenInterface);
-    }
-
-    public static MockInterface removeMock(Class<?> givenInterface) {
-        MockInterface remove = mocks.remove(givenInterface);
-        return remove;
-    }
-
-    public Iterator<Map.Entry<Class<?>, MockInterface>> getIterator() {
-        return mocks.entrySet().iterator();
     }
 }

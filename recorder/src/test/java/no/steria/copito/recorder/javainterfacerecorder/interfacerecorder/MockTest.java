@@ -63,7 +63,5 @@ public class MockTest {
     @After
     public void tearDown() throws Exception {
         System.setProperty("no.steria.copito.doMock","false");
-        MockRegistration.removeMock(ServiceInterface.class);
-
     }
 }

@@ -13,5 +13,6 @@ public interface CallReporter {
      * Each CallReporter implementation must have a means of returning all data collected a String, this
      * will be used by the RecorderFacade to print all results to a common file.
      */
+    // TODO ikh: should rather return a stream?
     public String getRecordedData() throws FileNotFoundException;
 }

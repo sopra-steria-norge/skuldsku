@@ -80,15 +80,7 @@ public class RecorderFacade {
     }
 
     private void writeJavaApiRecordingsToFile(PrintWriter printWriter) {
-        ClassSerializer serializer = new ClassSerializer();
-        MockRegistration mockRegistration = new MockRegistration();
-        Iterator<Map.Entry<Class<?>, MockInterface>> iterator = mockRegistration.getIterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Class<?>, MockInterface> mockInterfaceEntry = iterator.next();
-            String mockObjectAsString = serializer.asString(mockInterfaceEntry.getValue());
-            printWriter.print(mockObjectAsString);
-        }
-        printWriter.flush();
+       // TODO: ikh: implement!
     }
 
     private void writeDatabaseDataToFile(PrintWriter printWriter) throws FileNotFoundException {
