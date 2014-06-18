@@ -12,6 +12,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import javax.servlet.FilterChain;
@@ -83,8 +84,7 @@ public class RecorderFacadeTest {
 
     @Test
     public void shouldNotTurnDbRecordingOffWhenAlreadyOff() {
-        verify(databaseRecorder1, atMost(1)).stop(); // could be called from setUp()
-        verify(databaseRecorder2, atMost(1)).stop(); // could be called from setUp()
+        Mockito.reset(databaseRecorder1, databaseRecorder2); // ignore whatever happened in setUp()
         recorderFacade.stop();
         verifyNoMoreInteractions(databaseRecorder1);
         verifyNoMoreInteractions(databaseRecorder2);
@@ -107,8 +107,7 @@ public class RecorderFacadeTest {
 
     @Test
     public void shouldTurnDbRecordingOffWhenRecordingTurnedOff() throws SQLException {
-        verify(databaseRecorder1, atMost(1)).stop(); // could be called from setUp()
-        verify(databaseRecorder2, atMost(1)).stop(); // could be called from setUp()
+        Mockito.reset(databaseRecorder1, databaseRecorder2); // ignore whatever happened in setUp()
         recorderFacade.start();
         recorderFacade.stop();
         verify(databaseRecorder1, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
