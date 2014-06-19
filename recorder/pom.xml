@@ -86,18 +86,6 @@
             <version>${version.slf4j}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>13.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.jcip</groupId>
-            <artifactId>jcip-annotations</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
 
 
         <!-- PRODUCTION SCOPE -->
@@ -112,11 +100,7 @@
             <artifactId>joda-time</artifactId>
             <version>2.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.jolbox</groupId>
-            <artifactId>bonecp</artifactId>
-            <version>0.7.1.RELEASE</version>
-        </dependency>
+
     </dependencies>
 
     <properties>

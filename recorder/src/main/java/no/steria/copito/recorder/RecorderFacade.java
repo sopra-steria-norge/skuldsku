@@ -1,8 +1,6 @@
 package no.steria.copito.recorder;
 
-import net.jcip.annotations.NotThreadSafe;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -10,13 +8,12 @@ import java.util.List;
 /**
  * Facade for starting and stopping all available recorders.
  */
-@NotThreadSafe
 public class RecorderFacade {
     private static boolean recordingOn = false;
 
     List<DatabaseRecorder> databaseRecorders;
 
-    public RecorderFacade(@NotNull List<DatabaseRecorder> databaseRecorders) {
+    public RecorderFacade(List<DatabaseRecorder> databaseRecorders) {
         this.databaseRecorders = databaseRecorders;
     }
 
