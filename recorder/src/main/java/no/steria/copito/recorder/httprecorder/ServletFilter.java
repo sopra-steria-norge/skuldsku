@@ -8,13 +8,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Filter for recording HTTP interactions.
+ */
 public abstract class ServletFilter implements Filter{
 
 
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if(!RecorderFacade.recordingIsOn()){
-            // This block is not synchronized, it just makes the timing for recording slightly inaccurate.
+            chain.doFilter(request, response);
             return;
         }
         HttpServletRequest req = (HttpServletRequest) request;

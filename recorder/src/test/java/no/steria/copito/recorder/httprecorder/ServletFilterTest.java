@@ -17,6 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class ServletFilterTest {
@@ -45,7 +48,7 @@ public class ServletFilterTest {
         servletFilter.doFilter(request, response, chain);
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);
-        verifyNoMoreInteractions(chain);
+        verify(chain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 // Behaviour with recording on is covered in ServerFunctionsTest.
 }
