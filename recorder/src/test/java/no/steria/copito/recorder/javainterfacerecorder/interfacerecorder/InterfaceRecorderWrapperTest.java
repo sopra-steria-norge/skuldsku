@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
 
 public class InterfaceRecorderWrapperTest {
 
@@ -101,8 +103,25 @@ public class InterfaceRecorderWrapperTest {
         assertThat(simpleFields).isNotNull();
         assertThat(simpleFields.getIntval()).isEqualTo(42);
 
-        @SuppressWarnings("unchecked") List<String> recodredResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
-        assertThat(recodredResult).containsOnly("This", "is", "not", "null");
+        @SuppressWarnings("unchecked") List<String> recordedResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
+        assertThat(recordedResult).containsOnly("This", "is", "not", "null");
+    }
+
+    @Test
+    public void shouldInvokeMethodButNotRecordWhenRecordingIsOff() throws SQLException {
+        ServiceClass serviceClassObject = mock(ServiceClass.class);
+        when(serviceClassObject.doSimpleService(anyString())).thenReturn("Hello MyName");
+        recorderFacade.stop();
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        String result = serviceClass.doSimpleService("MyName");
+
+        assertThat(result).isEqualTo("Hello MyName");
+
+        assertNull(reportCallback.getClassName());
+        assertNull(reportCallback.getMethodname());
+        assertNull(reportCallback.getParameters());
+        assertNull(reportCallback.getResult());
+        recorderFacade.start();
     }
 
 

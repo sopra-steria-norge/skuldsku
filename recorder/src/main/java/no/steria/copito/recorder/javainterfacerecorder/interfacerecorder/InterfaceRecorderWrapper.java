@@ -36,7 +36,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
         if(!RecorderFacade.recordingIsOn()){
-            return null;
+            return method.invoke(obj, args);
         }
         Object result = null;
         MockInterface mock = MockRegistration.getMock(givenInterface);

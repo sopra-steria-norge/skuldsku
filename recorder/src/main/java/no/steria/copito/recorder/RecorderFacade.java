@@ -4,17 +4,12 @@ import net.jcip.annotations.NotThreadSafe;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.CallReporter;
 import no.steria.copito.recorder.httprecorder.ServletFilter;
-import no.steria.copito.recorder.javainterfacerecorder.interfacerecorder.MockInterface;
-import no.steria.copito.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
-import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Facade for starting and stopping all available recorders.
