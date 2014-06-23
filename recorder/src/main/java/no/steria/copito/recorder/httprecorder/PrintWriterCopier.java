@@ -1,8 +1,7 @@
 package no.steria.copito.recorder.httprecorder;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Locale;
 
 /**
@@ -46,25 +45,25 @@ public class PrintWriterCopier extends PrintWriter {
     }
 
     @Override
-    public void write(@NotNull char[] buf, int off, int len) {
+    public void write(char[] buf, int off, int len) {
         copier.write(buf, off, len);
         delegate.write(buf, off, len);
     }
 
     @Override
-    public void write(@NotNull char[] buf) {
+    public void write(char[] buf) {
         copier.write(buf);
         delegate.write(buf);
     }
 
     @Override
-    public void write(@NotNull String s, int off, int len) {
+    public void write(String s, int off, int len) {
         copier.write(s, off, len);
         delegate.write(s, off, len);
     }
 
     @Override
-    public void write(@NotNull String s) {
+    public void write(String s) {
         copier.write(s);
         delegate.write(s);
     }
@@ -106,7 +105,7 @@ public class PrintWriterCopier extends PrintWriter {
     }
 
     @Override
-    public void print(@NotNull char[] s) {
+    public void print(char[] s) {
         copier.print(s);
         delegate.print(s);
     }
@@ -166,7 +165,7 @@ public class PrintWriterCopier extends PrintWriter {
     }
 
     @Override
-    public void println(@NotNull char[] x) {
+    public void println(char[] x) {
         copier.println(x);
         delegate.println(x);
     }
@@ -184,28 +183,28 @@ public class PrintWriterCopier extends PrintWriter {
     }
 
     @Override
-    public PrintWriter printf(@NotNull String format, Object... args) {
+    public PrintWriter printf(String format, Object... args) {
         copier.printf(format, args);
         delegate.printf(format, args);
         return this;
     }
 
     @Override
-    public PrintWriter printf(Locale l, @NotNull String format, Object... args) {
+    public PrintWriter printf(Locale l, String format, Object... args) {
         copier.printf(l, format, args);
         delegate.printf(l, format, args);
         return this;
     }
 
     @Override
-    public PrintWriter format(@NotNull String format, Object... args) {
+    public PrintWriter format(String format, Object... args) {
         copier.format(format, args);
         delegate.format(format, args);
         return this;
     }
 
     @Override
-    public PrintWriter format(Locale l, @NotNull String format, Object... args) {
+    public PrintWriter format(Locale l, String format, Object... args) {
         copier.format(l, format, args);
         delegate.format(l, format, args);
         return this;

@@ -73,11 +73,7 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>oracle.jars</groupId>
-            <artifactId>ojdbc</artifactId>
-            <version>1.4</version>
-        </dependency>
+
 
         <!-- COMPILE SCOPE -->
         <dependency>
@@ -86,18 +82,7 @@
             <version>${version.slf4j}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>13.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.jcip</groupId>
-            <artifactId>jcip-annotations</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
+
 
 
         <!-- PRODUCTION SCOPE -->

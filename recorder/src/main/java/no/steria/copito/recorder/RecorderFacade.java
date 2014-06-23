@@ -1,10 +1,8 @@
 package no.steria.copito.recorder;
 
-import net.jcip.annotations.NotThreadSafe;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.CallReporter;
 import no.steria.copito.recorder.httprecorder.ServletFilter;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.sql.SQLException;
@@ -14,7 +12,6 @@ import java.util.List;
 /**
  * Facade for starting and stopping all available recorders.
  */
-@NotThreadSafe
 public class RecorderFacade {
     private static boolean recordingOn = false;
 
@@ -22,7 +19,7 @@ public class RecorderFacade {
 
     private static final List<ServletFilter> servletFilters = new ArrayList<>();
 
-    public RecorderFacade(@NotNull List<DatabaseRecorder> databaseRecorders) {
+    public RecorderFacade(List<DatabaseRecorder> databaseRecorders) {
         this.databaseRecorders = databaseRecorders;
     }
 

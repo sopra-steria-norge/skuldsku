@@ -1,7 +1,5 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +15,6 @@ public class MockRegistration {
         mocks.put(mockClass,mock);
     }
 
-    @Nullable
     public static MockInterface getMock(Class<?> givenInterface) {
         if (!"true".equals(System.getProperty("no.steria.copito.doMock","false"))) {
             return null;
