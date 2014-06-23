@@ -6,6 +6,7 @@ import no.steria.copito.recorder.httprecorder.testjetty.InMemoryReporter;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import no.steria.copito.recorder.javainterfacerecorder.interfacerecorder.*;
 import org.apache.commons.collections.iterators.IteratorEnumeration;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -20,10 +21,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -115,16 +114,16 @@ public class RecorderFacadeTest {
     }
 
     @Test
-    public void shouldExportDbInteractionsToFile() throws IOException {
+    public void shouldExportDbInteractions() throws IOException {
         recorderFacade.resetFilterRegister();
-        File file = prepareFile();
-        recorderFacade.exportTo(file);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        recorderFacade.exportTo(outputStream);
         verify(databaseRecorder1, times(1)).exportTo(any(PrintWriter.class));
         verify(databaseRecorder2, times(1)).exportTo(any(PrintWriter.class));
     }
 
     @Test
-    public void shouldExportHttpInteractionsToFile() throws ServletException, IOException, SQLException {
+    public void shouldExportHttpInteractions() throws ServletException, IOException, SQLException {
         @SuppressWarnings("unchecked")
         Enumeration<String> headerNames = new IteratorEnumeration(new ArrayList<String>().iterator());
         recorderFacade.resetFilterRegister();
@@ -135,11 +134,9 @@ public class RecorderFacadeTest {
         TestFilter testFilter = new TestFilter(callReporter);
         testFilter.init(filterConfig);
         testFilter.doFilter(request, response, chain);
-        File exportFile = prepareFile();
-        recorderFacade.exportTo(exportFile);
-        Scanner scanner = new Scanner(exportFile);
-        String content = scanner.useDelimiter("\\Z").next();
-        scanner.close();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        recorderFacade.exportTo(outputStream);
+        String content = outputStream.toString();
         recorderFacade.resetFilterRegister();
         assertEquals("<no.steria.copito.recorder.httprecorder.ReportObject;readInputStream=<null>" +
                 ";parameters=<map>;method=;path=;output=<null>;headers=<map>>", content);
@@ -148,19 +145,17 @@ public class RecorderFacadeTest {
     //TODO ikh: implement
     @Ignore("Implementation must be finished")
     @Test
-    public void shouldExportJavaApiInteractionsToFile() throws IOException, SQLException {
+    public void shouldExportJavaApiInteractions() throws IOException, SQLException {
         recorderFacade.start();
         prepareDataMock();
         ReportCallback reportCallback = new DummyReportCallback();
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
 
         serviceClass.doSimpleService("MyName");
-        File exportFile = prepareFile();
-        recorderFacade.exportTo(exportFile);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        recorderFacade.exportTo(outputStream);
 
-        Scanner scanner = new Scanner(exportFile);
-        String content = scanner.useDelimiter("\\Z").next();
-        scanner.close();
+        String content = outputStream.toString();
         assertEquals("", content);
     }
 
@@ -168,18 +163,5 @@ public class RecorderFacadeTest {
         List<RecordObject> recorded = new ArrayList<>();
         RecordedDataMock recordedDataMock = new RecordedDataMock(recorded);
         MockRegistration.registerMock(ServiceInterface.class, recordedDataMock);
-    }
-
-
-    private File prepareFile() throws IOException {
-        URL resource = this.getClass().getResource("/dbrecorder");
-        File file = new File(resource.getPath() + "/testdata.txt");
-        if (file.exists()) {
-            boolean delete = file.delete();
-            assertTrue("Old file could not be deleted: " + file.getAbsolutePath(), delete);
-        }
-        boolean newFile = file.createNewFile();
-        assertTrue("New file could not be created", newFile);
-        return file;
     }
 }

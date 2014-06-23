@@ -53,10 +53,18 @@ public class RecorderFacade {
     }
 
     public void exportTo(File file) throws IOException {
-        try (PrintWriter printWriter = new PrintWriter(file)) {
-            writeDatabaseDataToFile(printWriter);
-            writeJavaApiRecordingsToFile(printWriter);
-            writeHttpRecordingsToFile(printWriter);
+        OutputStream outputStream = new FileOutputStream(file);
+        exportTo(outputStream);
+    }
+
+    void exportTo(OutputStream outputStream) {
+        try(OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)) {
+            writeDatabaseDataTo(outputStreamWriter);
+            writeJavaApiRecordingsTo(outputStreamWriter);
+            writeHttpRecordingsTo(outputStreamWriter);
+        } catch (IOException ioe){
+            //TODO ikh: log stuff!
+            ioe.printStackTrace();
         }
     }
 
@@ -65,23 +73,29 @@ public class RecorderFacade {
     }
 
 
-    private void writeHttpRecordingsToFile(PrintWriter printWriter) throws FileNotFoundException {
+    private void writeHttpRecordingsTo(OutputStreamWriter writer) throws IOException {
         for (ServletFilter servletFilter : servletFilters) {
             CallReporter reporter = servletFilter.getReporter();
-
-            printWriter.write(reporter.getRecordedData());
+            try {
+                writer.write(reporter.getRecordedData());
+            } catch (IOException e) {
+                //TODO: ikh: logg stuff!
+                e.printStackTrace();
+            }
         }
-        printWriter.flush();
+        writer.flush();
     }
 
-    private void writeJavaApiRecordingsToFile(PrintWriter printWriter) {
+    private void writeJavaApiRecordingsTo(OutputStreamWriter writer) {
        // TODO: ikh: implement!
     }
 
-    private void writeDatabaseDataToFile(PrintWriter printWriter) throws FileNotFoundException {
+    private void writeDatabaseDataTo    (OutputStreamWriter writer) throws IOException {
+        PrintWriter printWriter = new PrintWriter(writer);
         for (DatabaseRecorder databaseRecorder : databaseRecorders) {
             databaseRecorder.exportTo(printWriter);
         }
         printWriter.flush();
+        writer.flush();
     }
 }
