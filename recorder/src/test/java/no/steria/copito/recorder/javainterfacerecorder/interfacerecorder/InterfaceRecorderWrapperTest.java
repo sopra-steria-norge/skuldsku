@@ -147,11 +147,8 @@ public class InterfaceRecorderWrapperTest {
         System.out.println(reportCallback.getParameters());
         assertThat(reportCallback.getMethodname()).isEqualTo("readAFile");
         assertThat(classSerializer.asObject(reportCallback.getResult())).isEqualTo("Hello, This is Johnny");
-        Object[] arr = (Object[]) classSerializer.asObject("<array;" + reportCallback.getParameters() + ">");
-        assertThat(arr).hasSize(2);
-        assertThat(arr[0]).isEqualTo("Hello, ");
-        assertThat(arr[1]).isNull();
 
+        assertThat(reportCallback.getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
 
     }
 }
