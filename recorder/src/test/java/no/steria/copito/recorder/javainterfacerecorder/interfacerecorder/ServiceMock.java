@@ -2,6 +2,7 @@ package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
 
+import java.io.File;
 import java.util.List;
 
 public class ServiceMock implements ServiceInterface {
@@ -17,6 +18,11 @@ public class ServiceMock implements ServiceInterface {
 
     @Override
     public List<String> returnList(ClassWithSimpleFields simple) {
+        return null;
+    }
+
+    @Override
+    public String readAFile(String prefix, File file) {
         return null;
     }
 }

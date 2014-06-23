@@ -7,6 +7,9 @@ import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassWithSimpl
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -124,5 +127,31 @@ public class InterfaceRecorderWrapperTest {
         recorderFacade.start();
     }
 
+    @Test
+    public void shouldHandleFile() throws Exception {
+        InterfaceRecorderConfig interfaceRecorderConfig = InterfaceRecorderConfig.factory()
+                .withAsyncMode(AsyncMode.ALL_SYNC)
+                .ignore(ServiceClass.class, null, File.class)
+                .create();
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
+        File tempFile = File.createTempFile("test", "txt");
+        PrintWriter printWriter = new PrintWriter(new FileWriter(tempFile));
+        printWriter.append("This is Johnny");
+        printWriter.close();
 
+        String s = serviceClass.readAFile("Hello, ",tempFile);
+        assertThat(s).isEqualTo("Hello, This is Johnny");
+        tempFile.delete();
+
+        ClassSerializer classSerializer = new ClassSerializer();
+        System.out.println(reportCallback.getParameters());
+        assertThat(reportCallback.getMethodname()).isEqualTo("readAFile");
+        assertThat(classSerializer.asObject(reportCallback.getResult())).isEqualTo("Hello, This is Johnny");
+        Object[] arr = (Object[]) classSerializer.asObject("<array;" + reportCallback.getParameters() + ">");
+        assertThat(arr).hasSize(2);
+        assertThat(arr[0]).isEqualTo("Hello, ");
+        assertThat(arr[1]).isNull();
+
+
+    }
 }
