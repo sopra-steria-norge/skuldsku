@@ -18,9 +18,9 @@ public class FileCallReporter implements CallReporter {
     private PrintWriter writer;
     private static File reportFile;
 
-    public static FileCallReporter create(String filename) {
+    public static FileCallReporter create(File givenReportFile) {
         FileCallReporter fileCallReporter = new FileCallReporter();
-        reportFile = new File(filename);
+        reportFile = givenReportFile;
         try {
             FileWriter fw = new FileWriter(reportFile);
             fileCallReporter.writer = new PrintWriter(fw);
