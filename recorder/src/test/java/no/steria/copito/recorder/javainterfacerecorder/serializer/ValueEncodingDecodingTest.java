@@ -25,11 +25,20 @@ public class ValueEncodingDecodingTest {
         assertEncDec(42L);
         assertEncDec('x');
         assertEncDec(3.14d);
-        assertEncDec(new Date());
-        assertEncDec(new DateTime());
         assertEncDec(new BigDecimal(3.18d));
     }
 
+    @Test
+    public void shouldHandleJavaDate() throws Exception {
+        assertEncDec(new Date());
+    }
+
+    @Test
+    public void shouldHandleJodatime() throws Exception {
+        assertEncDec(new DateTime());
+
+
+    }
 
     @Test
     public void shouldHandleArrays() throws Exception {

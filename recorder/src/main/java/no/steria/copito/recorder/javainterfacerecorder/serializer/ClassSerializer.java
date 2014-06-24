@@ -8,10 +8,13 @@ import org.joda.time.format.DateTimeFormatter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ClassSerializer {
-    private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
+    //private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMddHHmmssSSS");
 
     public String asString(Object object) {
         String encodedValue = encodeValue(object);
@@ -106,9 +109,13 @@ public class ClassSerializer {
         } else if (double.class.equals(type) || Double.class.equals(type)) {
             value = Double.parseDouble(fieldValue);
         } else if (Date.class.equals(type)) {
-            value = dateFormat.parseLocalDateTime(fieldValue).toDate();
-        } else if (DateTime.class.equals(type)) {
-            value = dateFormat.parseDateTime(fieldValue);
+            try {
+                value = dateFormat.parse(fieldValue);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        //} else if (DateTime.class.equals(type)) {
+        //    value = dateFormat.parseDateTime(fieldValue);
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
@@ -158,10 +165,11 @@ public class ClassSerializer {
             return res.toString();
         }
         if (Date.class.equals(fieldValue.getClass())) {
-            return dateFormat.print(new DateTime(fieldValue));
+            return dateFormat.format(fieldValue);
         }
         if (DateTime.class.equals(fieldValue.getClass())) {
-            return dateFormat.print((ReadableInstant) fieldValue);
+            //return dateFormat.print((ReadableInstant) fieldValue);
+            return null;
         }
         String packageName = fieldValue.getClass().getPackage().getName();
         if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
