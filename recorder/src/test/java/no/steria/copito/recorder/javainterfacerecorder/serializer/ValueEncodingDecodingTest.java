@@ -15,7 +15,8 @@ public class ValueEncodingDecodingTest {
     private final ClassSerializer serializer = new ClassSerializer();
 
     private void assertEncDec(Object obj) {
-        assertThat(serializer.objectValueFromString(serializer.encodeValue(obj), obj.getClass())).isEqualTo(obj);
+        String fieldValue = serializer.encodeValue(obj);
+        assertThat(serializer.objectValueFromString(fieldValue, obj.getClass())).isEqualTo(obj);
     }
 
     @Test

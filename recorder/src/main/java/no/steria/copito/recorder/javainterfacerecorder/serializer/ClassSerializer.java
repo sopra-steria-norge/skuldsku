@@ -1,20 +1,13 @@
 package no.steria.copito.recorder.javainterfacerecorder.serializer;
 
-import org.joda.time.DateTime;
-import org.joda.time.ReadableInstant;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ClassSerializer {
-    //private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("YYYYMMddHHmmssSSS");
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("YYYYMMddHHmmssSSS");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 
     public String asString(Object object) {
         String encodedValue = encodeValue(object);
@@ -114,8 +107,14 @@ public class ClassSerializer {
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
-        //} else if (DateTime.class.equals(type)) {
-        //    value = dateFormat.parseDateTime(fieldValue);
+        } else if ("org.joda.time.DateTime".equals(type.getName())) {
+            try {
+                Date val = dateFormat.parse(fieldValue);
+                Constructor<?> constructor = type.getConstructor(Object.class);
+                return constructor.newInstance(val);
+            } catch (InvocationTargetException | IllegalAccessException | InstantiationException | ParseException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
@@ -167,9 +166,14 @@ public class ClassSerializer {
         if (Date.class.equals(fieldValue.getClass())) {
             return dateFormat.format(fieldValue);
         }
-        if (DateTime.class.equals(fieldValue.getClass())) {
-            //return dateFormat.print((ReadableInstant) fieldValue);
-            return null;
+        if ("org.joda.time.DateTime".equals(fieldValue.getClass().getName())) {
+            try {
+                Method toDate = fieldValue.getClass().getMethod("toDate");
+                Date asDate = (Date) toDate.invoke(fieldValue);
+                return dateFormat.format(asDate);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
         }
         String packageName = fieldValue.getClass().getPackage().getName();
         if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
