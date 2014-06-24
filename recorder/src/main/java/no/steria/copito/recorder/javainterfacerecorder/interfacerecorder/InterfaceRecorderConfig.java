@@ -13,7 +13,7 @@ public class InterfaceRecorderConfig {
             return false;
         }
         for (IgnorePara ignorePara : ignores) {
-            if (ignorePara.getServiceClass().getName().equals(className) &&
+            if ((ignorePara.getServiceClass() == null || ignorePara.getServiceClass().getName().equals(className)) &&
                     (ignorePara.getServiceMethod() == null || ignorePara.getServiceMethod().getName().equals(methodName)) &&
                     para.getClass().isAssignableFrom(ignorePara.getIgnore())
                     ) {
