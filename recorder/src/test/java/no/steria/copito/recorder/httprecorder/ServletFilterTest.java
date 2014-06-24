@@ -1,6 +1,6 @@
 package no.steria.copito.recorder.httprecorder;
 
-import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.Recorder;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class ServletFilterTest {
     private FilterChain chain;
 
     ServletFilter servletFilter = new TestFilter();
-    RecorderFacade recorderFacade = new RecorderFacade(new ArrayList<DatabaseRecorder>(0));
+    Recorder recorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -44,7 +44,7 @@ public class ServletFilterTest {
 
     @Test
     public void shouldNotRecordWhenRecordingIsOff() throws IOException, ServletException {
-        recorderFacade.stop();
+        recorder.stop();
         servletFilter.doFilter(request, response, chain);
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);

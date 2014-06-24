@@ -1,6 +1,6 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.Recorder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,7 +33,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
     @Override
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        if(!RecorderFacade.recordingIsOn()){
+        if(!Recorder.recordingIsOn()){
             return method.invoke(obj, args);
         }
         Object result = null;

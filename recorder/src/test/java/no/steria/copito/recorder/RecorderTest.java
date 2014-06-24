@@ -31,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class RecorderFacadeTest {
+public class RecorderTest {
 
     @Mock
     private DatabaseRecorder databaseRecorder1;
@@ -42,7 +42,7 @@ public class RecorderFacadeTest {
     @Mock
     private FilterConfig filterConfig;
 
-    private RecorderFacade recorderFacade;
+    private Recorder recorder;
 
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
     private HttpServletRequest request;
@@ -55,51 +55,51 @@ public class RecorderFacadeTest {
     public void setUp() {
 
         MockitoAnnotations.initMocks(this);
-        recorderFacade = new RecorderFacade(Arrays.asList(databaseRecorder1, databaseRecorder2));
-        recorderFacade.stop();
+        recorder = new Recorder(Arrays.asList(databaseRecorder1, databaseRecorder2));
+        recorder.stop();
     }
 
     @Test
     public void shouldTurnOnWhenStartIsCalledAndOffWhenStopIsCalled() throws SQLException {
-        recorderFacade.start();
-        assertTrue(RecorderFacade.recordingIsOn());
-        recorderFacade.stop();
-        assertFalse(RecorderFacade.recordingIsOn());
-        recorderFacade.start();
-        assertTrue(RecorderFacade.recordingIsOn());
-        recorderFacade.stop();
-        assertFalse(RecorderFacade.recordingIsOn());
+        recorder.start();
+        assertTrue(Recorder.recordingIsOn());
+        recorder.stop();
+        assertFalse(Recorder.recordingIsOn());
+        recorder.start();
+        assertTrue(Recorder.recordingIsOn());
+        recorder.stop();
+        assertFalse(Recorder.recordingIsOn());
     }
 
     @Test
     public void shouldAlsoTurnOnAndOffWhenNoDatabaseRecorder() throws SQLException {
-        RecorderFacade recorderFacadeNoRecorder = new RecorderFacade(new ArrayList<DatabaseRecorder>(0));
-        assertFalse(RecorderFacade.recordingIsOn());
+        Recorder recorderFacadeNoRecorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
+        assertFalse(Recorder.recordingIsOn());
         recorderFacadeNoRecorder.start();
-        assertTrue(RecorderFacade.recordingIsOn());
+        assertTrue(Recorder.recordingIsOn());
         recorderFacadeNoRecorder.stop();
-        Assert.assertFalse(RecorderFacade.recordingIsOn());
+        Assert.assertFalse(Recorder.recordingIsOn());
     }
 
     @Test
     public void shouldNotTurnDbRecordingOffWhenAlreadyOff() {
         Mockito.reset(databaseRecorder1, databaseRecorder2); // ignore whatever happened in setUp()
-        recorderFacade.stop();
+        recorder.stop();
         verifyNoMoreInteractions(databaseRecorder1);
         verifyNoMoreInteractions(databaseRecorder2);
     }
 
     @Test
     public void shouldTurnDbRecordingOnWhenRecordingTurnedOn() throws SQLException {
-        recorderFacade.start();
+        recorder.start();
         verify(databaseRecorder1, times(1)).start();
         verify(databaseRecorder2, times(1)).start();
     }
 
     @Test
     public void shouldNotTurnDbRecordingOnWhenAlreadyOn() throws SQLException {
-        recorderFacade.start();
-        recorderFacade.start();
+        recorder.start();
+        recorder.start();
         verify(databaseRecorder1, times(1)).start();
         verify(databaseRecorder2, times(1)).start();
     }
@@ -107,17 +107,17 @@ public class RecorderFacadeTest {
     @Test
     public void shouldTurnDbRecordingOffWhenRecordingTurnedOff() throws SQLException {
         Mockito.reset(databaseRecorder1, databaseRecorder2); // ignore whatever happened in setUp()
-        recorderFacade.start();
-        recorderFacade.stop();
+        recorder.start();
+        recorder.stop();
         verify(databaseRecorder1, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
         verify(databaseRecorder2, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
     }
 
     @Test
     public void shouldExportDbInteractions() throws IOException {
-        recorderFacade.resetFilterRegister();
+        recorder.resetFilterRegister();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        recorderFacade.exportTo(outputStream);
+        recorder.exportTo(outputStream);
         verify(databaseRecorder1, times(1)).exportTo(any(PrintWriter.class));
         verify(databaseRecorder2, times(1)).exportTo(any(PrintWriter.class));
     }
@@ -126,18 +126,18 @@ public class RecorderFacadeTest {
     public void shouldExportHttpInteractions() throws ServletException, IOException, SQLException {
         @SuppressWarnings("unchecked")
         Enumeration<String> headerNames = new IteratorEnumeration(new ArrayList<String>().iterator());
-        recorderFacade.resetFilterRegister();
+        recorder.resetFilterRegister();
 
         when(request.getHeaderNames()).thenReturn(headerNames);
-        recorderFacade.start();
+        recorder.start();
         CallReporter callReporter = new InMemoryReporter();
         TestFilter testFilter = new TestFilter(callReporter);
         testFilter.init(filterConfig);
         testFilter.doFilter(request, response, chain);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        recorderFacade.exportTo(outputStream);
+        recorder.exportTo(outputStream);
         String content = outputStream.toString();
-        recorderFacade.resetFilterRegister();
+        recorder.resetFilterRegister();
         assertEquals("<no.steria.copito.recorder.httprecorder.ReportObject;readInputStream=<null>" +
                 ";parameters=<map>;method=;path=;output=<null>;headers=<map>>", content);
     }
@@ -145,15 +145,15 @@ public class RecorderFacadeTest {
     //TODO ikh: implement
     @Ignore("Implementation must be finished")
     @Test
-    public void shouldExportJavaApiInteractions() throws IOException, SQLException {
-        recorderFacade.start();
+    public void shouldExportJavaInterfaceInteractions() throws IOException, SQLException {
+        recorder.start();
         prepareDataMock();
         ReportCallback reportCallback = new DummyReportCallback();
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
 
         serviceClass.doSimpleService("MyName");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        recorderFacade.exportTo(outputStream);
+        recorder.exportTo(outputStream);
 
         String content = outputStream.toString();
         assertEquals("", content);

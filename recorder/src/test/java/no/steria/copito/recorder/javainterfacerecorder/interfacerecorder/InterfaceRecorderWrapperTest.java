@@ -1,6 +1,6 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.Recorder;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
@@ -23,12 +23,12 @@ public class InterfaceRecorderWrapperTest {
 
     private final DummyReportCallback reportCallback = new DummyReportCallback();
 
-    RecorderFacade recorderFacade;
+    Recorder recorder;
 
     @Before
     public void setUp() throws SQLException {
-        recorderFacade = new RecorderFacade(new ArrayList<DatabaseRecorder>(0));
-        recorderFacade.start();
+        recorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
+        recorder.start();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class InterfaceRecorderWrapperTest {
     public void shouldInvokeMethodButNotRecordWhenRecordingIsOff() throws SQLException {
         ServiceClass serviceClassObject = mock(ServiceClass.class);
         when(serviceClassObject.doSimpleService(anyString())).thenReturn("Hello MyName");
-        recorderFacade.stop();
+        recorder.stop();
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
@@ -124,7 +124,7 @@ public class InterfaceRecorderWrapperTest {
         assertNull(reportCallback.getMethodname());
         assertNull(reportCallback.getParameters());
         assertNull(reportCallback.getResult());
-        recorderFacade.start();
+        recorder.start();
     }
 
     @Test

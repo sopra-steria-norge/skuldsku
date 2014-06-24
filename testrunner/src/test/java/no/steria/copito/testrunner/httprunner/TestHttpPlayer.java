@@ -1,6 +1,6 @@
 package no.steria.copito.testrunner.httprunner;
 
-import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.Recorder;
 import no.steria.copito.recorder.httprecorder.CallReporter;
 import no.steria.copito.recorder.httprecorder.ReportObject;
 import org.json.JSONObject;
@@ -25,11 +25,11 @@ import static org.mockito.Mockito.verify;
 
 public class TestHttpPlayer {
 
-    private final RecorderFacade recorderFacade = new RecorderFacade(new ArrayList<>(0));
+    private final Recorder recorder = new Recorder(new ArrayList<>(0));
 
     @Before
     public void setUp() throws SQLException {
-        recorderFacade.start();
+        recorder.start();
     }
 
     @Test

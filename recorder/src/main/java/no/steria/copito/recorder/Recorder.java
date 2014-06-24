@@ -12,14 +12,14 @@ import java.util.List;
 /**
  * Facade for starting and stopping all available recorders.
  */
-public class RecorderFacade {
+public class Recorder {
     private static boolean recordingOn = false;
 
     List<DatabaseRecorder> databaseRecorders;
 
     private static final List<ServletFilter> servletFilters = new ArrayList<>();
 
-    public RecorderFacade(List<DatabaseRecorder> databaseRecorders) {
+    public Recorder(List<DatabaseRecorder> databaseRecorders) {
         this.databaseRecorders = databaseRecorders;
     }
 

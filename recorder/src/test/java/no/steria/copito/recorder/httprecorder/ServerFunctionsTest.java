@@ -1,6 +1,6 @@
 package no.steria.copito.recorder.httprecorder;
 
-import no.steria.copito.recorder.RecorderFacade;
+import no.steria.copito.recorder.Recorder;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.testjetty.JettyServer;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
@@ -25,11 +25,11 @@ import static org.mockito.Mockito.*;
 
 public class ServerFunctionsTest {
 
-    RecorderFacade recorderFacade = new RecorderFacade(new ArrayList<DatabaseRecorder>(0));
+    Recorder recorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
 
     @Before
     public void setUp() throws SQLException {
-        recorderFacade.start();
+        recorder.start();
     }
 
     @Test
@@ -114,7 +114,7 @@ public class ServerFunctionsTest {
     @After
     public void tearDown() throws Exception {
         TestFilter.setReporter(null);
-        recorderFacade.stop();
+        recorder.stop();
     }
 
     private static String toString(InputStream inputStream) throws IOException {
