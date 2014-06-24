@@ -1,5 +1,8 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
 public class DummyReportCallback implements ReportCallback {
     private String className;
     private String methodname;
@@ -22,6 +25,12 @@ public class DummyReportCallback implements ReportCallback {
         this.methodname = methodname;
         this.parameters = parameters;
         this.result = result;
+    }
+
+    @Override
+    public void writeRecordedDataTo(OutputStreamWriter outputStreamWriter) throws IOException {
+        outputStreamWriter.write(className + ";" + methodname + ";" + parameters + ";" + result);
+        outputStreamWriter.flush();
     }
 
     public String getClassName() {
