@@ -18,7 +18,6 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
 
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, InterfaceRecorderConfig interfaceRecorderConfig) {
-        Recorder.registerReportCallback(reportCallback);
         InterfaceRecorderWrapper.interfaceRecorderConfig = interfaceRecorderConfig;
         InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj,reportCallback,givenInterface);
         Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, invocationHandler);

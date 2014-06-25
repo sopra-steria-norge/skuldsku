@@ -1,10 +1,11 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
 
+import no.steria.copito.recorder.Recorder;
+import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 public class LogRunner implements Runnable {
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -26,7 +27,7 @@ public class LogRunner implements Runnable {
     }
 
     private boolean doLog() {
-        return reportCallback.doReport() && reportCallback.doReport(className, methodName);
+        return Recorder.recordingIsOn();
     }
 
     private void logEvent() {

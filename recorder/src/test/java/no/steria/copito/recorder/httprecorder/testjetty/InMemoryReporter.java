@@ -14,15 +14,6 @@ public class InMemoryReporter implements CallReporter {
         playBook.add(reportObject);
     }
 
-    @Override
-    public String getRecordedData() {
-        StringBuilder reportBuilder = new StringBuilder();
-        for(ReportObject report : playBook) {
-            reportBuilder.append(report.serializedString());
-        }
-        return reportBuilder.toString();
-    }
-
     public List<ReportObject> getPlayBook() {
         return playBook;
     }

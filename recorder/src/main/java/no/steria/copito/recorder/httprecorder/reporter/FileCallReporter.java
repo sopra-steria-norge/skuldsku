@@ -6,7 +6,6 @@ import no.steria.copito.recorder.httprecorder.ReportObject;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Whenever the ServletFilter processes a ServletRequest or a ServletResponse, it will create a ReportObject, and call
@@ -16,13 +15,11 @@ import java.util.Scanner;
  */
 public class FileCallReporter implements CallReporter {
     private PrintWriter writer;
-    private static File reportFile;
 
     public static FileCallReporter create(File givenReportFile) {
         FileCallReporter fileCallReporter = new FileCallReporter();
-        reportFile = givenReportFile;
         try {
-            FileWriter fw = new FileWriter(reportFile);
+            FileWriter fw = new FileWriter(givenReportFile);
             fileCallReporter.writer = new PrintWriter(fw);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -48,14 +45,6 @@ public class FileCallReporter implements CallReporter {
         writer.append(reportObject.serializedString());
         writer.append("\n");
         writer.flush();
-    }
-
-    @Override
-    public String getRecordedData() throws FileNotFoundException {
-        Scanner scanner = new Scanner(reportFile);
-        String recordedData = scanner.useDelimiter("\\Z").next();
-        scanner.close();
-        return recordedData;
     }
 
     public static List<ReportObject> readReportedObjects(String filename) {

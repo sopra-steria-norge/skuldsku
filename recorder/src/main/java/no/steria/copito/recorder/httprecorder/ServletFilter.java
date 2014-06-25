@@ -44,11 +44,6 @@ public abstract class ServletFilter implements Filter{
         }
     }
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        Recorder.registerFilter(this);
-    }
-
     private void logHeaders(HttpServletRequest req, ReportObject reportObject) {
         Map<String,List<String>> headers = new HashMap<>();
 
