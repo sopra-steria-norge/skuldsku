@@ -1,21 +1,14 @@
 package no.steria.copito.recorder.dbrecorder.impl.oracle;
 
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.copito.utils.*;
+
+import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.sql.DataSource;
-
-import no.steria.copito.utils.Jdbc;
-import no.steria.copito.utils.JdbcException;
-import no.steria.copito.utils.ResultSetCallback;
-import no.steria.copito.utils.SimpleTransactionManager;
-import no.steria.copito.utils.SqlUtils;
-import no.steria.copito.utils.TransactionCallback;
-import no.steria.copito.utils.TransactionManager;
-import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 
 public class OracleDatabaseRecorder implements DatabaseRecorder {
 
@@ -27,7 +20,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
     
     
     public OracleDatabaseRecorder(DataSource dataSource) {
-        this(new SimpleTransactionManager(dataSource));
+            this(new SimpleTransactionManager(dataSource));
     }
     
     OracleDatabaseRecorder(TransactionManager transactionManager) {
@@ -70,7 +63,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
     }
     
     public void exportAndRemove(final PrintWriter out) {
-        final List<String> retrivedDataIds = new ArrayList<String>();
+        final List<String> retrievedDataIds = new ArrayList<>();
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
@@ -78,7 +71,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
-                            retrivedDataIds.add(rs.getString(1));
+                            retrievedDataIds.add(rs.getString(1));
                             out.println(rs.getString(2));
                         }
                     }
@@ -95,7 +88,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                for (String id : retrivedDataIds) {
+                for (String id : retrievedDataIds) {
                     jdbc.execute("DELETE FROM DBR_RECORDER WHERE DBR_ID = " + id);
                 }
                 return null;
@@ -110,10 +103,14 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             public Object callback(Jdbc jdbc) {
                 try {
                     jdbc.execute("DROP TABLE DBR_RECORDER");
-                } catch (JdbcException e) {}
+                } catch (JdbcException e) {
+                    e.printStackTrace();
+                }
                 try {
                     jdbc.execute("DROP SEQUENCE DBR_RECORDER_ID_SEQ");
-                } catch (JdbcException e) {}
+                } catch (JdbcException e) {
+                    e.printStackTrace();
+                }
                 return null;
             }
         });
