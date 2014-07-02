@@ -11,6 +11,8 @@ import java.util.List;
 public class Recorder {
     private static boolean recordingOn = false;
 
+    public static final String COPITO_DATABASE_TABLE_PREFIX = "CPT_";
+
     List<DatabaseRecorder> databaseRecorders;
 
     public Recorder(List<DatabaseRecorder> databaseRecorders) {

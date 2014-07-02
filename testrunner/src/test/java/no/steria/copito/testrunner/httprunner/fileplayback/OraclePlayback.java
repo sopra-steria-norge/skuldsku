@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
+
 public class OraclePlayback {
     private static class Played {
 
@@ -163,7 +165,7 @@ public class OraclePlayback {
     }
 
     private static void deleteJavaLogg(Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("delete from t_java_logg")) {
+        try (PreparedStatement statement = connection.prepareStatement("delete from " + COPITO_DATABASE_TABLE_PREFIX + "java_logg")) {
             statement.executeUpdate();
             connection.commit();
         }
@@ -172,7 +174,7 @@ public class OraclePlayback {
     private static List<Played> getPlayed(Connection connection) throws SQLException {
         List<Played> recordOne;
         recordOne = new ArrayList<>();
-        try (PreparedStatement stmnt = connection.prepareStatement("select SERVICE, METHOD, PARAMETERS, RESULT from t_java_logg order by timest")) {
+        try (PreparedStatement stmnt = connection.prepareStatement("select SERVICE, METHOD, PARAMETERS, RESULT from " + COPITO_DATABASE_TABLE_PREFIX + "java_logg order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
             while (resultSet.next()) {
                 String service = resultSet.getString(1);

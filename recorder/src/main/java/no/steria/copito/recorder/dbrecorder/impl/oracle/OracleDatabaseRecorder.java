@@ -10,10 +10,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
+
 public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private static final int MAX_TRIGGER_NAME_LENGTH = 30;
-    private static final String RECORDER_PREFIX = "DBR_";
 
     
     private final TransactionManager transactionManager;
@@ -49,7 +50,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM DBR_RECORDER", new ResultSetCallback() {
+                jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -67,7 +68,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                jdbc.query("SELECT DBR_ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM DBR_RECORDER", new ResultSetCallback() {
+                jdbc.query("SELECT " + COPITO_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -89,7 +90,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 for (String id : retrievedDataIds) {
-                    jdbc.execute("DELETE FROM DBR_RECORDER WHERE DBR_ID = " + id);
+                    jdbc.execute("DELETE FROM " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER WHERE " + COPITO_DATABASE_TABLE_PREFIX + "ID = " + id);
                 }
                 return null;
             }
@@ -102,12 +103,12 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 try {
-                    jdbc.execute("DROP TABLE DBR_RECORDER");
+                    jdbc.execute("DROP TABLE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER");
                 } catch (JdbcException e) {
                     e.printStackTrace();
                 }
                 try {
-                    jdbc.execute("DROP SEQUENCE DBR_RECORDER_ID_SEQ");
+                    jdbc.execute("DROP SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
                 } catch (JdbcException e) {
                     e.printStackTrace();
                 }
@@ -139,7 +140,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 jdbc.execute(SqlUtils.readSql("dbrecorder/create_recorder_table.sql"));
-                jdbc.execute("CREATE SEQUENCE DBR_RECORDER_ID_SEQ");
+                jdbc.execute("CREATE SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
                 return null;
             }
         });
@@ -173,7 +174,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private void createTrigger(Jdbc jdbc, String tableName, final List<String> columnNames) {
         final String triggerSql = TriggerSqlGenerator.generateTriggerSql(
-                reduceToMaxLength(RECORDER_PREFIX + tableName, MAX_TRIGGER_NAME_LENGTH),
+                reduceToMaxLength(COPITO_DATABASE_TABLE_PREFIX + tableName, MAX_TRIGGER_NAME_LENGTH),
                 tableName,
                 columnNames);
 
@@ -190,7 +191,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
     }
 
     private boolean isRecorderResource(String resourceName) {
-        return resourceName.startsWith(RECORDER_PREFIX);
+        return resourceName.startsWith(COPITO_DATABASE_TABLE_PREFIX);
     }
     
     String reduceToMaxLength(String s, int length) {
