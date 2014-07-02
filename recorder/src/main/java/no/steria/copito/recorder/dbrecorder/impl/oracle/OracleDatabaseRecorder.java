@@ -16,36 +16,47 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private static final int MAX_TRIGGER_NAME_LENGTH = 30;
 
-    
+
     private final TransactionManager transactionManager;
-    
-    
+
+    private boolean initialized = false;
+
     public OracleDatabaseRecorder(DataSource dataSource) {
-            this(new SimpleTransactionManager(dataSource));
+        this(new SimpleTransactionManager(dataSource));
     }
-    
+
     OracleDatabaseRecorder(TransactionManager transactionManager) {
         this.transactionManager = transactionManager;
     }
-    
-    
+
+    @Override
     public void setup() {
         createRecorderTable();
+        initialized = true;
     }
-    
+
+    @Override
     public void start() {
-        createTriggers();
+        if (initialized) {
+            createTriggers();
+        } else {
+            throw new IllegalStateException("Database recorder must be initialized before it can be used. Please call" +
+                    " setup() before you call start().");
+        }
     }
-    
+
+    @Override
     public void stop() {
         dropRecorderTriggers();
     }
-    
+
+    @Override
     public void tearDown() {
         dropRecorderTriggers();
         dropRecorderTable();
     }
 
+    @Override
     public void exportTo(final PrintWriter out) {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
@@ -62,7 +73,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             }
         });
     }
-    
+
     public void exportAndRemove(final PrintWriter out) {
         final List<String> retrievedDataIds = new ArrayList<>();
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
@@ -97,7 +108,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         });
     }
 
-    
+
     void dropRecorderTable() {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
@@ -116,7 +127,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             }
         });
     }
-    
+
     private void dropRecorderTriggers() {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
@@ -130,22 +141,39 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             }
         });
     }
-    
+
     List<String> getTriggerNames(Jdbc jdbc) {
         return jdbc.queryForList("SELECT TRIGGER_NAME FROM USER_TRIGGERS", String.class);
     }
-    
+
     void createRecorderTable() {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                jdbc.execute(SqlUtils.readSql("dbrecorder/create_recorder_table.sql"));
-                jdbc.execute("CREATE SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
+                createRecorderTableIfNotExitst(jdbc);
+                createDbSequenceIfNotExists(jdbc);
                 return null;
             }
         });
     }
-    
+
+    private void createRecorderTableIfNotExitst(Jdbc jdbc) {
+        List<String> recorderTable = jdbc.queryForList(
+                "select table_name from all_tables where table_name='" + COPITO_DATABASE_TABLE_PREFIX + "RECORDER'", String.class);
+        if (recorderTable.isEmpty()) {
+            jdbc.execute(SqlUtils.readSql("dbrecorder/create_recorder_table.sql"));
+        }
+    }
+
+    private void createDbSequenceIfNotExists(Jdbc jdbc) {
+        List<String> recorderTrigger = jdbc.queryForList(
+                "select sequence_name from all_sequences where sequence_name='" + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ'", String.class);
+
+        if(recorderTrigger.isEmpty()) {
+            jdbc.execute("CREATE SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
+        }
+    }
+
     void createTriggers() {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
@@ -180,11 +208,11 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
         jdbc.execute(triggerSql);
     }
-    
+
     List<String> getTableNames(Jdbc jdbc) {
         return jdbc.queryForList("SELECT TABLE_NAME FROM USER_TABLES", String.class);
     }
-    
+
     List<String> getColumnNames(Jdbc jdbc, String tableName) {
         return jdbc.queryForList("SELECT COLUMN_NAME FROM USER_TAB_COLS WHERE TABLE_NAME = ? ORDER BY COLUMN_NAME",
                 String.class, tableName);
@@ -193,7 +221,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
     private boolean isRecorderResource(String resourceName) {
         return resourceName.startsWith(COPITO_DATABASE_TABLE_PREFIX);
     }
-    
+
     String reduceToMaxLength(String s, int length) {
         return (s.length() <= length) ? s : s.substring(0, length);
     }

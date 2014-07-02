@@ -17,6 +17,7 @@ public class Recorder {
 
     public Recorder(List<DatabaseRecorder> databaseRecorders) {
         this.databaseRecorders = databaseRecorders;
+        initializeDbRecorders(databaseRecorders);
     }
 
     public static boolean recordingIsOn() {
@@ -38,6 +39,12 @@ public class Recorder {
                 dbRecorder.stop();
             }
             recordingOn = false;
+        }
+    }
+
+    private void initializeDbRecorders(List<DatabaseRecorder> databaseRecorders) {
+        for(DatabaseRecorder databaseRecorder : databaseRecorders) {
+            databaseRecorder.setup();
         }
     }
 }
