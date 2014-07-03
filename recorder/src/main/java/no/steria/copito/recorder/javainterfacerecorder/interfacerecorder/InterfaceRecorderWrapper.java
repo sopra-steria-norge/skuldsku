@@ -18,6 +18,8 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
 
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, InterfaceRecorderConfig interfaceRecorderConfig) {
+        interfaceRecorderConfig.debugLogger().debug("IRW: Setup with " + givenInterface);
+        Recorder.registerReportCallback(reportCallback);
         InterfaceRecorderWrapper.interfaceRecorderConfig = interfaceRecorderConfig;
         InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj,reportCallback,givenInterface);
         Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, invocationHandler);
@@ -33,9 +35,11 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
     @Override
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        if(!Recorder.recordingIsOn()){
+        if(!reportCallback.doReport()){
             return method.invoke(obj, args);
         }
+        RecorderDebugLogger logger = interfaceRecorderConfig.debugLogger();
+        logger.debug("IRW: Invoke called for " + method.getName());
         Object result = null;
         MockInterface mock = MockRegistration.getMock(givenInterface);
         try {
@@ -51,9 +55,15 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
             throw new RuntimeException("unexpected invocation exception: " +
                     e.getMessage());
         } finally {
-            String className = obj.getClass().getName();
-            String methodName = method.getName();
-            LogRunner.log(reportCallback,className,methodName,args,result, interfaceRecorderConfig);
+            try {
+                logger.debug("IRW: Logging..");
+                String className = obj.getClass().getName();
+                String methodName = method.getName();
+                logger.debug("IRW: Logging for " + className + "," + methodName);
+                LogRunner.log(reportCallback,className,methodName,args,result, interfaceRecorderConfig);
+            } catch (Exception e) {
+                logger.debug("IRW: Exception loggin result : " + e);
+            }
 
         }
     }

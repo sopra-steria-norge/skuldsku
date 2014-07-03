@@ -31,21 +31,34 @@ public class LogRunner implements Runnable {
     }
 
     private void logEvent() {
-        ClassSerializer classSerializer = new ClassSerializer();
-        StringBuilder parameters=new StringBuilder();
-        if (args != null) {
-            boolean first = true;
-            for (Object para : args) {
-                Object toLog = logObject(para);
-                if (!first) {
-                    parameters.append(";");
+        RecorderDebugLogger logger = interfaceRecorderConfig.debugLogger();
+        logger.debug("LogRunner: log event " + className + "," + methodName);
+
+        try {
+            ClassSerializer classSerializer = new ClassSerializer();
+            StringBuilder parameters=new StringBuilder();
+            if (args != null) {
+                boolean first = true;
+                for (Object para : args) {
+                    String parStr = para != null ? para.getClass().getName() : null;
+                    logger.debug("LogRunner: writing para " + parStr);
+                    Object toLog = logObject(para);
+                    if (!first) {
+                        parameters.append(";");
+                    }
+                    first = false;
+                    parameters.append(classSerializer.asString(toLog));
                 }
-                first = false;
-                parameters.append(classSerializer.asString(toLog));
             }
+                logger.debug("LogRunner: writing result");
+            String resultStr = classSerializer.asString(result);
+            logger.debug("LogRunner: Calling report callback");
+            reportCallback.event(className, methodName, parameters.toString(), resultStr);
+        } catch (Throwable e) {
+            logger.debug("LogRunner: exeption logging " + e);
+        } finally {
+            logger.debug("LogRunner: Leaving");
         }
-        String resultStr = classSerializer.asString(result);
-        reportCallback.event(className,methodName,parameters.toString(),resultStr);
     }
 
     private Object logObject(Object para) {
