@@ -92,7 +92,10 @@ public class ClassSerializer {
         if ("&null".equals(fieldValue)) {
             value = null;
         } else if (fieldValue.startsWith("<")) {
-            value = complexValueFromString(fieldValue,type);
+            value = complexValueFromString(fieldValue, type);
+        } else if (type.isEnum()) {
+            Class<? extends Enum> enuClazz = (Class<? extends Enum>) type;
+            return Enum.valueOf(enuClazz,fieldValue);
         } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else if (long.class.equals(type) || Long.class.equals(type)) {
@@ -131,6 +134,11 @@ public class ClassSerializer {
     public String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "<null>";
+        }
+        if (fieldValue instanceof Enum) {
+            Enum en = (Enum) fieldValue;
+
+            return String.format("<%s;%s>",en.getClass().getName(),en.name());
         }
         if (fieldValue instanceof Object[]) {
             Object[] arr=(Object[]) fieldValue;

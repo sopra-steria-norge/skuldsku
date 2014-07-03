@@ -126,4 +126,26 @@ public class SerializerTest {
 
         assertThat(duplicate).isEqualTo("abc");
     }
+
+    @Test
+    public void shouldHandleEnum() throws Exception {
+        String serialized = serializer.asString(DummyEnum.TWO);
+        assertThat(serialized).isEqualTo("<no.steria.copito.recorder.javainterfacerecorder.serializer.DummyEnum;TWO>");
+        DummyEnum dummyEnum = (DummyEnum) serializer.asObject(serialized);
+        assertThat(dummyEnum).isEqualTo(DummyEnum.TWO);
+    }
+
+    @Test
+    public void shouldHandleEnumAsField() throws Exception {
+        ClassWithEnum classWithEnum = new ClassWithEnum();
+        classWithEnum.setMyEnum(DummyEnum.THREE).setMyText("hello");
+
+        String serialized = serializer.asString(classWithEnum);
+
+        ClassWithEnum duplicate = (ClassWithEnum) serializer.asObject(serialized);
+
+        assertThat(duplicate).isNotNull();
+        assertThat(duplicate.getMyEnum()).isEqualTo(DummyEnum.THREE);
+        assertThat(duplicate.getMyText()).isEqualTo("hello");
+    }
 }
