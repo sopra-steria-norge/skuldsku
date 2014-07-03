@@ -10,6 +10,9 @@ public class InMemoryReporter implements CallReporter {
     private final List<ReportObject> playBook = new ArrayList<>();
 
     @Override
+    public void initialize() {/* No initialization necessary. */}
+
+    @Override
     public void reportCall(ReportObject reportObject) {
         playBook.add(reportObject);
     }

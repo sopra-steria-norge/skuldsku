@@ -40,8 +40,10 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         if (initialized) {
             createTriggers();
         } else {
-            throw new IllegalStateException("Database recorder must be initialized before it can be used. Please call" +
-                    " setup() before you call start().");
+            // If initialize has not run, we risk obstructing the application under recording if running
+            // this method anyway. This check causes a slight overhead, but I believe it is worth it for the extra security.
+           System.out.println("COPITO: You cannot call start() on " + DatabaseRecorder.class.getSimpleName() +
+                   " before you have called initialize(). Database calls are NOT being recorded.");
         }
     }
 

@@ -42,6 +42,7 @@ public abstract class ServletFilter implements Filter{
         if (reporter != null) {
             reporter.reportCall(reportObject);
         }
+        //TODO ikh: log if reporter is missing.
     }
 
     private void logHeaders(HttpServletRequest req, ReportObject reportObject) {

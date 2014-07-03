@@ -15,25 +15,25 @@ import java.util.List;
  */
 public class FileCallReporter implements CallReporter {
     private PrintWriter writer;
-
-    public static FileCallReporter create(File givenReportFile) {
-        FileCallReporter fileCallReporter = new FileCallReporter();
-        try {
-            FileWriter fw = new FileWriter(givenReportFile);
-            fileCallReporter.writer = new PrintWriter(fw);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return fileCallReporter;
-    }
+    private final File givenReportFile;
 
     public void close() {
         writer.close();
         writer = null;
     }
 
-    private FileCallReporter() {
+    public FileCallReporter(File givenReportFile) {
+        this.givenReportFile = givenReportFile;
+    }
+
+    @Override
+    public void initialize() {
+        try {
+            FileWriter fw = new FileWriter(givenReportFile);
+            writer = new PrintWriter(fw);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

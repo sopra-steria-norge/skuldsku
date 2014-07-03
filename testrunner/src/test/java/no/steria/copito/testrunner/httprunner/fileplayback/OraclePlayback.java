@@ -1,5 +1,6 @@
 package no.steria.copito.testrunner.httprunner.fileplayback;
 
+import no.steria.copito.recorder.Recorder;
 import no.steria.copito.recorder.httprecorder.ReportObject;
 import no.steria.copito.testrunner.httprunner.HiddenFieldManipulator;
 import no.steria.copito.testrunner.httprunner.HttpPlayer;
@@ -102,7 +103,8 @@ public class OraclePlayback {
         System.out.println("OK");
         Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb", "wimpel_dba", args[0]);
         List<ReportObject> script = new ArrayList<>();
-        try (PreparedStatement stmnt = connection.prepareStatement("select data from trtable order by timest")) {
+        try (PreparedStatement stmnt = connection.prepareStatement("select data from "+ Recorder.COPITO_DATABASE_TABLE_PREFIX + "HTTP_INTERACTIONS_TABLE"
+                + " order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
             while (resultSet.next()) {
                 String data = resultSet.getString(1);
@@ -193,7 +195,7 @@ public class OraclePlayback {
 
     private static void runit(List<ReportObject> script) {
         HttpPlayer httpPlayer = new HttpPlayer("http://localhost:21110/wimpel");
-        List<PlayStep> playBook = script.stream().map(ro -> new PlayStep(ro)).collect(Collectors.toList());
+        List<PlayStep> playBook = script.stream().map(PlayStep::new).collect(Collectors.toList());
         httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN"));
 
         httpPlayer.play(playBook);
