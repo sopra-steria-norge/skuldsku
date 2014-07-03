@@ -14,6 +14,11 @@ public class DummyReportCallback implements ReportCallback {
         this.result = result;
     }
 
+    @Override
+    public boolean doReport() {
+        return true;
+    }
+
     public String getClassName() {
         return className;
     }
