@@ -66,6 +66,12 @@
             <artifactId>ojdbc</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.0.6.v20130930</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
