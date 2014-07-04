@@ -119,12 +119,12 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                 try {
                     jdbc.execute("DROP TABLE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER");
                 } catch (JdbcException e) {
-                    e.printStackTrace();
+                    RecorderLog.error("Could not drop table " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER", e);
                 }
                 try {
                     jdbc.execute("DROP SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
                 } catch (JdbcException e) {
-                    e.printStackTrace();
+                    RecorderLog.error("Could not drop sequence " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ", e);
                 }
                 return null;
             }

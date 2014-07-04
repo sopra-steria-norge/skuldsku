@@ -14,6 +14,10 @@ public class RecorderLog {
         recorderLogger.error(message);
     }
 
+    public static void error(String message, Throwable throwable){
+        recorderLogger.error(message, throwable);
+    }
+
     public static void setRecorderLogger(RecorderLogger newRecorderLogger) {
         recorderLogger = newRecorderLogger;
     }
@@ -28,6 +32,12 @@ public class RecorderLog {
         @Override
         public void error(String message) {
             System.out.println("ERROR: " + prefix + message);
+        }
+
+        @Override
+        public void error(String message, Throwable throwable) {
+            System.out.println("ERROR: " + prefix + message);
+            throwable.printStackTrace();
         }
 
         public static void setPrefix(String newPrefix) {

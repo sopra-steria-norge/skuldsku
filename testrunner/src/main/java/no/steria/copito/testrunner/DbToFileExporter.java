@@ -1,5 +1,6 @@
 package no.steria.copito.testrunner;
 
+import no.steria.copito.recorder.logging.RecorderLog;
 import no.steria.copito.utils.SimpleTransactionManager;
 import no.steria.copito.utils.TransactionManager;
 
@@ -48,8 +49,7 @@ public class DbToFileExporter {
         try {
             os.flush();
         } catch (IOException e) {
-            //TODO ikh: logging
-            e.printStackTrace();
+            RecorderLog.error("Could not export data to file.", e);
         }
 
     }

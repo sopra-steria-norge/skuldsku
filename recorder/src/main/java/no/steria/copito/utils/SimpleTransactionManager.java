@@ -1,9 +1,10 @@
 package no.steria.copito.utils;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import no.steria.copito.recorder.logging.RecorderLog;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * A <code>TransactionManager</code> making a new database transaction
@@ -102,7 +103,7 @@ public final class SimpleTransactionManager implements TransactionManager {
                 connection.close();
             } catch (SQLException e) {
                 // TODO: Logging.
-                e.printStackTrace();
+                RecorderLog.error("Could not close connection.", e);
             }
         }
     }
