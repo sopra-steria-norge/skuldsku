@@ -1,16 +1,12 @@
 package no.steria.copito.testrunner.dbrunner.dbchange;
 
+import no.steria.copito.recorder.logging.RecorderLog;
+import no.steria.copito.utils.*;
+
+import javax.sql.DataSource;
 import java.io.File;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.sql.DataSource;
-
-import no.steria.copito.utils.Jdbc;
-import no.steria.copito.utils.JdbcException;
-import no.steria.copito.utils.SimpleTransactionManager;
-import no.steria.copito.utils.TransactionCallback;
-import no.steria.copito.utils.TransactionManager;
 
 public class DatabaseChangeRollback {
 
@@ -35,23 +31,20 @@ public class DatabaseChangeRollback {
     }
     
     public void rollback(final List<DatabaseChange> databaseChanges) {
-        transactionManager.doInTransaction(new TransactionCallback<Object>() {
-            @Override
-            public Object callback(Jdbc jdbc) {
-                // TODO: Test at disable + reenable virker
-                final List<String> triggerNames = getEnabledTriggerNames(jdbc);
-                disableTriggers(jdbc, triggerNames);
-                
-                try {
-                    for (int i=databaseChanges.size()-1; i>=0; i--) {
-                        final String rollbackSql = DatabaseChangeRollback.generateRollbackSql(databaseChanges.get(i));
-                        jdbc.execute(rollbackSql);
-                    }
-                } finally {
-                    enableTriggers(jdbc, triggerNames);
+        transactionManager.doInTransaction(jdbc -> {
+            // TODO: Test at disable + reenable virker
+            final List<String> triggerNames = getEnabledTriggerNames(jdbc);
+            disableTriggers(jdbc, triggerNames);
+
+            try {
+                for (int i=databaseChanges.size()-1; i>=0; i--) {
+                    final String rollbackSql = DatabaseChangeRollback.generateRollbackSql(databaseChanges.get(i));
+                    jdbc.execute(rollbackSql);
                 }
-                return null;
+            } finally {
+                enableTriggers(jdbc, triggerNames);
             }
+            return null;
         });
     }
     
@@ -68,7 +61,7 @@ public class DatabaseChangeRollback {
             try {
                 enableTrigger(jdbc, triggerName);
             } catch (JdbcException e) {
-                System.out.println("Reenabling of trigger \"" + triggerName + "\" failed.");
+                RecorderLog.debug("Reenabling of trigger \"" + triggerName + "\" failed.");
             }
         }
     }
@@ -78,12 +71,12 @@ public class DatabaseChangeRollback {
     }
     
     void disableTriggers(Jdbc jdbc, final List<String> triggerNames) {
-        System.out.println("Disabling triggers. Run these SQLs in case later reenabling fails:");
+        RecorderLog.debug("Disabling triggers. Run these SQLs in case later reenabling fails:");
         for (String triggerName : triggerNames) {
-            System.out.println("    ALTER TRIGGER " + triggerName + " ENABLE;");
+            RecorderLog.debug("    ALTER TRIGGER " + triggerName + " ENABLE;");
             disableTrigger(jdbc, triggerName);
         }
-        System.out.println();
+        RecorderLog.debug("");
     }
     
     public static String generateRollbackSql(DatabaseChange databaseChange) {
@@ -115,11 +108,10 @@ public class DatabaseChangeRollback {
             if (append) {
                 values.append(", ");
             }
-            values.append(entry.getKey() + "='" + entry.getValue() + "'");
+            values.append(entry.getKey()).append("='").append(entry.getValue()).append("'");
             append = true;
         }
-        final String setValues = values.toString();
-        return setValues;
+        return values.toString();
     }
 
     private static String generateInsertRollback(DatabaseChange databaseChange) {
@@ -136,7 +128,7 @@ public class DatabaseChangeRollback {
             if (append) {
                 where.append(" AND ");
             }
-            where.append(stripQualifier(entry.getKey()) + "='" + entry.getValue() + "'");
+            where.append(stripQualifier(entry.getKey())).append("='").append(entry.getValue()).append("'");
             append = true;
         }
         return where.toString();
@@ -153,7 +145,7 @@ public class DatabaseChangeRollback {
                 values.append(", ");
             }
             names.append(stripQualifier(entry.getKey()));
-            values.append("'" + entry.getValue() + "'");
+            values.append("'").append(entry.getValue()).append("'");
             append = true;
         }
         

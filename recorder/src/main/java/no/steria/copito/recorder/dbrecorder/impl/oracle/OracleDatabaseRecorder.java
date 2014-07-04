@@ -1,6 +1,7 @@
 package no.steria.copito.recorder.dbrecorder.impl.oracle;
 
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.copito.recorder.logging.RecorderLog;
 import no.steria.copito.utils.*;
 
 import javax.sql.DataSource;
@@ -42,7 +43,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         } else {
             // If initialize has not run, we risk obstructing the application under recording if running
             // this method anyway. This check causes a slight overhead, but I believe it is worth it for the extra security.
-           System.out.println("COPITO: You cannot call start() on " + DatabaseRecorder.class.getSimpleName() +
+            RecorderLog.error("You cannot call start() on " + DatabaseRecorder.class.getSimpleName() +
                    " before you have called initialize(). Database calls are NOT being recorded.");
         }
     }
@@ -187,14 +188,14 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                     final List<String> columnNames = getColumnNames(jdbc, tableName);
                     if (columnNames.isEmpty()) {
                         // TODO: Log ignoring
-                        System.out.println("Ignoring table with no columns: " + tableName);
+                        RecorderLog.debug("Ignoring table with no columns: " + tableName);
                         continue;
                     }
                     try {
                         createTrigger(jdbc, tableName, columnNames);
                     } catch (JdbcException e) {
                         // TODO: Log exception
-                        System.out.println("Ignoring table: " + tableName + " (" + e.getMessage() + ")");
+                        RecorderLog.debug("Ignoring table: " + tableName + " (" + e.getMessage() + ")");
                     }
                 }
                 return null;
