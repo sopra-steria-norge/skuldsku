@@ -34,7 +34,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
     @Override
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        if(!reportCallback.doReport()){
+        if(!Recorder.recordingIsOn()){
             return method.invoke(obj, args);
         }
         RecorderDebugLogger logger = interfaceRecorderConfig.debugLogger();

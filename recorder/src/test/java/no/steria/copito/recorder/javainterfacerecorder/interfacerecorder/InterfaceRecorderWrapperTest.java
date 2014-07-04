@@ -115,13 +115,7 @@ public class InterfaceRecorderWrapperTest {
         ServiceClass serviceClassObject = mock(ServiceClass.class);
         when(serviceClassObject.doSimpleService(anyString())).thenReturn("Hello MyName");
         recorder.stop();
-        DummyReportCallback noRecorder = new DummyReportCallback() {
-            @Override
-            public boolean doReport() {
-                return false;
-            }
-        };
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, noRecorder, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
         assertThat(result).isEqualTo("Hello MyName");
