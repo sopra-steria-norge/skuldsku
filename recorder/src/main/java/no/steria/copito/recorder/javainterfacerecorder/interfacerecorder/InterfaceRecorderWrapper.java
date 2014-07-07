@@ -34,9 +34,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
     @Override
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
-        if(!Recorder.recordingIsOn()){
-            return method.invoke(obj, args);
-        }
+
         RecorderDebugLogger logger = interfaceRecorderConfig.debugLogger();
         logger.debug("IRW: Invoke called for " + method.getName());
         Object result = null;
@@ -54,14 +52,16 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
             throw new RuntimeException("unexpected invocation exception: " +
                     e.getMessage());
         } finally {
-            try {
-                logger.debug("IRW: Logging..");
-                String className = obj.getClass().getName();
-                String methodName = method.getName();
-                logger.debug("IRW: Logging for " + className + "," + methodName);
-                LogRunner.log(reportCallback,className,methodName,args,result, interfaceRecorderConfig);
-            } catch (Exception e) {
-                logger.debug("IRW: Exception loggin result : " + e);
+            if(Recorder.recordingIsOn()){
+                try {
+                    logger.debug("IRW: Logging..");
+                    String className = obj.getClass().getName();
+                    String methodName = method.getName();
+                    logger.debug("IRW: Logging for " + className + "," + methodName);
+                    LogRunner.log(reportCallback,className,methodName,args,result, interfaceRecorderConfig);
+                } catch (Exception e) {
+                    logger.debug("IRW: Exception loggin result : " + e);
+                }
             }
 
         }
