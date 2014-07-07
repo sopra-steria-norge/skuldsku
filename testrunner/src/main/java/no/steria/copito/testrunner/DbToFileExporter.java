@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 
 public class DbToFileExporter {
 
-
     public static final int ANT_COLUMNS_DATABASE_RECORDINGS = 7;
     public static final int ANT_COLUMNS_INTERFACE_RECORDINGS = 7;
     public static final int ANT_COLUMNS_HTTP_RECORDINGS = 5;
