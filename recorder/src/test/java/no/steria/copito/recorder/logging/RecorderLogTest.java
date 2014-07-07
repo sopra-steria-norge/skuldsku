@@ -19,9 +19,11 @@ public class RecorderLogTest {
     private static PrintStream originalStdOut;
     private static PrintStream originalStdErr;
     private final SQLException sqlException = new SQLException("deliberate");
+    private static String lineSeparator;
 
     @BeforeClass
     public static void setUpClass() {
+        lineSeparator = System.lineSeparator();
         originalStdOut = System.out;
         originalStdErr = System.err;
         PrintStream out = new PrintStream(standardOut);
@@ -45,8 +47,8 @@ public class RecorderLogTest {
     public void shouldWriteExpectedDebugMessage() {
         RecorderLog.debug("Watch out, I'm doing stuff!");
         RecorderLog.error("Houston we have a problem!");
-        assertEquals("DEBUG: COPITO: Watch out, I'm doing stuff!\r\n" +
-                "ERROR: COPITO: Houston we have a problem!\r\n", standardOut.toString());
+        assertEquals("DEBUG: COPITO: Watch out, I'm doing stuff!" + lineSeparator +
+                "ERROR: COPITO: Houston we have a problem!" + lineSeparator, standardOut.toString());
     }
 
     @Test
@@ -54,8 +56,8 @@ public class RecorderLogTest {
         RecorderLog.DefaultRecorderLogger.setPrefix("Eplekake: ");
         RecorderLog.debug("Watch out, I'm doing stuff!");
         RecorderLog.error("Houston we have a problem!");
-        assertEquals("DEBUG: Eplekake: Watch out, I'm doing stuff!\r\n" +
-                "ERROR: Eplekake: Houston we have a problem!\r\n", standardOut.toString());
+        assertEquals("DEBUG: Eplekake: Watch out, I'm doing stuff!" + lineSeparator +
+                "ERROR: Eplekake: Houston we have a problem!" + lineSeparator, standardOut.toString());
         RecorderLog.DefaultRecorderLogger.setPrefix("COPITO: ");
     }
 
@@ -66,7 +68,7 @@ public class RecorderLogTest {
         sqlException.printStackTrace(pw);
         pw.flush();
         RecorderLog.error("Houston!", sqlException);
-        assertEquals("ERROR: COPITO: Houston!\r\n" + baos.toString(), standardOut.toString());
+        assertEquals("ERROR: COPITO: Houston!" + lineSeparator + baos.toString(), standardOut.toString());
     }
 
     @Test
