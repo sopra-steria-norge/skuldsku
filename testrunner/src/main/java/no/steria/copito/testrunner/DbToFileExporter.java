@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 public class DbToFileExporter {
 
     public static final int ANT_COLUMNS_DATABASE_RECORDINGS = 7;
-    public static final int ANT_COLUMNS_INTERFACE_RECORDINGS = 7;
+    public static final int ANT_COLUMNS_JAVA_INTERFACE_RECORDINGS = 7;
     public static final int ANT_COLUMNS_HTTP_RECORDINGS = 5;
 
     /**
@@ -31,7 +31,7 @@ public class DbToFileExporter {
         printWriter.write(" **DATABASE RECORDINGS** ");
         exportRecordingsToFile(printWriter, databaseRecordingsTable, ANT_COLUMNS_DATABASE_RECORDINGS, transactionManager);
         printWriter.write(" **JAVA INTERFACE RECORDINGS** ");
-        exportRecordingsToFile(printWriter, javaInterfaceRecordingsTable, ANT_COLUMNS_INTERFACE_RECORDINGS, transactionManager);
+        exportRecordingsToFile(printWriter, javaInterfaceRecordingsTable, ANT_COLUMNS_JAVA_INTERFACE_RECORDINGS, transactionManager);
         printWriter.write(" **HTTP RECORDINGS** ");
         exportRecordingsToFile(printWriter, httpRecordingsTable, ANT_COLUMNS_HTTP_RECORDINGS, transactionManager);
         try {

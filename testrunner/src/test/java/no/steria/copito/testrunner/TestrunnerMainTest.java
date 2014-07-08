@@ -2,12 +2,14 @@ package no.steria.copito.testrunner;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,7 +22,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-public class DatabaseRecorderMainTest {
+public class TestRunnerMainTest {
 
 
     @Mock
@@ -54,7 +56,7 @@ public class DatabaseRecorderMainTest {
         when(resultSet.next()).thenReturn(true).thenReturn(false).thenReturn(true).thenReturn(false).thenReturn(true).thenReturn(false);
         when(resultSet.getString(anyInt())).thenReturn("column value");
 
-        DatabaseRecorderMain.testMain(new String[]{
+        TestRunnerMain.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "wimpel_dba",
                 "wimpel",
@@ -69,6 +71,22 @@ public class DatabaseRecorderMainTest {
         scanner.close();
 
         assertEquals(" **DATABASE RECORDINGS** \"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"; **JAVA INTERFACE RECORDINGS** \"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"; **HTTP RECORDINGS** \"column value\",\"column value\",\"column value\",\"column value\",\"column value\";", content);
+    }
+
+    @Ignore("This test runs against the database")
+    @Test
+    public void shouldExportDataFromDb() throws FileNotFoundException {
+        filename = "";
+        TestRunnerMain.main(new String[]{
+                "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
+                "wimpel_dba",
+                "****",
+                "export",
+                "C:\\tmp\\testfile.txt",
+                "CPT_RECORDER",
+                COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
+                "CPT_HTTP_INTERACTIONS_TABLE",
+        });
     }
 
     @After

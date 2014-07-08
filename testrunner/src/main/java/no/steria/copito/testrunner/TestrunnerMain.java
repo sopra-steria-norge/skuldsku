@@ -17,7 +17,7 @@ import java.io.*;
  *
  * @see no.steria.copito.recorder.dbrecorder.DatabaseRecorder
  */
-public class DatabaseRecorderMain {
+public class TestRunnerMain {
 
     static DataSource createDataSource(String jdbcUrl, String username, String password) {
         try {
@@ -35,8 +35,8 @@ public class DatabaseRecorderMain {
     }
 
     static void printUsage() {
-        System.out.println("Usage: dbrecorder JDBC_URL USERNAME PASSWORD setup|start|stop|export file database_recordings_table http_recordings_table" +
-                " java_interface_recordings_table|tearDown|rollback FILE");
+        System.out.println("Usage: dbrecorder JDBC_URL USERNAME PASSWORD setup|start|stop|export file database_recordings_table " +
+                "java_interface_recordings_table http_recordings_table |tearDown|rollback FILE");
     }
 
     static void testMain (String[] args, DataSource dataSource) throws FileNotFoundException {
