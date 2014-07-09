@@ -51,12 +51,12 @@ public class DbToFileExporterTest {
         when(resultSet.getString(7)).thenReturn("DATAROW").thenReturn("TIMEST");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DbToFileExporter.exportTo(baos, COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG", "table2", "table3", dataSource);
-        assertEquals(" **DATABASE RECORDINGS** " + //
-                "\"" + COPITO_DATABASE_TABLE_PREFIX + "ID\",\"CLIENT_IDENTIFIER\",\"SESSION_USER\",\"\",\"TABLE_NAME\",\"ACTION\",\"DATAROW\";" + //
-                "\"SERVICE\",\"METHOD\",\"\",\"RESULT\",\"CREATED\",\"THREAD_ID\",\"TIMEST\"; " + //
-                "**JAVA INTERFACE RECORDINGS** " + //
-                "\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\",\"THREAD_ID\",\"TIMEST\"; " + //
-                "**HTTP RECORDINGS** " + //
-                "\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\";", baos.toString());
+        assertEquals("\n" +
+                " **DATABASE RECORDINGS** \n\n\"CPT_ID\",\"CLIENT_IDENTIFIER\",\"SESSION_USER\",\"\",\"TABLE_NAME\",\"" +
+                "ACTION\",\"DATAROW\";\"SERVICE\",\"METHOD\",\"\",\"RESULT\",\"CREATED\",\"THREAD_ID\",\"TIMEST\";\n" +
+                "\n **JAVA INTERFACE RECORDINGS** \n" +
+                "\n\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\",\"THREAD_ID\",\"TIMEST\";\n" +
+                "\n **HTTP RECORDINGS** \n" +
+                "\n\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\";\n", baos.toString());
     }
 }

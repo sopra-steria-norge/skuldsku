@@ -1,26 +1,25 @@
 package no.steria.copito.testrunner;
 
+import com.jolbox.bonecp.BoneCPDataSource;
+import org.apache.tools.ant.taskdefs.SQLExec;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.sql.DataSource;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TestRunnerMainTest {
 
@@ -29,7 +28,7 @@ public class TestRunnerMainTest {
     private DbToFileExporter dbToFileExporter;
 
     @Mock
-    private DataSource dataSource;
+    private BoneCPDataSource dataSource;
 
     @Mock
     private Connection connection;
@@ -40,16 +39,19 @@ public class TestRunnerMainTest {
     @Mock
     private ResultSet resultSet;
 
-    private String filename;
+    @Mock
+    private SQLExec sqlExec;
+
+    private final String filename = System.getProperty("java.io.tmpdir") + "DatabaseRecorderMainTest.txt";
 
     @Before
     public void setUp() {
+        sqlExec = mock(SQLExec.class, withSettings().verboseLogging());
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
     public void shouldWriteToFileWhenRequired() throws Exception {
-        filename = System.getProperty("java.io.tmpdir") + "DatabaseRecorderMainTest.txt";
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
@@ -58,36 +60,68 @@ public class TestRunnerMainTest {
 
         TestRunnerMain.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
-                "wimpel_dba",
-                "wimpel",
-                "export",
-                filename,
+                "userId",
+                "password",
                 "CPT_RECORDER",
                 COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
-                "CPT_HTTP_INTERACTIONS_TABLE"}, dataSource);
+                "CPT_HTTP_INTERACTIONS_TABLE",
+                "export",
+                filename}, dataSource);
 
         Scanner scanner = new Scanner(new File(filename));
         String content = scanner.useDelimiter("\\Z").next();
         scanner.close();
 
-        assertEquals(" **DATABASE RECORDINGS** \"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"; **JAVA INTERFACE RECORDINGS** \"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"; **HTTP RECORDINGS** \"column value\",\"column value\",\"column value\",\"column value\",\"column value\";", content);
+        assertEquals("\n **DATABASE RECORDINGS** \n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n" +
+                "\n **JAVA INTERFACE RECORDINGS** \n" +
+                "\n\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n" +
+                "\n **HTTP RECORDINGS** \n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";", content);
     }
 
-    @Ignore("This test runs against the database")
+
     @Test
-    public void shouldExportDataFromDb() throws FileNotFoundException {
-        filename = "";
-        TestRunnerMain.main(new String[]{
+    public void shouldRunDbDump() throws IOException, SQLException {
+        String userId = "userId";
+        String password = "password";
+        when(dataSource.getUsername()).thenReturn(userId);
+        when(dataSource.getPassword()).thenReturn(password);
+        TestRunnerMain.setSqlExec(sqlExec);
+        TestRunnerMain.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
-                "wimpel_dba",
-                "****",
-                "export",
-                "C:\\tmp\\testfile.txt",
+                userId,
+                password,
                 "CPT_RECORDER",
                 COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
                 "CPT_HTTP_INTERACTIONS_TABLE",
-        });
+                "import",
+                filename}, dataSource);
+        verify(sqlExec, times(1)).setUserid(userId);
+        verify(sqlExec, times(1)).setPassword(password);
+        verify(sqlExec, times(1)).execute();
     }
+
+    @Test
+    public void shouldClearCopitoTables() throws IOException, SQLException {
+        String databaseRecordingsTable = "CPT_RECORDER";
+        String javaInterfaceRecordingsTable = COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG";
+        String httpInteractionsRecordingsTable = "CPT_HTTP_INTERACTIONS_TABLE";
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        TestRunnerMain.testMain(new String[]{
+                "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
+                "userId",
+                "password",
+                databaseRecordingsTable,
+                javaInterfaceRecordingsTable,
+                httpInteractionsRecordingsTable,
+                "clean"}, dataSource);
+        verify(connection, times(1)).prepareStatement("DELETE FROM " + databaseRecordingsTable);
+        verify(connection, times(1)).prepareStatement("DELETE FROM " + javaInterfaceRecordingsTable);
+        verify(connection, times(1)).prepareStatement("DELETE FROM " + httpInteractionsRecordingsTable);
+    }
+
 
     @After
     public void cleanUp() {
