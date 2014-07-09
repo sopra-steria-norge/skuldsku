@@ -23,7 +23,7 @@ import java.util.Scanner;
  *
  * @see no.steria.copito.recorder.dbrecorder.DatabaseRecorder
  */
-public class TestRunnerMain {
+public class TestRunnerCmd {
 
     private static final String DATABASE_DRIVER = "oracle.jdbc.OracleDriver";
     private static String databaseRecordings;
@@ -181,14 +181,14 @@ public class TestRunnerMain {
 
     // method for mocking out SQLExec when testing
     static void setSqlExec(SQLExec sqlExec) {
-        TestRunnerMain.sqlExec = sqlExec;
+        TestRunnerCmd.sqlExec = sqlExec;
     }
 
     // "main" method for testing. Mocks out the data source.
     static void testMain(String[] args, BoneCPDataSource dataSource) throws IOException, SQLException {
         Scanner sc = new Scanner(System.in);
         prepareDataSource(args, sc);
-        TestRunnerMain.dataSource = dataSource;
+        TestRunnerCmd.dataSource = dataSource;
         switchCommand(args, 6);
     }
 }

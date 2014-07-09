@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class TestRunnerMainTest {
+public class TestRunnerCmdTest {
 
 
     @Mock
@@ -58,7 +58,7 @@ public class TestRunnerMainTest {
         when(resultSet.next()).thenReturn(true).thenReturn(false).thenReturn(true).thenReturn(false).thenReturn(true).thenReturn(false);
         when(resultSet.getString(anyInt())).thenReturn("column value");
 
-        TestRunnerMain.testMain(new String[]{
+        TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
@@ -87,8 +87,8 @@ public class TestRunnerMainTest {
         String password = "password";
         when(dataSource.getUsername()).thenReturn(userId);
         when(dataSource.getPassword()).thenReturn(password);
-        TestRunnerMain.setSqlExec(sqlExec);
-        TestRunnerMain.testMain(new String[]{
+        TestRunnerCmd.setSqlExec(sqlExec);
+        TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 userId,
                 password,
@@ -109,7 +109,7 @@ public class TestRunnerMainTest {
         String httpInteractionsRecordingsTable = "CPT_HTTP_INTERACTIONS_TABLE";
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        TestRunnerMain.testMain(new String[]{
+        TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",

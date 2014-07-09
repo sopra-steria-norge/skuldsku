@@ -108,7 +108,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>no.steria.copito.testrunner.TestRunnerMain</mainClass>
+                            <mainClass>no.steria.copito.testrunner.TestRunnerCmd</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
