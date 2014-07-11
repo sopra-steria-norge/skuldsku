@@ -16,7 +16,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Support for running the <code>DatbaseRecorder</code> from the command-line.
@@ -26,6 +30,7 @@ import java.util.Scanner;
 public class TestRunnerCmd {
 
     private static final String DATABASE_DRIVER = "oracle.jdbc.OracleDriver";
+    public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 6;
     private static String databaseRecordings;
     private static String javaInterfaceRecordings;
     private static String httpRecordings;
@@ -33,25 +38,60 @@ public class TestRunnerCmd {
     private static SQLExec sqlExec = new SQLExec();
 
     public static void main(String[] args) throws IOException, SQLException {
+        try {
+            Scanner sc = new Scanner(System.in);
+            args = prepareDataSource(args, sc);
+            readAndExecuteCommands(args, sc);
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-        Scanner sc = new Scanner(System.in);
-        args = prepareDataSource(args, sc);
-
+    private static void readAndExecuteCommands(String[] args, Scanner sc) throws IOException, SQLException {
         int currentIndex;
-        if(args.length > 6){
-            currentIndex = 6;
+        if(argumentsAreExhausted(args)) {
+            printUsage();
+            args = getNewArgumentsFromUser(sc);
+            currentIndex = 0;
         } else {
-            currentIndex = 0;
-            printUsage();
-            args = getNewArgumentsFromUser(sc);
+            currentIndex = NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION;
         }
+        while (!args[currentIndex].equals("exit")) {
+            if (args[currentIndex].equals("export")) {
+                if (args.length < currentIndex + 1) {
+                    System.out.println("Cannot export without a file name!");
+                } else {
+                    exportToFile(args[++currentIndex]);
+                    System.out.println("Data exported to: " + args[currentIndex]);
+                }
+            } else if (args[currentIndex].equals("rollback")) {
+                currentIndex = rollback(args[currentIndex], currentIndex);
+            } else if (args[currentIndex].equals("clean")) {
+                cleanRecordingTables(dataSource);
+            } else if (args[currentIndex].equals("import")) {
+                if (args.length < currentIndex + 1) {
+                    System.out.println("Please provide file name for database script!");
+                    printUsage();
+                    continue;
+                }
+                importDbScript(args[++currentIndex]);
+                System.out.println("Done importing database script.");
+            } else {
+                System.err.println("Unknown command: " + args[currentIndex]);
+                printUsage();
+            }
+            currentIndex++;
+            if(args.length <= currentIndex){
+                printUsage();
+                args = getNewArgumentsFromUser(sc);
+                currentIndex = 0;
+            }
+        }
+    }
 
-        while(args.length != 0) {
-            switchCommand(args, currentIndex);
-            currentIndex = 0;
-            printUsage();
-            args = getNewArgumentsFromUser(sc);
-        }
+
+    private static boolean argumentsAreExhausted(String[] args) {
+        return args.length <= NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION;
     }
 
     private static String[] prepareDataSource(String[] args, Scanner sc) throws SQLException {
@@ -98,38 +138,6 @@ public class TestRunnerCmd {
         return args;
     }
 
-    private static void switchCommand(String[] args, int currentIndex) throws IOException, SQLException {
-
-        while (currentIndex < args.length) {
-            if (args[currentIndex].equals("export")) {
-                if(args.length < 2) {
-                    System.out.println("Cannot export without a file name!");
-                } else {
-                    currentIndex++;
-                    exportToFile(args[currentIndex]);
-                    System.out.println("Data exported to: " + args[currentIndex]);
-                }
-            } else if (args[currentIndex].equals("rollback")) {
-                currentIndex = rollback(args[currentIndex], currentIndex);
-            } else if(args[currentIndex].equals("clean")) {
-                cleanRecordingTables(dataSource);
-            } else if(args[currentIndex].equals("import")) {
-                if(args.length < currentIndex + 1) {
-                    System.out.println("Please provide file name for database script!");
-                    printUsage();
-                    continue;
-                }
-                importDbScript(args[currentIndex + 1]);
-                System.out.println("done");
-            }
-            else {
-                System.err.println("Unknown command: " + args[currentIndex]);
-                printUsage();
-            }
-            currentIndex++;
-        }
-    }
-
     private static int rollback(String arg, int currentIndex) {
         currentIndex++;
         final File rollbackFile = new File(arg);
@@ -156,7 +164,7 @@ public class TestRunnerCmd {
 
     private static void exportToFile(String arg) {
         try (OutputStream os = new FileOutputStream(arg)) {
-            DbToFileExporter.exportTo(os, databaseRecordings, javaInterfaceRecordings, httpRecordings, dataSource);
+                DbToFileExporter.exportTo(os, databaseRecordings, javaInterfaceRecordings, httpRecordings, dataSource);
         } catch (IOException e) {
             RecorderLog.error("Could not write to specified file.", e);
         }
@@ -169,14 +177,28 @@ public class TestRunnerCmd {
         dbRecDelete.execute();
         javaIntRecDelete.execute();
         httpRecDelete.execute();
+        System.out.println("Copito tables cleaned.");
     }
 
-    private static String[] getNewArgumentsFromUser(Scanner sc) {
-        return sc.nextLine().split(" ");
+    static String[] getNewArgumentsFromUser(Scanner sc) {
+        List<String> matchList = new ArrayList<>();
+        Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+        Matcher matcher = regex.matcher(sc.nextLine());
+        while (matcher.find()) {
+            if (matcher.group(1) != null) {
+                matchList.add(matcher.group(1));
+            } else if (matcher.group(2) != null) {
+                matchList.add(matcher.group(2));
+            } else {
+                matchList.add(matcher.group());
+            }
+        }
+        String args[] = new String[matchList.size()];
+        return matchList.toArray(args);
     }
 
     private static void printUsage() {
-        System.out.println("Usage: setup|start|stop|export <file name> |tearDown|rollback FILE");
+        System.out.println("Usage: rollback | clean | export <file name> | import <file name>");
     }
 
     // method for mocking out SQLExec when testing
@@ -184,11 +206,10 @@ public class TestRunnerCmd {
         TestRunnerCmd.sqlExec = sqlExec;
     }
 
-    // "main" method for testing. Mocks out the data source.
-    static void testMain(String[] args, BoneCPDataSource dataSource) throws IOException, SQLException {
-        Scanner sc = new Scanner(System.in);
+    // "main" method for testing. Mocks out the data source and the scanner.
+    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc) throws IOException, SQLException {
         prepareDataSource(args, sc);
         TestRunnerCmd.dataSource = dataSource;
-        switchCommand(args, 6);
+        readAndExecuteCommands(args, sc);
     }
 }
