@@ -6,14 +6,10 @@ package no.steria.copito.testrunner;
 import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.copito.recorder.logging.RecorderLog;
 import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.SQLExec;
 
 import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,9 +31,8 @@ public class TestRunnerCmd {
     private static String javaInterfaceRecordings;
     private static String httpRecordings;
     private static BoneCPDataSource dataSource;
-    private static SQLExec sqlExec = new SQLExec();
 
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) {
         try {
             Scanner sc = new Scanner(System.in);
             args = prepareDataSource(args, sc);
@@ -49,7 +44,7 @@ public class TestRunnerCmd {
 
     private static void readAndExecuteCommands(String[] args, Scanner sc) throws IOException, SQLException {
         int currentIndex;
-        if(argumentsAreExhausted(args)) {
+        if (argumentsAreExhausted(args)) {
             printUsage();
             args = getNewArgumentsFromUser(sc);
             currentIndex = 0;
@@ -76,12 +71,20 @@ public class TestRunnerCmd {
                 }
                 importDbScript(args[++currentIndex]);
                 System.out.println("Done importing database script.");
+            } else if (args[currentIndex].equals("oracleImport")) {
+                if (args.length < currentIndex + 1) {
+                    System.out.println("Please provide file name for database script!");
+                    printUsage();
+                    continue;
+                }
+                importOracleDbScript(args[++currentIndex]);
+                System.out.println("Done importing database script.");
             } else {
                 System.err.println("Unknown command: " + args[currentIndex]);
                 printUsage();
             }
             currentIndex++;
-            if(args.length <= currentIndex){
+            if (args.length <= currentIndex) {
                 printUsage();
                 args = getNewArgumentsFromUser(sc);
                 currentIndex = 0;
@@ -147,24 +150,82 @@ public class TestRunnerCmd {
         return currentIndex;
     }
 
-    private static void importDbScript(String file) {
-        sqlExec.setTaskType("sql");
-        sqlExec.setTaskName("sql");
-        Project project = new Project();
-        project.init();
-        sqlExec.setProject(project);
-        sqlExec.setSrc(new File(file));
-        sqlExec.setDriver(DATABASE_DRIVER);
-        sqlExec.setPassword(dataSource.getPassword());
-        sqlExec.setUserid(dataSource.getUsername());
-        sqlExec.setUrl(dataSource.getJdbcUrl());
-        sqlExec.execute();
+    private static void importDbScript(String file) throws SQLException, IOException {
+        Connection connection = dataSource.getConnection();
+        String currentSql = "";
+        BufferedReader br = new BufferedReader(new FileReader(new File(file)));
+        String available;
+        while ((available = br.readLine()) != null) {
+            String[] queryParts = available.split(";");
+            queryParts[0] = currentSql + "\n" + queryParts[0]; //the first token might be the end of previous command
+            for(int i = 1; queryParts.length > i; i++) {
+                executeSql(connection, queryParts[i - 1]);
+            }
+            if (available.endsWith(";")) {
+                executeSql(connection, queryParts[queryParts.length - 1]);
+                currentSql = "";
+            } else {
+                currentSql = queryParts[queryParts.length - 1];
+            }
+        }
+        br.close();
+        connection.close();
+    }
 
+    private static void executeSql(Connection connection, String next) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(next)) {
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            System.out.println(next);
+            e.printStackTrace();
+        }
+    }
+
+    private static void importOracleDbScript(String fileName) throws SQLException {
+        String sqlCmd = "sqlplus";
+        String url = dataSource.getJdbcUrl();
+        String[] connectionParams = url.split("@")[1].split(":");
+        String connectionString = dataSource.getUsername() + "/" +
+                dataSource.getPassword() + "@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=" +
+                connectionParams[0] + ")(Port=" + connectionParams[1] +
+                "))(CONNECT_DATA=(SID=" + connectionParams[2] + ")))";
+        ProcessBuilder pb = new ProcessBuilder(sqlCmd, connectionString, "@" + fileName);
+        pb.redirectErrorStream(true);
+        pb.redirectInput();
+        pb.redirectOutput();
+        Process p;
+        try {
+            p = pb.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        try (OutputStream sqlLiteOutput = p.getOutputStream();
+             PrintWriter sqlPlusCommandLineWriter = new PrintWriter(sqlLiteOutput);
+             BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
+             BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+
+            sqlPlusCommandLineWriter.println("exit");
+            sqlPlusCommandLineWriter.flush();
+
+            String line;
+            while (p.isAlive()) {
+                if ((line = bre.readLine()) != null) {
+                    System.out.println(line);
+                }
+                if ((line = bri.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }
+            p.destroy();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
     private static void exportToFile(String arg) {
         try (OutputStream os = new FileOutputStream(arg)) {
-                DbToFileExporter.exportTo(os, databaseRecordings, javaInterfaceRecordings, httpRecordings, dataSource);
+            DbToFileExporter.exportTo(os, databaseRecordings, javaInterfaceRecordings, httpRecordings, dataSource);
         } catch (IOException e) {
             RecorderLog.error("Could not write to specified file.", e);
         }
@@ -193,17 +254,15 @@ public class TestRunnerCmd {
                 matchList.add(matcher.group());
             }
         }
+        if (matchList.size() == 0) { // user did not enter any command
+            getNewArgumentsFromUser(sc);
+        }
         String args[] = new String[matchList.size()];
         return matchList.toArray(args);
     }
 
     private static void printUsage() {
-        System.out.println("Usage: rollback | clean | export <file name> | import <file name>");
-    }
-
-    // method for mocking out SQLExec when testing
-    static void setSqlExec(SQLExec sqlExec) {
-        TestRunnerCmd.sqlExec = sqlExec;
+        System.out.println("Usage: rollback | clean | export <file name> | import <file name> | oracleImport <fileName>");
     }
 
     // "main" method for testing. Mocks out the data source and the scanner.
