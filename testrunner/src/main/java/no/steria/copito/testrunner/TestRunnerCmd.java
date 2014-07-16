@@ -183,44 +183,54 @@ public class TestRunnerCmd {
 
     private static void importOracleDbScript(String fileName) throws SQLException {
         String sqlCmd = "sqlplus";
-        String url = dataSource.getJdbcUrl();
-        String[] connectionParams = url.split("@")[1].split(":");
-        String connectionString = dataSource.getUsername() + "/" +
-                dataSource.getPassword() + "@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=" +
-                connectionParams[0] + ")(Port=" + connectionParams[1] +
-                "))(CONNECT_DATA=(SID=" + connectionParams[2] + ")))";
-        ProcessBuilder pb = new ProcessBuilder(sqlCmd, connectionString, "@" + fileName);
-        pb.redirectErrorStream(true);
-        pb.redirectInput();
-        pb.redirectOutput();
-        Process p;
+        String connectionString = prepareConnectionString(dataSource.getJdbcUrl(), dataSource.getUsername(), dataSource.getPassword());
+        ProcessBuilder processBuilder = prepareProcessBuilder(fileName, sqlCmd, connectionString);
+        Process sqlPlusProcess;
         try {
-            p = pb.start();
+            sqlPlusProcess = processBuilder.start();
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-        try (OutputStream sqlLiteOutput = p.getOutputStream();
+        try (OutputStream sqlLiteOutput = sqlPlusProcess.getOutputStream();
              PrintWriter sqlPlusCommandLineWriter = new PrintWriter(sqlLiteOutput);
-             BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
-             BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+             BufferedReader bri = new BufferedReader(new InputStreamReader(sqlPlusProcess.getInputStream()));
+             BufferedReader bre = new BufferedReader(new InputStreamReader(sqlPlusProcess.getErrorStream()))) {
 
             sqlPlusCommandLineWriter.println("exit");
             sqlPlusCommandLineWriter.flush();
 
-            String line;
-            while (p.isAlive()) {
-                if ((line = bre.readLine()) != null) {
-                    System.out.println(line);
-                }
-                if ((line = bri.readLine()) != null) {
-                    System.out.println(line);
-                }
+            while (sqlPlusProcess.isAlive()) {
+                writeInputAndErrorsToStdOut(bri, bre);
             }
-            p.destroy();
+            sqlPlusProcess.destroy();
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    private static void writeInputAndErrorsToStdOut(BufferedReader bri, BufferedReader bre) throws IOException {
+        String line;
+        if ((line = bre.readLine()) != null) {
+            System.out.println(line);
+        }
+        if ((line = bri.readLine()) != null) {
+            System.out.println(line);
+        }
+    }
+
+    private static ProcessBuilder prepareProcessBuilder(String fileName, String sqlCmd, String connectionString) {
+        ProcessBuilder pb = new ProcessBuilder(sqlCmd, connectionString, "@" + fileName);
+        pb.redirectErrorStream(true);
+        pb.redirectInput();
+        pb.redirectOutput();
+        return pb;
+    }
+
+    static String prepareConnectionString(String url, String userName, String password) {
+        String[] connectionParams = url.split("@")[1].split(":");
+        return userName + "/" + password + "@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=" +
+                connectionParams[0] + ")(Port=" + connectionParams[1] + "))(CONNECT_DATA=(SID=" + connectionParams[2] + ")))";
     }
 
     private static void exportToFile(String arg) {

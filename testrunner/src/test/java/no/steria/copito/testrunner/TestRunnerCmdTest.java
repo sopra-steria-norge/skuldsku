@@ -85,12 +85,7 @@ public class TestRunnerCmdTest {
                 COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
                 "CPT_HTTP_INTERACTIONS_TABLE",
                 "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
-        verify(connection, times(1)).prepareStatement("\ndrop table foo");
-        verify(connection, times(1)).prepareStatement(" drop\ntable bar");
-        verify(connection, times(1)).prepareStatement(" create table \n" +
-                "foo(\"ID\" VARCHAR2(63 BYTE), \n" +
-                "\"AUTHOR\" VARCHAR2(63 BYTE), \n" +
-                "\"FILENAME\" VARCHAR2(200 BYTE)");
+        verifyExpectedSqlWasExecuted();
     }
 
     @Test
@@ -128,9 +123,8 @@ public class TestRunnerCmdTest {
 
     @Test
     public void shouldBePossibleToExecuteSeveralCommands() throws IOException, SQLException {
+        prepareSqlScriptTestFile();
         mockDataSource();
-        File file = new File(filename);
-        assertTrue("Could not create file test resource.", file.createNewFile());
         Scanner scanner = new Scanner(new ByteArrayInputStream(("import " + filename + " export " + filename + " exit").getBytes()));
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
@@ -139,10 +133,26 @@ public class TestRunnerCmdTest {
                 "CPT_RECORDER",
                 COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
                 "CPT_HTTP_INTERACTIONS_TABLE"}, dataSource, scanner);
-        verify(resultSet, times(3)).next(); //result set called once for each table, thus import was executed.
-      //TODO: ikh: different assert!
-      //  verify(sqlExec, times(1)).execute(); //execute called, thus export was called.
-        // no stack trace, thus exit was called successfully.
+        verify(resultSet, times(3)).next(); //result set called once for each table, thus export was executed.
+        verifyExpectedSqlWasExecuted();
+      // no stack trace, thus exit was called successfully.
+    }
+
+    @Test
+    public void shouldCreateCorrectConnectionString() {
+        String connectionString = TestRunnerCmd.prepareConnectionString(
+                "dbc:oracle:thin:@database.master.com:1521:schema", "userName", "password");
+        assertEquals("userName/password@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=database.master.com)(Port=1521))(CONNECT_DATA=(SID=schema)))",
+                connectionString);
+    }
+
+    private void verifyExpectedSqlWasExecuted() throws SQLException {
+        verify(connection, times(1)).prepareStatement("\ndrop table foo");
+        verify(connection, times(1)).prepareStatement(" drop\ntable bar");
+        verify(connection, times(1)).prepareStatement(" create table \n" +
+                "foo(\"ID\" VARCHAR2(63 BYTE), \n" +
+                "\"AUTHOR\" VARCHAR2(63 BYTE), \n" +
+                "\"FILENAME\" VARCHAR2(200 BYTE)");
     }
 
     private void mockDataSource() throws SQLException {
