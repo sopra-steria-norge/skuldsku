@@ -3,14 +3,11 @@ package no.steria.copito.testrunner;
 import com.jolbox.bonecp.BoneCPDataSource;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -76,22 +73,24 @@ public class TestRunnerCmdTest {
     }
 
 
-    //TODO ikh: fix test
-    @Ignore
     @Test
     public void shouldRunDbDump() throws IOException, SQLException {
-        String userId = "userId";
-        String password = "password";
-        when(dataSource.getUsername()).thenReturn(userId);
-        when(dataSource.getPassword()).thenReturn(password);
+        prepareSqlScriptTestFile();
+        mockDataConnection();
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
-                userId,
-                password,
+                "userId",
+                "password",
                 "CPT_RECORDER",
                 COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
                 "CPT_HTTP_INTERACTIONS_TABLE",
                 "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
+        verify(connection, times(1)).prepareStatement("\ndrop table foo");
+        verify(connection, times(1)).prepareStatement(" drop\ntable bar");
+        verify(connection, times(1)).prepareStatement(" create table \n" +
+                "foo(\"ID\" VARCHAR2(63 BYTE), \n" +
+                "\"AUTHOR\" VARCHAR2(63 BYTE), \n" +
+                "\"FILENAME\" VARCHAR2(200 BYTE)");
     }
 
     @Test
@@ -152,6 +151,24 @@ public class TestRunnerCmdTest {
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
     }
 
+    private void mockDataConnection() throws SQLException {
+        when(dataSource.getJdbcUrl()).thenReturn("dbc:oracle:thin:@database.master.com:1521:schema");
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    }
+
+    private void prepareSqlScriptTestFile() throws IOException {
+        File file = new File(filename);
+        assertTrue("Could not create file test resource.", file.createNewFile());
+        FileOutputStream out = new FileOutputStream(file);
+        PrintWriter printWriter = new PrintWriter(out);
+        printWriter.write("drop table foo; drop\n" +
+                "table bar; create table \nfoo(\"ID\" VARCHAR2(63 BYTE), \n" +
+                "\"AUTHOR\" VARCHAR2(63 BYTE), \n" +
+                "\"FILENAME\" VARCHAR2(200 BYTE);");
+        printWriter.flush();
+        out.close();
+    }
 
     @After
     public void cleanUp() {
