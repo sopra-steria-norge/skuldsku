@@ -146,6 +146,19 @@ public class TestRunnerCmdTest {
                 connectionString);
     }
 
+    @Test
+    public void shouldHandleMissingParameters() throws IOException, SQLException {
+        String commands = "import\nexport\noracleImport\nexit\n";
+        TestRunnerCmd.testMain(new String[]{
+                "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
+                "userId",
+                "password",
+                "databaseRecordingsTable",
+                "javaInterfaceRecordingsTable",
+                "httpInteractionsRecordingsTable",
+                "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())));
+    }
+
     private void verifyExpectedSqlWasExecuted() throws SQLException {
         verify(connection, times(1)).prepareStatement("\ndrop table foo");
         verify(connection, times(1)).prepareStatement(" drop\ntable bar");

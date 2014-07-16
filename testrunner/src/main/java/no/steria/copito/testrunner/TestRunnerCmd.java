@@ -45,7 +45,6 @@ public class TestRunnerCmd {
     private static void readAndExecuteCommands(String[] args, Scanner sc) throws IOException, SQLException {
         int currentIndex;
         if (argumentsAreExhausted(args)) {
-            printUsage();
             args = getNewArgumentsFromUser(sc);
             currentIndex = 0;
         } else {
@@ -53,43 +52,54 @@ public class TestRunnerCmd {
         }
         while (!args[currentIndex].equals("exit")) {
             if (args[currentIndex].equals("export")) {
-                if (args.length < currentIndex + 1) {
-                    System.out.println("Cannot export without a file name!");
-                } else {
-                    exportToFile(args[++currentIndex]);
-                    System.out.println("Data exported to: " + args[currentIndex]);
-                }
+                currentIndex = commandExport(args, currentIndex);
             } else if (args[currentIndex].equals("rollback")) {
                 currentIndex = rollback(args[currentIndex], currentIndex);
             } else if (args[currentIndex].equals("clean")) {
                 cleanRecordingTables(dataSource);
             } else if (args[currentIndex].equals("import")) {
-                if (args.length < currentIndex + 1) {
-                    System.out.println("Please provide file name for database script!");
-                    printUsage();
-                    continue;
-                }
-                importDbScript(args[++currentIndex]);
-                System.out.println("Done importing database script.");
+                currentIndex = commandImport(args, currentIndex);
             } else if (args[currentIndex].equals("oracleImport")) {
-                if (args.length < currentIndex + 1) {
-                    System.out.println("Please provide file name for database script!");
-                    printUsage();
-                    continue;
-                }
-                importOracleDbScript(args[++currentIndex]);
-                System.out.println("Done importing database script.");
+                currentIndex = commandOracleImport(args, currentIndex);
             } else {
                 System.err.println("Unknown command: " + args[currentIndex]);
-                printUsage();
             }
             currentIndex++;
             if (args.length <= currentIndex) {
-                printUsage();
                 args = getNewArgumentsFromUser(sc);
                 currentIndex = 0;
             }
         }
+    }
+
+    private static int commandOracleImport(String[] args, int currentIndex) throws SQLException {
+        if (args.length < currentIndex + 2) {
+            System.out.println("Please provide file name for database script!");
+            return currentIndex;
+        }
+        importOracleDbScript(args[++currentIndex]);
+        System.out.println("Done importing database script.");
+        return currentIndex;
+    }
+
+    private static int commandExport(String[] args, int currentIndex) {
+        if (args.length < currentIndex + 2) {
+            System.out.println("Cannot export without a file name!");
+            return currentIndex;
+        }
+        exportToFile(args[++currentIndex]);
+        System.out.println("Data exported to: " + args[currentIndex]);
+        return currentIndex;
+    }
+
+    private static int commandImport(String[] args, int currentIndex) throws SQLException, IOException {
+        if (args.length < currentIndex + 2) {
+            System.out.println("Please provide file name for database script!");
+            return currentIndex;
+        }
+        importDbScript(args[++currentIndex]);
+        System.out.println("Done importing database script.");
+        return currentIndex;
     }
 
 
@@ -158,7 +168,7 @@ public class TestRunnerCmd {
         while ((available = br.readLine()) != null) {
             String[] queryParts = available.split(";");
             queryParts[0] = currentSql + "\n" + queryParts[0]; //the first token might be the end of previous command
-            for(int i = 1; queryParts.length > i; i++) {
+            for (int i = 1; queryParts.length > i; i++) {
                 executeSql(connection, queryParts[i - 1]);
             }
             if (available.endsWith(";")) {
@@ -252,6 +262,7 @@ public class TestRunnerCmd {
     }
 
     static String[] getNewArgumentsFromUser(Scanner sc) {
+        System.out.println("Usage: rollback | clean | export <file name> | import <file name> | oracleImport <fileName>");
         List<String> matchList = new ArrayList<>();
         Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         Matcher matcher = regex.matcher(sc.nextLine());
@@ -269,10 +280,6 @@ public class TestRunnerCmd {
         }
         String args[] = new String[matchList.size()];
         return matchList.toArray(args);
-    }
-
-    private static void printUsage() {
-        System.out.println("Usage: rollback | clean | export <file name> | import <file name> | oracleImport <fileName>");
     }
 
     // "main" method for testing. Mocks out the data source and the scanner.
