@@ -1,7 +1,6 @@
 package no.steria.copito.recorder.httprecorder;
 
 import no.steria.copito.recorder.Recorder;
-import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.testjetty.JettyServer;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import org.json.JSONObject;
@@ -17,7 +16,6 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -25,11 +23,9 @@ import static org.mockito.Mockito.*;
 
 public class ServerFunctionsTest {
 
-    Recorder recorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
-
     @Before
     public void setUp() throws SQLException {
-        recorder.start();
+        Recorder.start();
     }
 
     @Test
@@ -114,7 +110,7 @@ public class ServerFunctionsTest {
     @After
     public void tearDown() throws Exception {
         TestFilter.setReporter(null);
-        recorder.stop();
+        Recorder.stop();
     }
 
     private static String toString(InputStream inputStream) throws IOException {

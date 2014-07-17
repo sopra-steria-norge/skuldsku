@@ -1,7 +1,6 @@
 package no.steria.copito.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.copito.recorder.Recorder;
-import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.copito.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
 import org.junit.Before;
@@ -12,23 +11,20 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class InterfaceRecorderWrapperTest {
 
     private final DummyReportCallback reportCallback = new DummyReportCallback();
 
-    Recorder recorder;
-
     @Before
     public void setUp() throws SQLException {
-        recorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
-        recorder.start();
+        Recorder.start();
     }
 
     @Test
@@ -114,7 +110,7 @@ public class InterfaceRecorderWrapperTest {
     public void shouldInvokeMethodButNotRecordWhenRecordingIsOff() throws SQLException {
         ServiceClass serviceClassObject = mock(ServiceClass.class);
         when(serviceClassObject.doSimpleService(anyString())).thenReturn("Hello MyName");
-        recorder.stop();
+        Recorder.stop();
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
@@ -124,7 +120,7 @@ public class InterfaceRecorderWrapperTest {
         assertNull(reportCallback.getMethodname());
         assertNull(reportCallback.getParameters());
         assertNull(reportCallback.getResult());
-        recorder.start();
+        Recorder.start();
     }
 
     @Test
@@ -141,7 +137,7 @@ public class InterfaceRecorderWrapperTest {
 
         String s = serviceClass.readAFile("Hello, ",tempFile);
         assertThat(s).isEqualTo("Hello, This is Johnny");
-        tempFile.delete();
+        assertTrue("could not delete resource file", tempFile.delete());
 
         ClassSerializer classSerializer = new ClassSerializer();
         System.out.println(reportCallback.getParameters());
@@ -165,7 +161,7 @@ public class InterfaceRecorderWrapperTest {
 
         String s = serviceClass.readAFile("Hello, ",tempFile);
         assertThat(s).isEqualTo("Hello, This is Johnny");
-        tempFile.delete();
+        assertTrue("could not delete resource file", tempFile.delete());
 
         ClassSerializer classSerializer = new ClassSerializer();
         System.out.println(reportCallback.getParameters());

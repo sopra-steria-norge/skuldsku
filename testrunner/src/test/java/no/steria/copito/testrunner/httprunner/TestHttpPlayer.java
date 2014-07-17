@@ -15,7 +15,6 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,11 +24,9 @@ import static org.mockito.Mockito.verify;
 
 public class TestHttpPlayer {
 
-    private final Recorder recorder = new Recorder(new ArrayList<>(0));
-
     @Before
     public void setUp() throws SQLException {
-        recorder.start();
+        Recorder.start();
     }
 
     @Test

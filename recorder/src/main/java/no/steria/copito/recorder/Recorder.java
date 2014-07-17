@@ -3,28 +3,39 @@ package no.steria.copito.recorder;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Facade for starting and stopping all available recorders.
  */
 public class Recorder {
+
+    private Recorder() {
+        // avoid instantiation
+    }
+
     private static boolean recordingOn = false;
 
     public static final String COPITO_DATABASE_TABLE_PREFIX = "CPT_";
 
-    List<DatabaseRecorder> databaseRecorders;
+    private static List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
 
-    public Recorder(List<DatabaseRecorder> databaseRecorders) {
-        this.databaseRecorders = databaseRecorders;
-        initializeDbRecorders(databaseRecorders);
+    /**
+     * @param databaseRecorders new database recorders to be used. This will overwrite the previous ones.
+     */
+    public static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
+        Recorder.databaseRecorders = databaseRecorders;
+        for (DatabaseRecorder databaseRecorder : databaseRecorders) {
+            databaseRecorder.setup();
+        }
     }
 
     public static boolean recordingIsOn() {
         return recordingOn;
     }
 
-    public void start() throws SQLException {
+    public static void start() throws SQLException {
         if (!recordingIsOn()) {
             for (DatabaseRecorder dbRecorder : databaseRecorders) {
                 dbRecorder.start();
@@ -33,7 +44,7 @@ public class Recorder {
         }
     }
 
-    public void stop() {
+    public static void stop() {
         if (recordingIsOn()) {
             for (DatabaseRecorder dbRecorder : databaseRecorders) {
                 dbRecorder.stop();
@@ -42,9 +53,4 @@ public class Recorder {
         }
     }
 
-    private void initializeDbRecorders(List<DatabaseRecorder> databaseRecorders) {
-        for(DatabaseRecorder databaseRecorder : databaseRecorders) {
-            databaseRecorder.setup();
-        }
-    }
 }

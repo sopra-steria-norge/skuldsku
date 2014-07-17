@@ -32,8 +32,6 @@ public class RecorderTest {
     @Mock
     private FilterConfig filterConfig;
 
-    private Recorder recorder;
-
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
     private HttpServletRequest request;
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
@@ -44,51 +42,51 @@ public class RecorderTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        recorder = new Recorder(Arrays.asList(databaseRecorder1, databaseRecorder2));
-        recorder.stop();
+        Recorder.initializeDatabaseRecorders(Arrays.asList(databaseRecorder1, databaseRecorder2));
+        Recorder.stop();
     }
 
     @Test
     public void shouldTurnOnWhenStartIsCalledAndOffWhenStopIsCalled() throws SQLException {
-        recorder.start();
+        Recorder.start();
         assertTrue(Recorder.recordingIsOn());
-        recorder.stop();
+        Recorder.stop();
         assertFalse(Recorder.recordingIsOn());
-        recorder.start();
+        Recorder.start();
         assertTrue(Recorder.recordingIsOn());
-        recorder.stop();
+        Recorder.stop();
         assertFalse(Recorder.recordingIsOn());
     }
 
     @Test
     public void shouldAlsoTurnOnAndOffWhenNoDatabaseRecorder() throws SQLException {
-        Recorder recorderFacadeNoRecorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
+        Recorder.initializeDatabaseRecorders(new ArrayList<DatabaseRecorder>(0));
         assertFalse(Recorder.recordingIsOn());
-        recorderFacadeNoRecorder.start();
+        Recorder.start();
         assertTrue(Recorder.recordingIsOn());
-        recorderFacadeNoRecorder.stop();
+        Recorder.stop();
         Assert.assertFalse(Recorder.recordingIsOn());
     }
 
     @Test
     public void shouldNotTurnDbRecordingOffWhenAlreadyOff() {
         Mockito.reset(databaseRecorder1, databaseRecorder2); // ignore whatever happened in setUp()
-        recorder.stop();
+        Recorder.stop();
         verifyNoMoreInteractions(databaseRecorder1);
         verifyNoMoreInteractions(databaseRecorder2);
     }
 
     @Test
     public void shouldTurnDbRecordingOnWhenRecordingTurnedOn() throws SQLException {
-        recorder.start();
+        Recorder.start();
         verify(databaseRecorder1, times(1)).start();
         verify(databaseRecorder2, times(1)).start();
     }
 
     @Test
     public void shouldNotTurnDbRecordingOnWhenAlreadyOn() throws SQLException {
-        recorder.start();
-        recorder.start();
+        Recorder.start();
+        Recorder.start();
         verify(databaseRecorder1, times(1)).start();
         verify(databaseRecorder2, times(1)).start();
     }
@@ -96,8 +94,8 @@ public class RecorderTest {
     @Test
     public void shouldTurnDbRecordingOffWhenRecordingTurnedOff() throws SQLException {
         Mockito.reset(databaseRecorder1, databaseRecorder2); // ignore whatever happened in setUp()
-        recorder.start();
-        recorder.stop();
+        Recorder.start();
+        Recorder.stop();
         verify(databaseRecorder1, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
         verify(databaseRecorder2, times(1)).stop(); // including the stop() that is executed in the setUp to "reset" the facade between tests.
     }

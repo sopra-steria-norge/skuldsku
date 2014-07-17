@@ -1,7 +1,6 @@
 package no.steria.copito.recorder.httprecorder;
 
 import no.steria.copito.recorder.Recorder;
-import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.httprecorder.testjetty.TestFilter;
 import org.junit.Before;
 import org.junit.Rule;
@@ -15,12 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class ServletFilterTest {
 
@@ -32,7 +27,6 @@ public class ServletFilterTest {
     private FilterChain chain;
 
     ServletFilter servletFilter = new TestFilter();
-    Recorder recorder = new Recorder(new ArrayList<DatabaseRecorder>(0));
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -44,7 +38,7 @@ public class ServletFilterTest {
 
     @Test
     public void shouldNotRecordWhenRecordingIsOff() throws IOException, ServletException {
-        recorder.stop();
+        Recorder.stop();
         servletFilter.doFilter(request, response, chain);
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);
