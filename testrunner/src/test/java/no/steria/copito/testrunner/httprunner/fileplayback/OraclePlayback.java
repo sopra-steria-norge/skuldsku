@@ -1,6 +1,5 @@
 package no.steria.copito.testrunner.httprunner.fileplayback;
 
-import no.steria.copito.recorder.Recorder;
 import no.steria.copito.recorder.httprecorder.ReportObject;
 import no.steria.copito.testrunner.httprunner.HiddenFieldManipulator;
 import no.steria.copito.testrunner.httprunner.HttpPlayer;
@@ -12,7 +11,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
+import static no.steria.copito.DatabaseTableNames.HTTP_RECORDINGS_TABLE;
+import static no.steria.copito.DatabaseTableNames.JAVA_INTERFACE_RECORDINGS_TABLE;
 
 public class OraclePlayback {
     private static class Played {
@@ -84,16 +84,6 @@ public class OraclePlayback {
         public String getMethod() {
             return method;
         }
-
-        public String getParameters() {
-            return parameters;
-        }
-
-        public String getResult() {
-            return result;
-        }
-
-
     }
 
 
@@ -103,7 +93,7 @@ public class OraclePlayback {
         System.out.println("OK");
         Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb", "wimpel_dba", args[0]);
         List<ReportObject> script = new ArrayList<>();
-        try (PreparedStatement stmnt = connection.prepareStatement("select data from "+ Recorder.COPITO_DATABASE_TABLE_PREFIX + "HTTP_INTERACTIONS_TABLE"
+        try (PreparedStatement stmnt = connection.prepareStatement("select data from "+ HTTP_RECORDINGS_TABLE
                 + " order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
             while (resultSet.next()) {
@@ -167,7 +157,7 @@ public class OraclePlayback {
     }
 
     private static void deleteJavaLogg(Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("delete from " + COPITO_DATABASE_TABLE_PREFIX + "java_logg")) {
+        try (PreparedStatement statement = connection.prepareStatement("delete from " + JAVA_INTERFACE_RECORDINGS_TABLE)) {
             statement.executeUpdate();
             connection.commit();
         }
@@ -176,7 +166,7 @@ public class OraclePlayback {
     private static List<Played> getPlayed(Connection connection) throws SQLException {
         List<Played> recordOne;
         recordOne = new ArrayList<>();
-        try (PreparedStatement stmnt = connection.prepareStatement("select SERVICE, METHOD, PARAMETERS, RESULT from " + COPITO_DATABASE_TABLE_PREFIX + "java_logg order by timest")) {
+        try (PreparedStatement stmnt = connection.prepareStatement("select SERVICE, METHOD, PARAMETERS, RESULT from " + JAVA_INTERFACE_RECORDINGS_TABLE + " order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
             while (resultSet.next()) {
                 String service = resultSet.getString(1);

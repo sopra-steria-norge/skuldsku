@@ -11,7 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
+import static no.steria.copito.DatabaseTableNames.COPITO_DATABASE_TABLE_PREFIX;
+import static no.steria.copito.DatabaseTableNames.DATABASE_RECORDINGS_TABLE;
 
 public class OracleDatabaseRecorder implements DatabaseRecorder {
 
@@ -61,10 +62,12 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     @Override
     public void exportTo(final PrintWriter out) {
-        transactionManager.doInTransaction(new TransactionCallback<Object>() {
-            @Override
-            public Object callback(Jdbc jdbc) {
-                jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER", new ResultSetCallback() {
+            transactionManager.doInTransaction(new TransactionCallback<Object>() {
+                @Override
+                public Object callback(Jdbc jdbc) {
+                jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='|" +
+                        "|SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
+                        DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -82,7 +85,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                jdbc.query("SELECT " + COPITO_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER", new ResultSetCallback() {
+                jdbc.query("SELECT " + COPITO_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -104,7 +107,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 for (String id : retrievedDataIds) {
-                    jdbc.execute("DELETE FROM " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER WHERE " + COPITO_DATABASE_TABLE_PREFIX + "ID = " + id);
+                    jdbc.execute("DELETE FROM " + DATABASE_RECORDINGS_TABLE + " WHERE " + COPITO_DATABASE_TABLE_PREFIX + "ID = " + id);
                 }
                 return null;
             }
@@ -117,9 +120,9 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 try {
-                    jdbc.execute("DROP TABLE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER");
+                    jdbc.execute("DROP TABLE " + DATABASE_RECORDINGS_TABLE);
                 } catch (JdbcException e) {
-                    RecorderLog.error("Could not drop table " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER", e);
+                    RecorderLog.error("Could not drop table " + DATABASE_RECORDINGS_TABLE, e);
                 }
                 try {
                     jdbc.execute("DROP SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
@@ -162,9 +165,17 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private void createRecorderTableIfNotExitst(Jdbc jdbc) {
         List<String> recorderTable = jdbc.queryForList(
-                "select table_name from all_tables where table_name='" + COPITO_DATABASE_TABLE_PREFIX + "RECORDER'", String.class);
+                "select table_name from all_tables where table_name='" + DATABASE_RECORDINGS_TABLE + "'", String.class);
         if (recorderTable.isEmpty()) {
-            jdbc.execute(SqlUtils.readSql("dbrecorder/create_recorder_table.sql"));
+            jdbc.execute("CREATE TABLE " + DATABASE_RECORDINGS_TABLE + " (\n" +
+                    "    CPT_ID             NUMBER,\n" +
+                    "    CLIENT_IDENTIFIER  VARCHAR2(256),\n" +
+                    "    SESSION_USER       VARCHAR2(256),\n" +
+                    "    SESSIONID          VARCHAR2(256),\n" +
+                    "    TABLE_NAME         VARCHAR2(30),\n" +
+                    "    ACTION             VARCHAR2(6),\n" +
+                    "    DATAROW            CLOB    \n" +
+                    ")");
         }
     }
 
@@ -187,14 +198,12 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                     }
                     final List<String> columnNames = getColumnNames(jdbc, tableName);
                     if (columnNames.isEmpty()) {
-                        // TODO: Log ignoring
                         RecorderLog.debug("Ignoring table with no columns: " + tableName);
                         continue;
                     }
                     try {
                         createTrigger(jdbc, tableName, columnNames);
                     } catch (JdbcException e) {
-                        // TODO: Log exception
                         RecorderLog.debug("Ignoring table: " + tableName + " (" + e.getMessage() + ")");
                     }
                 }

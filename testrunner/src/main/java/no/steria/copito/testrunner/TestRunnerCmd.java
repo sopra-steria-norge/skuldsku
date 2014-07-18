@@ -18,6 +18,8 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static no.steria.copito.DatabaseTableNames.*;
+
 /**
  * Support for running the <code>DatbaseRecorder</code> from the command-line.
  *
@@ -26,10 +28,7 @@ import java.util.regex.Pattern;
 public class TestRunnerCmd {
 
     private static final String DATABASE_DRIVER = "oracle.jdbc.OracleDriver";
-    public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 6;
-    private static String databaseRecordings;
-    private static String javaInterfaceRecordings;
-    private static String httpRecordings;
+    public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 3;
     private static BoneCPDataSource dataSource;
 
     public static void main(String[] args) {
@@ -111,15 +110,8 @@ public class TestRunnerCmd {
         args = readNecessaryParameters(args, sc);
         ensureDbDriverIsAvailable();
         initializeDataSource(args);
-        assignTableNames(args);
         System.out.println("Connection details are registered.");
         return args;
-    }
-
-    private static void assignTableNames(String[] args) {
-        databaseRecordings = args[3];
-        javaInterfaceRecordings = args[4];
-        httpRecordings = args[5];
     }
 
     private static void initializeDataSource(String[] args) {
@@ -139,11 +131,9 @@ public class TestRunnerCmd {
 
     private static String[] readNecessaryParameters(String[] args, Scanner sc) {
         String command;
-        while (args.length < 6) {
+        while (args.length < NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION) {
             System.out.println("You must first enter connection details. Please provide the following parameters in the" +
-                    " order specified:\n<jdbc url> <username> <password> <table name database recordings> <table name " +
-                    "Java interface recordings> <table name HTTP recordings>");
-
+                    " order specified:\n<jdbc url> <username> <password>");
             command = sc.nextLine();
             System.out.println(command);
             args = command.split(" ");
@@ -245,16 +235,16 @@ public class TestRunnerCmd {
 
     private static void exportToFile(String arg) {
         try (OutputStream os = new FileOutputStream(arg)) {
-            DbToFileExporter.exportTo(os, databaseRecordings, javaInterfaceRecordings, httpRecordings, dataSource);
+            DbToFileExporter.exportTo(os, dataSource);
         } catch (IOException e) {
             RecorderLog.error("Could not write to specified file.", e);
         }
     }
 
     private static void cleanRecordingTables(DataSource dataSource) throws SQLException {
-        PreparedStatement dbRecDelete = dataSource.getConnection().prepareStatement("DELETE FROM " + databaseRecordings);
-        PreparedStatement javaIntRecDelete = dataSource.getConnection().prepareStatement("DELETE FROM " + javaInterfaceRecordings);
-        PreparedStatement httpRecDelete = dataSource.getConnection().prepareStatement("DELETE FROM " + httpRecordings);
+        PreparedStatement dbRecDelete = dataSource.getConnection().prepareStatement("DELETE FROM " + DATABASE_RECORDINGS_TABLE);
+        PreparedStatement javaIntRecDelete = dataSource.getConnection().prepareStatement("DELETE FROM " + JAVA_INTERFACE_RECORDINGS_TABLE);
+        PreparedStatement httpRecDelete = dataSource.getConnection().prepareStatement("DELETE FROM " + HTTP_RECORDINGS_TABLE);
         dbRecDelete.execute();
         javaIntRecDelete.execute();
         httpRecDelete.execute();

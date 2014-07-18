@@ -17,8 +17,6 @@ public class Recorder {
 
     private static boolean recordingOn = false;
 
-    public static final String COPITO_DATABASE_TABLE_PREFIX = "CPT_";
-
     private static List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
 
     /**

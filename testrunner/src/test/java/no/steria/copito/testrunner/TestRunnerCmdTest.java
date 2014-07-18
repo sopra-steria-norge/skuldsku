@@ -14,7 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
+import static no.steria.copito.DatabaseTableNames.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -54,9 +54,6 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "CPT_RECORDER",
-                COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
-                "CPT_HTTP_INTERACTIONS_TABLE",
                 "export",
                 filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
 
@@ -64,12 +61,13 @@ public class TestRunnerCmdTest {
         String content = scanner.useDelimiter("\\Z").next();
         scanner.close();
 
-        assertEquals("\n **DATABASE RECORDINGS** \n\n" +
-                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n" +
-                "\n **JAVA INTERFACE RECORDINGS** \n" +
-                "\n\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n" +
-                "\n **HTTP RECORDINGS** \n\n" +
-                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";", content);
+        assertEquals("\n " +
+                "**DATABASE RECORDINGS** \n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n\n\n" +
+                " **JAVA INTERFACE RECORDINGS** \n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n\n\n" +
+                " **HTTP RECORDINGS** \n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n", content);
     }
 
 
@@ -81,36 +79,26 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "CPT_RECORDER",
-                COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
-                "CPT_HTTP_INTERACTIONS_TABLE",
                 "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
         verifyExpectedSqlWasExecuted();
     }
 
     @Test
     public void shouldClearCopitoTables() throws IOException, SQLException {
-        String databaseRecordingsTable = "CPT_RECORDER";
-        String javaInterfaceRecordingsTable = COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG";
-        String httpInteractionsRecordingsTable = "CPT_HTTP_INTERACTIONS_TABLE";
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                databaseRecordingsTable,
-                javaInterfaceRecordingsTable,
-                httpInteractionsRecordingsTable,
                 "clean", "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
-        verify(connection, times(1)).prepareStatement("DELETE FROM " + databaseRecordingsTable);
-        verify(connection, times(1)).prepareStatement("DELETE FROM " + javaInterfaceRecordingsTable);
-        verify(connection, times(1)).prepareStatement("DELETE FROM " + httpInteractionsRecordingsTable);
+        verify(connection, times(1)).prepareStatement("DELETE FROM " + DATABASE_RECORDINGS_TABLE);
+        verify(connection, times(1)).prepareStatement("DELETE FROM " + JAVA_INTERFACE_RECORDINGS_TABLE);
+        verify(connection, times(1)).prepareStatement("DELETE FROM " + HTTP_RECORDINGS_TABLE);
     }
 
     @Test
     public void shouldReadArgumentsCorrectly() {
-//        Scanner scanner = new Scanner(new StringInputStream("'these are' some \"commands and\" \"other\"  foo.bar"));
         Scanner scanner = new Scanner(new ByteArrayInputStream("'these are' some \"commands and\" \"other\"  foo.bar".getBytes()));
 
         String[] newArgumentsFromUser = TestRunnerCmd.getNewArgumentsFromUser(scanner);
@@ -129,13 +117,9 @@ public class TestRunnerCmdTest {
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
-                "password",
-                "CPT_RECORDER",
-                COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG",
-                "CPT_HTTP_INTERACTIONS_TABLE"}, dataSource, scanner);
+                "password",}, dataSource, scanner);
         verify(resultSet, times(3)).next(); //result set called once for each table, thus export was executed.
         verifyExpectedSqlWasExecuted();
-      // no stack trace, thus exit was called successfully.
     }
 
     @Test
@@ -153,9 +137,6 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "databaseRecordingsTable",
-                "javaInterfaceRecordingsTable",
-                "httpInteractionsRecordingsTable",
                 "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())));
     }
 

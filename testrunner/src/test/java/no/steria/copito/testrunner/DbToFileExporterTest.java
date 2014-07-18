@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static no.steria.copito.recorder.Recorder.COPITO_DATABASE_TABLE_PREFIX;
+import static no.steria.copito.DatabaseTableNames.COPITO_DATABASE_TABLE_PREFIX;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
@@ -50,13 +50,14 @@ public class DbToFileExporterTest {
         when(resultSet.getString(6)).thenReturn("ACTION").thenReturn("THREAD_ID");
         when(resultSet.getString(7)).thenReturn("DATAROW").thenReturn("TIMEST");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DbToFileExporter.exportTo(baos, COPITO_DATABASE_TABLE_PREFIX + "JAVA_LOGG", "table2", "table3", dataSource);
+        DbToFileExporter.exportTo(baos, dataSource);
         assertEquals("\n" +
-                " **DATABASE RECORDINGS** \n\n\"CPT_ID\",\"CLIENT_IDENTIFIER\",\"SESSION_USER\",\"\",\"TABLE_NAME\",\"" +
-                "ACTION\",\"DATAROW\";\"SERVICE\",\"METHOD\",\"\",\"RESULT\",\"CREATED\",\"THREAD_ID\",\"TIMEST\";\n" +
-                "\n **JAVA INTERFACE RECORDINGS** \n" +
-                "\n\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\",\"THREAD_ID\",\"TIMEST\";\n" +
-                "\n **HTTP RECORDINGS** \n" +
-                "\n\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\";\n", baos.toString());
+                " **DATABASE RECORDINGS** \n\n" +
+                "\"CPT_ID\",\"CLIENT_IDENTIFIER\",\"SESSION_USER\",\"\",\"TABLE_NAME\",\"ACTION\",\"DATAROW\";\n" +
+                "\"SERVICE\",\"METHOD\",\"\",\"RESULT\",\"CREATED\",\"THREAD_ID\",\"TIMEST\";\n\n\n " +
+                "**JAVA INTERFACE RECORDINGS** \n\n\"" +
+                "THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\",\"THREAD_ID\",\"TIMEST\";\n\n\n " +
+                "**HTTP RECORDINGS** \n\n" +
+                "\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\";\n\n", baos.toString());
     }
 }
