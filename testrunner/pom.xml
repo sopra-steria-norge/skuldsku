@@ -3,14 +3,14 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
         xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>no.steria.copito</groupId>
+    <groupId>no.steria.skuldsku</groupId>
     <artifactId>testrunner</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>no.steria.copito</groupId>
+            <groupId>no.steria.skuldsku</groupId>
             <artifactId>recorder</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -103,7 +103,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>no.steria.copito.testrunner.TestRunnerCmd</mainClass>
+                            <mainClass>no.steria.skuldsku.testrunner.TestRunnerCmd</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
