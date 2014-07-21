@@ -12,7 +12,7 @@ public interface DatabaseRecorder {
      * once on each database unless {@link #tearDown()} is invoked to remove
      * the recorder completely from the database.
      */
-    public void setup();
+    public void initialize();
     
     /**
      * Starts recording database changes.

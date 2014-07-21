@@ -25,7 +25,7 @@ public class Recorder {
     public static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
         Recorder.databaseRecorders = databaseRecorders;
         for (DatabaseRecorder databaseRecorder : databaseRecorders) {
-            databaseRecorder.setup();
+            databaseRecorder.initialize();
         }
     }
 

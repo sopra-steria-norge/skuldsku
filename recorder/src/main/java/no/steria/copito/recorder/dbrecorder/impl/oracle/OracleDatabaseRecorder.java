@@ -18,34 +18,41 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private static final int MAX_TRIGGER_NAME_LENGTH = 30;
 
+    private List<String> ignoredTables = new ArrayList<>();
 
     private final TransactionManager transactionManager;
 
     private boolean initialized = false;
 
     public OracleDatabaseRecorder(DataSource dataSource) {
-        this(new SimpleTransactionManager(dataSource));
+        this(new SimpleTransactionManager(dataSource), new ArrayList<String>(0));
     }
 
-    OracleDatabaseRecorder(TransactionManager transactionManager) {
+    public OracleDatabaseRecorder(DataSource dataSource, List<String> ignoredTables) {
+        this(new SimpleTransactionManager(dataSource), new ArrayList<String>(0));
+        this.ignoredTables = ignoredTables;
+    }
+
+    OracleDatabaseRecorder(TransactionManager transactionManager, List<String> ignoredTables) {
         this.transactionManager = transactionManager;
+        this.ignoredTables = ignoredTables;
     }
 
     @Override
-    public void setup() {
-        createRecorderTable();
+    public void initialize() {
+        prepareDatabaseForRecording();
         initialized = true;
     }
 
     @Override
     public void start() {
         if (initialized) {
-            createTriggers();
+            createTriggersInTransaction();
         } else {
             // If initialize has not run, we risk obstructing the application under recording if running
             // this method anyway. This check causes a slight overhead, but I believe it is worth it for the extra security.
             RecorderLog.error("You cannot call start() on " + DatabaseRecorder.class.getSimpleName() +
-                   " before you have called initialize(). Database calls are NOT being recorded.");
+                    " before you have called initialize(). Database calls are NOT being recorded.");
         }
     }
 
@@ -62,9 +69,9 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     @Override
     public void exportTo(final PrintWriter out) {
-            transactionManager.doInTransaction(new TransactionCallback<Object>() {
-                @Override
-                public Object callback(Jdbc jdbc) {
+        transactionManager.doInTransaction(new TransactionCallback<Object>() {
+            @Override
+            public Object callback(Jdbc jdbc) {
                 jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='|" +
                         "|SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
                         DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
@@ -139,7 +146,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 for (String triggerName : getTriggerNames(jdbc)) {
-                    if (isRecorderResource(triggerName)) {
+                    if (isCopitoTrigger(triggerName)) {
                         jdbc.execute("DROP TRIGGER " + triggerName);
                     }
                 }
@@ -152,18 +159,18 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         return jdbc.queryForList("SELECT TRIGGER_NAME FROM USER_TRIGGERS", String.class);
     }
 
-    void createRecorderTable() {
+    private void prepareDatabaseForRecording() {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                createRecorderTableIfNotExitst(jdbc);
+                createRecorderTableIfNotExists(jdbc);
                 createDbSequenceIfNotExists(jdbc);
                 return null;
             }
         });
     }
 
-    private void createRecorderTableIfNotExitst(Jdbc jdbc) {
+    private void createRecorderTableIfNotExists(Jdbc jdbc) {
         List<String> recorderTable = jdbc.queryForList(
                 "select table_name from all_tables where table_name='" + DATABASE_RECORDINGS_TABLE + "'", String.class);
         if (recorderTable.isEmpty()) {
@@ -183,33 +190,37 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         List<String> recorderTrigger = jdbc.queryForList(
                 "select sequence_name from all_sequences where sequence_name='" + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ'", String.class);
 
-        if(recorderTrigger.isEmpty()) {
+        if (recorderTrigger.isEmpty()) {
             jdbc.execute("CREATE SEQUENCE " + COPITO_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
         }
     }
 
-    void createTriggers() {
+    void createTriggersInTransaction() {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                for (String tableName : getTableNames(jdbc)) {
-                    if (isRecorderResource(tableName)) {
-                        continue;
-                    }
-                    final List<String> columnNames = getColumnNames(jdbc, tableName);
-                    if (columnNames.isEmpty()) {
-                        RecorderLog.debug("Ignoring table with no columns: " + tableName);
-                        continue;
-                    }
-                    try {
-                        createTrigger(jdbc, tableName, columnNames);
-                    } catch (JdbcException e) {
-                        RecorderLog.debug("Ignoring table: " + tableName + " (" + e.getMessage() + ")");
-                    }
-                }
+                createTriggers(jdbc);
                 return null;
             }
         });
+    }
+
+    void createTriggers(Jdbc jdbc) {
+        for (String tableName : getTableNames(jdbc)) {
+            if (isCopitoTrigger(tableName) || isIgnoredTable(tableName)) {
+                continue;
+            }
+            final List<String> columnNames = getColumnNames(jdbc, tableName);
+            if (columnNames.isEmpty()) {
+                RecorderLog.debug("Ignoring table with no columns: " + tableName);
+                continue;
+            }
+            try {
+                createTrigger(jdbc, tableName, columnNames);
+            } catch (JdbcException e) {
+                RecorderLog.debug("Ignoring table: " + tableName + " (" + e.getMessage() + ")");
+            }
+        }
     }
 
     private void createTrigger(Jdbc jdbc, String tableName, final List<String> columnNames) {
@@ -230,8 +241,17 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                 String.class, tableName);
     }
 
-    private boolean isRecorderResource(String resourceName) {
-        return resourceName.startsWith(COPITO_DATABASE_TABLE_PREFIX);
+    private boolean isCopitoTrigger(String resourceName) {
+        return resourceName.toUpperCase().startsWith(COPITO_DATABASE_TABLE_PREFIX);
+    }
+
+    private boolean isIgnoredTable(String tableName) {
+        for (String ignoredTable : ignoredTables) {
+            if (tableName.equalsIgnoreCase(ignoredTable)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     String reduceToMaxLength(String s, int length) {

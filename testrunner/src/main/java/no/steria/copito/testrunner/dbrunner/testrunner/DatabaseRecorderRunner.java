@@ -1,18 +1,17 @@
 package no.steria.copito.testrunner.dbrunner.testrunner;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.sql.DataSource;
-
-import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
-import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.copito.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChange;
+import no.steria.copito.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.copito.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
 import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierOptions;
 import no.steria.copito.testrunner.dbrunner.dbverifier.VerifierResult;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public final class DatabaseRecorderRunner {
 
@@ -118,7 +117,7 @@ public final class DatabaseRecorderRunner {
         final DatabaseRecorderControl control = new DatabaseRecorderControl(databaseRecorder);
         
         databaseRecorder.tearDown();
-        databaseRecorder.setup();
+        databaseRecorder.initialize();
         databaseRecorder.start();
         try {
             callback.execute(control);

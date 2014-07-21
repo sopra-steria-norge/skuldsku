@@ -1,26 +1,22 @@
 package no.steria.copito.testrunner.example;
 
-import java.io.PrintWriter;
-
-import javax.sql.DataSource;
-
+import com.jolbox.bonecp.BoneCPDataSource;
+import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.copito.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderCallback;
 import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderControl;
 import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderRunner;
 import no.steria.copito.testrunner.dbrunner.testrunner.DatabaseRecorderRunnerConfig;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import no.steria.copito.utils.Jdbc;
 import no.steria.copito.utils.SimpleTransactionManager;
 import no.steria.copito.utils.TransactionCallback;
 import no.steria.copito.utils.TransactionManager;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import com.jolbox.bonecp.BoneCPDataSource;
-
-import no.steria.copito.recorder.dbrecorder.DatabaseRecorder;
-import no.steria.copito.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import javax.sql.DataSource;
+import java.io.PrintWriter;
 
 public class ExampleTest {
     
@@ -74,7 +70,7 @@ public class ExampleTest {
     public void control() {
         final DatabaseRecorder databaseRecorder = new OracleDatabaseRecorder(createDataSource("jdbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb", "wimpel_dba", "wimpel"));
         //databaseRecorder.tearDown();
-        //databaseRecorder.setup();
+        //databaseRecorder.initialize();
         //databaseRecorder.start();
         final PrintWriter out = new PrintWriter(System.out);
         databaseRecorder.exportTo(out);
