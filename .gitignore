@@ -4,3 +4,4 @@
 recorder/target/
 testrunner/target/
 *.iml
+examples/basicServlet/target/
