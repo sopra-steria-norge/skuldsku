@@ -30,8 +30,8 @@ public class WebServer {
         }
         rh.setDirectoriesListed(false);
         rh.setWelcomeFiles(new String[]{"/index.html"});
-        //registerServletsAndFilters(handlerList);
         handlerList.addHandler(rh);
+        registerServletsAndFilters(handlerList);
         Server server = new Server(port);
         server.setHandler(handlerList);
         server.start();
@@ -43,16 +43,12 @@ public class WebServer {
     }
 
 
-    private ServletContextHandler registerServletsAndFilters(HandlerList parent) {
-        ServletContextHandler contextHandler = new ServletContextHandler(parent, "/", true, false);
+    private void registerServletsAndFilters(HandlerList parent) {
+        ServletContextHandler contextHandler = new ServletContextHandler(parent, "/data", true, false);
         ServletHandler handler = contextHandler.getServletHandler();
 
-        /*handler.addFilterWithMapping(new FilterHolder(SecurityFilter.class), "/secured/*", FilterMapping.DEFAULT);
-        handler.addServletWithMapping(new ServletHolder(EntranceServlet.class), "/entrance");
-        handler.addServletWithMapping(new ServletHolder(SigninServlet.class), "/signin");
-        handler.addServletWithMapping(new ServletHolder(OpenDataServlet.class), "/data/*");
-        handler.addServletWithMapping(new ServletHolder(DataServlet.class), "/secured/data/*");*/
-        return contextHandler;
+        handler.addServletWithMapping(PlaceServlet.class,"/place/*");
+
     }
 
     private static int getPort(int defaultPort) {
