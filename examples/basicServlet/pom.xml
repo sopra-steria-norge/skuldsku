@@ -93,6 +93,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc12</artifactId>
+            <version>12.0</version>
+        </dependency>
+
     </dependencies>
 
     <properties>

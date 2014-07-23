@@ -57,6 +57,7 @@ public class PlaceServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        placeDao = new MemoryPlaceDao();
+        //placeDao = new MemoryPlaceDao();
+        placeDao = new OraclePlaceDao();
     }
 }
