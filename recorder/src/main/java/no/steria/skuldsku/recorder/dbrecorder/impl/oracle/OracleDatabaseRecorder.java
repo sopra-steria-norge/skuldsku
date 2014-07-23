@@ -175,7 +175,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                 "select table_name from all_tables where table_name='" + DATABASE_RECORDINGS_TABLE + "'", String.class);
         if (recorderTable.isEmpty()) {
             jdbc.execute("CREATE TABLE " + DATABASE_RECORDINGS_TABLE + " (\n" +
-                    "    CPT_ID             NUMBER,\n" +
+                    "    " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID             NUMBER,\n" +
                     "    CLIENT_IDENTIFIER  VARCHAR2(256),\n" +
                     "    SESSION_USER       VARCHAR2(256),\n" +
                     "    SESSIONID          VARCHAR2(256),\n" +
