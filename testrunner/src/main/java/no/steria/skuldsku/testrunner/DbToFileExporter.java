@@ -15,7 +15,7 @@ public class DbToFileExporter {
 
     public static final int ANT_COLUMNS_DATABASE_RECORDINGS = 7;
     public static final int ANT_COLUMNS_JAVA_INTERFACE_RECORDINGS = 7;
-    public static final int ANT_COLUMNS_HTTP_RECORDINGS = 5;
+    public static final int ANT_COLUMNS_HTTP_RECORDINGS = 6;
 
     /**
      * After the recording of data, this method can be used to extract the data and write it to file,

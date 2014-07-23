@@ -67,7 +67,7 @@ public class TestRunnerCmdTest {
                 " **JAVA INTERFACE RECORDINGS** \n\n" +
                 "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n\n\n" +
                 " **HTTP RECORDINGS** \n\n" +
-                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n", content);
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n", content);
     }
 
 
