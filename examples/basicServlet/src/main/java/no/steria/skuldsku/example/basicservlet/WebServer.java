@@ -1,5 +1,6 @@
 package no.steria.skuldsku.example.basicservlet;
 
+import no.steria.skuldsku.example.basicservlet.recorder.FilterRecorder;
 import no.steria.skuldsku.recorder.Recorder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -50,6 +51,7 @@ public class WebServer {
         ServletHandler handler = contextHandler.getServletHandler();
 
         handler.addServletWithMapping(PlaceServlet.class,"/place/*");
+        handler.addFilterWithMapping(FilterRecorder.class,"/",FilterMapping.DEFAULT);
 
     }
 
