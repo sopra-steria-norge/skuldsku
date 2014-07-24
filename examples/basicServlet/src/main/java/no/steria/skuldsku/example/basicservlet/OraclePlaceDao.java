@@ -4,9 +4,7 @@ import oracle.jdbc.pool.OracleConnectionPoolDataSource;
 import oracle.jdbc.pool.OracleDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +42,17 @@ public class OraclePlaceDao implements PlaceDao {
 
     @Override
     public List<String> findMatches(String part) {
+        if (part == null) {
+            part = "";
+        }
+        String a = "select name from PLACES where upper(name) like '%" + part + "%'";
+        try (Connection conn = dataSource.getConnection()) {
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(a);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         return new ArrayList<>();
     }
 }
