@@ -1,5 +1,6 @@
 package no.steria.skuldsku.example.basicservlet;
 
+import no.steria.skuldsku.recorder.Recorder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -20,6 +21,7 @@ public class WebServer {
     }
 
     private void start() throws Exception {
+        Recorder.start();
         HandlerList handlerList = new HandlerList();
         ResourceHandler rh = new ResourceHandler();
         if (isDevelopment()) {

@@ -93,12 +93,18 @@
             <scope>test</scope>
         </dependency>
 
+
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc12</artifactId>
             <version>12.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>no.steria.skuldsku</groupId>
+            <artifactId>recorder</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <properties>

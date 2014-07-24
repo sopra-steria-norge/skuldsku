@@ -1,5 +1,10 @@
 package no.steria.skuldsku.example.basicservlet;
 
+import no.steria.skuldsku.example.basicservlet.recorder.SysoutRecorder;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,10 +62,12 @@ public class PlaceServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
+        PlaceDao placeD;
         if ("debug".equalsIgnoreCase(System.getProperty("mode"))) {
-            placeDao = new MemoryPlaceDao();
+            placeD = new MemoryPlaceDao();
         } else {
-            placeDao = new OraclePlaceDao();
+            placeD = new OraclePlaceDao();
         }
+        placeDao = InterfaceRecorderWrapper.newInstance(placeD,PlaceDao.class,new SysoutRecorder(), InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
     }
 }
