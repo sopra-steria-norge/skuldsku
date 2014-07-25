@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         metadata-complete="false">
+
+    <servlet>
+        <servlet-name>placeServlet</servlet-name>
+        <servlet-class>no.steria.skuldsku.example.basicservlet.PlaceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>placeServlet</servlet-name>
+        <url-pattern>place/*</url-pattern>
+    </servlet-mapping>
+
+
+
+    <filter>
+        <filter-name>logFilter</filter-name>
+        <filter-class>no.steria.skuldsku.example.basicservlet.recorder.FilterRecorder</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>logFilter</filter-name>
+        <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+</web-app>

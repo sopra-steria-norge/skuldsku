@@ -5,59 +5,56 @@ import no.steria.skuldsku.recorder.Recorder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.ShutdownHandler;
 import org.eclipse.jetty.servlet.*;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
 
 public class WebServer {
     private final Integer port;
+    private String warFile;
 
-    public WebServer(Integer port) {
+    public WebServer(Integer port, String warFile) {
         this.port = port;
+        this.warFile = warFile;
     }
 
     public static void main(String[] args) throws Exception {
-        new WebServer(getPort(8081)).start();
+        String warFile = null;
+        if (args.length > 0) {
+            warFile = args[0];
+        }
+        new WebServer(getPort(8081),warFile).start();
     }
 
     private void start() throws Exception {
         Recorder.start();
-        HandlerList handlerList = new HandlerList();
-        ResourceHandler rh = new ResourceHandler();
-        if (isDevelopment()) {
-            rh.setBaseResource(Resource.newResource(new File("src/main/resources/webapp")));
-        }
-        else {
-            rh.setBaseResource(Resource.newClassPathResource("webapp", true, false));
-        }
-        rh.setDirectoriesListed(false);
-        rh.setWelcomeFiles(new String[]{"/index.html"});
-        handlerList.addHandler(rh);
-        registerServletsAndFilters(handlerList);
-        Server server = new Server(port);
-        server.setHandler(handlerList);
+        Server server = createServer();
         server.start();
         System.out.println(server.getURI());
     }
 
-    private boolean isDevelopment() {
-        return new File("pom.xml").exists();
-    }
-
-
-    private void registerServletsAndFilters(HandlerList parent) {
-        ServletContextHandler contextHandler = new ServletContextHandler(parent, "/data", true, false);
-        ServletHandler handler = contextHandler.getServletHandler();
-
-        handler.addServletWithMapping(PlaceServlet.class,"/place/*");
-        handler.addFilterWithMapping(FilterRecorder.class,"/",FilterMapping.DEFAULT);
-
+    private Server createServer() {
+        Server server = new Server(port);
+        if (warFile != null) {
+            WebAppContext webAppContext = new WebAppContext();
+            webAppContext.setContextPath("/");
+            webAppContext.setWar(warFile);
+            server.setHandler(webAppContext);
+        } else {
+            HandlerList handlerList = new HandlerList();
+            handlerList.addHandler(new ShutdownHandler("yablayabla", false, true));
+            handlerList.addHandler(new WebAppContext("src/main/webapp", "/"));
+            server.setHandler(handlerList);
+        }
+        return server;
     }
 
     private static int getPort(int defaultPort) {
-        String port = System.getProperty("PORT");
-        Integer serverPort = port != null && !port.isEmpty() ? Integer.parseInt(port) : null;
-        return serverPort != null ? serverPort : defaultPort;
+        String serverPort = System.getProperty("PORT");
+        return serverPort != null && !serverPort.isEmpty() ? Integer.parseInt(serverPort) : defaultPort;
     }
+
 }
