@@ -8,8 +8,4 @@ public class SysoutRecorder implements ReportCallback {
         System.out.println(className + "%" + methodname + "%" + parameters + result);
     }
 
-    @Override
-    public void initialize() {
-
-    }
 }
