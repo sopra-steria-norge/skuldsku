@@ -2,6 +2,7 @@ package no.steria.skuldsku.example.basicservlet;
 
 import no.steria.skuldsku.example.basicservlet.recorder.FilterRecorder;
 import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.recorders.StreamRecorder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -15,6 +16,8 @@ import java.io.File;
 public class WebServer {
     private final Integer port;
     private String warFile;
+
+    public static final StreamRecorder recorder = new StreamRecorder(System.out);
 
     public WebServer(Integer port, String warFile) {
         this.port = port;

@@ -7,11 +7,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Filter for recording HTTP interactions.
  */
 public abstract class ServletFilter implements Filter{
+
+    public static long getRequestId() {
+        Long id = requestId.get();
+        return id != null ? id : 0L;
+    }
+
+    private static ThreadLocal<Long> requestId = new ThreadLocal<>();
+
+    private static AtomicLong nextId = new AtomicLong(0);
 
 
     @Override
@@ -20,6 +30,9 @@ public abstract class ServletFilter implements Filter{
             chain.doFilter(request, response);
             return;
         }
+        long id = nextId.addAndGet(1);
+        requestId.set(id);
+
         HttpServletRequest req = (HttpServletRequest) request;
 
         ReportObject reportObject = new ReportObject();
