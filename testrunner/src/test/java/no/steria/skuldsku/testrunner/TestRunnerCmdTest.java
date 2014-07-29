@@ -1,6 +1,8 @@
 package no.steria.skuldsku.testrunner;
 
 import com.jolbox.bonecp.BoneCPDataSource;
+import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
+import no.steria.skuldsku.testrunner.httprunner.StreamPlayBack;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +39,9 @@ public class TestRunnerCmdTest {
     @Mock
     private ResultSet resultSet;
 
+    @Mock
+    private StreamPlayBack streamPlayBack;
+
     private final String filename = System.getProperty("java.io.tmpdir") +  TestRunnerCmdTest.class.getCanonicalName() + ".txt";
 
     @Before
@@ -55,19 +60,19 @@ public class TestRunnerCmdTest {
                 "userId",
                 "password",
                 "export",
-                filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
+                filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null);
 
         Scanner scanner = new Scanner(new File(filename));
         String content = scanner.useDelimiter("\\Z").next();
         scanner.close();
 
-        assertEquals("\n " +
-                "**DATABASE RECORDINGS** \n\n" +
-                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n\n\n" +
+        assertEquals("\n" +
+                " **DATABASE RECORDINGS** \n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"\n\n" +
                 " **JAVA INTERFACE RECORDINGS** \n\n" +
-                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n\n\n" +
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"\n\n" +
                 " **HTTP RECORDINGS** \n\n" +
-                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\";\n", content);
+                "\"column value\",\"column value\",\"column value\",\"column value\",\"column value\",\"column value\"", content);
     }
 
 
@@ -79,19 +84,19 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
+                "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null);
         verifyExpectedSqlWasExecuted();
     }
 
     @Test
-    public void shouldClearskuldskuTables() throws IOException, SQLException {
+    public void shouldClearSkuldskuTables() throws IOException, SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "clean", "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})));
+                "clean", "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null);
         verify(connection, times(1)).prepareStatement("DELETE FROM " + DATABASE_RECORDINGS_TABLE);
         verify(connection, times(1)).prepareStatement("DELETE FROM " + JAVA_INTERFACE_RECORDINGS_TABLE);
         verify(connection, times(1)).prepareStatement("DELETE FROM " + HTTP_RECORDINGS_TABLE);
@@ -117,7 +122,7 @@ public class TestRunnerCmdTest {
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
-                "password",}, dataSource, scanner);
+                "password",}, dataSource, scanner, null);
         verify(resultSet, times(3)).next(); //result set called once for each table, thus export was executed.
         verifyExpectedSqlWasExecuted();
     }
@@ -137,7 +142,21 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())));
+                "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())), null);
+    }
+
+    @Test
+    public void shouldRunTestsFromProvidedFile() throws IOException, SQLException {
+        File file = new File(filename);
+        assertTrue("Could not create file test resource.", file.createNewFile());
+        String url = "http://localhost/wimpel";
+        TestRunnerCmd.testMain(new String[]{
+                "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
+                "userId",
+                "password",
+                "runtests", filename, url,
+                "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), streamPlayBack);
+        verify(streamPlayBack).play(any(InputStream.class), any(HttpPlayer.class));
     }
 
     private void verifyExpectedSqlWasExecuted() throws SQLException {
@@ -153,6 +172,7 @@ public class TestRunnerCmdTest {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.getResultSet()).thenReturn(resultSet);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
     }
 
     private void mockDataConnection() throws SQLException {

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SerializerTest {
+public class ClassSerializerTest {
 
     private final ClassSerializer serializer = new ClassSerializer();
 

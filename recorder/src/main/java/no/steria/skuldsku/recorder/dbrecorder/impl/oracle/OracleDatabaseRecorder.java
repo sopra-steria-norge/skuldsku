@@ -146,7 +146,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 for (String triggerName : getTriggerNames(jdbc)) {
-                    if (isskuldskuTrigger(triggerName)) {
+                    if (isSkuldskuTrigger(triggerName)) {
                         jdbc.execute("DROP TRIGGER " + triggerName);
                     }
                 }
@@ -207,7 +207,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     void createTriggers(Jdbc jdbc) {
         for (String tableName : getTableNames(jdbc)) {
-            if (isskuldskuTrigger(tableName) || isIgnoredTable(tableName)) {
+            if (isSkuldskuTrigger(tableName) || isIgnoredTable(tableName)) {
                 continue;
             }
             final List<String> columnNames = getColumnNames(jdbc, tableName);
@@ -241,7 +241,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                 String.class, tableName);
     }
 
-    private boolean isskuldskuTrigger(String resourceName) {
+    private boolean isSkuldskuTrigger(String resourceName) {
         return resourceName.toUpperCase().startsWith(SKULDSKU_DATABASE_TABLE_PREFIX);
     }
 

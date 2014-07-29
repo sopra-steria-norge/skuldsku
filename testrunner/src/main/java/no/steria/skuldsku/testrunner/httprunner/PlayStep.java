@@ -3,7 +3,7 @@ package no.steria.skuldsku.testrunner.httprunner;
 import no.steria.skuldsku.recorder.httprecorder.ReportObject;
 
 public class PlayStep {
-    private ReportObject reportObject;
+    private final ReportObject reportObject;
     private String recorded;
 
     public PlayStep(ReportObject reportObject) {
@@ -15,7 +15,7 @@ public class PlayStep {
     }
 
 
-    public void record(String output) {
+    public void setRecorded(String output) {
         this.recorded = output;
     }
 

@@ -6,6 +6,8 @@ package no.steria.skuldsku.testrunner;
 import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
+import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
+import no.steria.skuldsku.testrunner.httprunner.StreamPlayBack;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -30,6 +32,7 @@ public class TestRunnerCmd {
     private static final String DATABASE_DRIVER = "oracle.jdbc.OracleDriver";
     public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 3;
     private static BoneCPDataSource dataSource;
+    private static StreamPlayBack streamPlayBack = new StreamPlayBack();
 
     public static void main(String[] args) {
         try {
@@ -60,6 +63,8 @@ public class TestRunnerCmd {
                 currentIndex = commandImport(args, currentIndex);
             } else if (args[currentIndex].equals("oracleImport")) {
                 currentIndex = commandOracleImport(args, currentIndex);
+            } else if (args[currentIndex].equals("runtests") || args[currentIndex].equals("runtest")) {
+                currentIndex = commandRunTest(args, currentIndex);
             } else {
                 System.err.println("Unknown command: " + args[currentIndex]);
             }
@@ -69,6 +74,16 @@ public class TestRunnerCmd {
                 currentIndex = 0;
             }
         }
+    }
+
+    private static int commandRunTest(String[] args, int currentIndex) throws IOException {
+        if (args.length < currentIndex + 3) {
+            System.out.println("Please provide the name of the file with the recordings to be played, and the URL to play against!");
+            return currentIndex;
+        }
+        runTest(args[++currentIndex], args[++currentIndex]);
+        System.out.println("Done running tests.");
+        return currentIndex;
     }
 
     private static int commandOracleImport(String[] args, int currentIndex) throws SQLException {
@@ -127,6 +142,13 @@ public class TestRunnerCmd {
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private static void runTest(String recordingsPath, String url) throws IOException {
+        FileInputStream recordings = new FileInputStream(recordingsPath);
+        HttpPlayer httpPlayer = new HttpPlayer(url);
+        streamPlayBack.play(recordings, httpPlayer);
+        recordings.close();
     }
 
     private static String[] readNecessaryParameters(String[] args, Scanner sc) {
@@ -236,7 +258,7 @@ public class TestRunnerCmd {
     private static void exportToFile(String arg) {
         try (OutputStream os = new FileOutputStream(arg)) {
             DbToFileExporter.exportTo(os, dataSource);
-        } catch (IOException e) {
+        } catch (IOException | SQLException e) {
             RecorderLog.error("Could not write to specified file.", e);
         }
     }
@@ -252,7 +274,7 @@ public class TestRunnerCmd {
     }
 
     static String[] getNewArgumentsFromUser(Scanner sc) {
-        System.out.println("Usage: rollback | clean | export <file name> | import <file name> | oracleImport <fileName>");
+        System.out.println("Usage: rollback | clean | export <file name> | import <file name> | oracleImport <fileName> | runtests <filename> <url>");
         List<String> matchList = new ArrayList<>();
         Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
         Matcher matcher = regex.matcher(sc.nextLine());
@@ -272,8 +294,9 @@ public class TestRunnerCmd {
         return matchList.toArray(args);
     }
 
-    // "main" method for testing. Mocks out the data source and the scanner.
-    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc) throws IOException, SQLException {
+    // "main" method for testing. Mocks out the data source, the CSV reader and the scanner.
+    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamPlayBack streamPlayBack) throws IOException, SQLException {
+        TestRunnerCmd.streamPlayBack = streamPlayBack;
         prepareDataSource(args, sc);
         TestRunnerCmd.dataSource = dataSource;
         readAndExecuteCommands(args, sc);
