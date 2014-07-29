@@ -20,6 +20,6 @@ public class FilterRecorder extends ServletFilter{
 
     @Override
     public void destroy() {
-    
+
     }
 }

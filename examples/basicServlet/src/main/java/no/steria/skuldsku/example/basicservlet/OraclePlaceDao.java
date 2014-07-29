@@ -28,6 +28,10 @@ public class OraclePlaceDao implements PlaceDao {
         }
     }
 
+    public static DataSource getDataSource() {
+        return dataSource;
+    }
+
     @Override
     public void addPlace(String name) {
         try (Connection conn = dataSource.getConnection()) {
