@@ -11,6 +11,7 @@ import no.steria.skuldsku.recorder.recorders.StreamRecorder;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import java.io.*;
 import java.sql.SQLException;
 
 public class FilterRecorder extends ServletFilter{
@@ -19,7 +20,17 @@ public class FilterRecorder extends ServletFilter{
     private static AbstractRecorder initRecorder() {
         if ("debug".equalsIgnoreCase(System.getProperty("mode"))) {
             System.out.println("DEBUG....");
-            return new StreamRecorder(System.out);
+            OutputStream out = System.out;
+            String outfile = System.getProperty("outfile");
+            if (outfile != null && !outfile.isEmpty()) {
+                System.out.println("Writing to file " + outfile);
+                try {
+                    out = new FileOutputStream(new File(outfile));
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return new StreamRecorder(out);
         }
         System.out.println("With DB...");
         return new DatabaseRecorder(OraclePlaceDao.getDataSource());
