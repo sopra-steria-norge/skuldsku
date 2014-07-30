@@ -20,16 +20,7 @@ public class WebServer {
     private String warFile;
 
     //public static final StreamRecorder recorder = new StreamRecorder(System.out);
-    public static final AbstractRecorder recorder = initRecorder();
 
-    private static AbstractRecorder initRecorder() {
-        if ("debug".equalsIgnoreCase(System.getProperty("mode"))) {
-            System.out.println("DEBUG....");
-            return new StreamRecorder(System.out);
-        }
-        System.out.println("With DB...");
-        return new DatabaseRecorder(OraclePlaceDao.getDataSource());
-    }
 
     public WebServer(Integer port, String warFile) {
         this.port = port;

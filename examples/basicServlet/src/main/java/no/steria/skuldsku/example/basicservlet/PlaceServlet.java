@@ -1,5 +1,6 @@
 package no.steria.skuldsku.example.basicservlet;
 
+import no.steria.skuldsku.example.basicservlet.recorder.FilterRecorder;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
@@ -88,7 +89,7 @@ public class PlaceServlet extends HttpServlet {
     private PlaceDao createRecorderWrapper(PlaceDao pd) {
         return InterfaceRecorderWrapper.newInstance(pd,
                 PlaceDao.class,
-                WebServer.recorder,
+                FilterRecorder.recorder,
                 InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
     }
 
