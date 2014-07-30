@@ -16,7 +16,7 @@ public class StreamPlayBack {
     public void play(InputStream recordingStream, HttpPlayer httpPlayer) throws IOException {
         InputStreamReader in = new InputStreamReader(recordingStream);
         BufferedReader bufferedReader = new BufferedReader(in);
-        httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN")); //TODO ikh: oracle specific...
+        httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN"));
 
 
         CSVReader reader = new CSVReader(bufferedReader, ',', '"');
@@ -25,7 +25,7 @@ public class StreamPlayBack {
         while(!next[0].equals(DbToFileExporter.HTTP_RECORDINGS_HEADER)){
             next = reader.readNext();
         }
-        while ((nextLine = reader.readNext()) != null) { //TODO ikh: stop når HTTP recordings er ferdige!
+        while ((nextLine = reader.readNext()) != null) {
             if (nextLine.length == HTTP_RECORDING_FIELD_COUNT) {
                 ReportObject reportObject = ReportObject.parseFromString(nextLine[HTTP_RECORDING_FIELD_COUNT -1]);
                 httpPlayer.playStep(new PlayStep(reportObject));

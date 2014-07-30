@@ -1,6 +1,7 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
 import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +20,9 @@ public abstract class ServletFilter implements Filter{
         return id != null ? id : 0L;
     }
 
-    private static ThreadLocal<Long> requestId = new ThreadLocal<>();
+    private static final ThreadLocal<Long> requestId = new ThreadLocal<>();
 
-    private static AtomicLong nextId = new AtomicLong(0);
+    private static final AtomicLong nextId = new AtomicLong(0);
 
 
     @Override
@@ -54,8 +55,9 @@ public abstract class ServletFilter implements Filter{
         CallReporter reporter = getReporter();
         if (reporter != null) {
             reporter.reportCall(reportObject);
+        } else {
+            RecorderLog.error("There is no CallReporter associated with the current HTTP filter. HTTP interactions will not be recorded.");
         }
-        //TODO ikh: log if reporter is missing.
     }
 
     private void logHeaders(HttpServletRequest req, ReportObject reportObject) {
