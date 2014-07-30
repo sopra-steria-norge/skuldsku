@@ -3,10 +3,10 @@ package no.steria.skuldsku.recorder.recorders;
 import no.steria.skuldsku.DatabaseTableNames;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.Writer;
+import java.sql.*;
 
 public class DatabaseRecorder extends AbstractRecorder {
     private DataSource dataSource;
@@ -15,6 +15,7 @@ public class DatabaseRecorder extends AbstractRecorder {
     public DatabaseRecorder(DataSource dataSource) {
         this.dataSource = dataSource;
         try (Connection conn = dataSource.getConnection()) {
+            System.out.println("Got connection");
             if (!tableExists(conn)) {
                 createTable(conn);
             }
@@ -25,9 +26,10 @@ public class DatabaseRecorder extends AbstractRecorder {
     }
 
     private void createTable(Connection conn) throws SQLException {
-        String sql = "CREATE TABLE " + TABLENAME + "\"  " +
-                "   (\"DATA\" CLOB,  " +
-                "\"CREATED\" TIMESTAMP (6) DEFAULT sysdate)";
+        System.out.println("Creating table");
+        String sql = "CREATE TABLE " + TABLENAME +
+                "   (DATA CLOB null,  " +
+                "CREATED TIMESTAMP (6) DEFAULT sysdate)";
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.execute();
         }
@@ -43,6 +45,16 @@ public class DatabaseRecorder extends AbstractRecorder {
 
     @Override
     protected void saveRecord(String res) {
+        try (Connection conn = dataSource.getConnection()) {
+            try (PreparedStatement statement = conn.prepareStatement("insert into " + TABLENAME + "(data) values (?)")) {
+                statement.setCharacterStream(1,new StringReader(res));
+                statement.execute();
+            }
+            System.out.println("commiting log");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } 
+
         System.out.println("Logging" + res);
     }
 }
