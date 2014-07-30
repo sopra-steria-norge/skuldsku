@@ -13,7 +13,11 @@ public class StreamRecorder extends AbstractRecorder implements CallReporter, Re
     private PrintStream out;
 
     public StreamRecorder(OutputStream os) {
-        this.out = new PrintStream(os);
+        if (os instanceof PrintStream) {
+            this.out = (PrintStream) os;
+        } else {
+            this.out = new PrintStream(os);
+        }
     }
 
 

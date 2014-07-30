@@ -28,7 +28,6 @@ public class WebServer {
     }
 
     public static void main(String[] args) throws Exception {
-        Recorder.start();
         String warFile = null;
         if (args.length > 0) {
             warFile = args[0];
@@ -37,7 +36,6 @@ public class WebServer {
     }
 
     private void start() throws Exception {
-        Recorder.start();
         Server server = createServer();
         server.start();
         System.out.println(server.getURI());

@@ -33,7 +33,7 @@ public class Recorder {
         return recordingOn;
     }
 
-    public static void start() throws SQLException {
+    public static void start() {
         if (!recordingIsOn()) {
             for (DatabaseRecorder dbRecorder : databaseRecorders) {
                 dbRecorder.start();
