@@ -1,18 +1,15 @@
 package no.steria.skuldsku.recorder.recorders;
 
 import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
-import no.steria.skuldsku.recorder.httprecorder.ServletFilter;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ReportCallback;
-import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public class StreamRecorder extends AbstractRecorder implements CallReporter, ReportCallback {
+public class StreamRecorderCommunicator extends AbstractRecorderCommunicator implements CallReporter, ReportCallback {
     private PrintStream out;
 
-    public StreamRecorder(OutputStream os) {
+    public StreamRecorderCommunicator(OutputStream os) {
         if (os instanceof PrintStream) {
             this.out = (PrintStream) os;
         } else {

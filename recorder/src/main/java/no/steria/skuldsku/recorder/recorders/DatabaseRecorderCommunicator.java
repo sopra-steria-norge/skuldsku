@@ -3,16 +3,14 @@ package no.steria.skuldsku.recorder.recorders;
 import no.steria.skuldsku.DatabaseTableNames;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.io.StringReader;
-import java.io.Writer;
 import java.sql.*;
 
-public class DatabaseRecorder extends AbstractRecorder {
+public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     private DataSource dataSource;
     private static final String TABLENAME = DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX + "RECORD";
 
-    public DatabaseRecorder(DataSource dataSource) {
+    public DatabaseRecorderCommunicator(DataSource dataSource) {
         this.dataSource = dataSource;
         try (Connection conn = dataSource.getConnection()) {
             System.out.println("Got connection");

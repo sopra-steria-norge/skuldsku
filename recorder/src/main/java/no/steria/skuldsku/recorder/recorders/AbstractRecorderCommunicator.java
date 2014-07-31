@@ -6,7 +6,10 @@ import no.steria.skuldsku.recorder.httprecorder.ServletFilter;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ReportCallback;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
-public abstract class AbstractRecorder implements CallReporter, ReportCallback {
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class AbstractRecorderCommunicator implements CallReporter, ReportCallback {
     @Override
     public void initialize() {
 
@@ -24,6 +27,25 @@ public abstract class AbstractRecorder implements CallReporter, ReportCallback {
     }
 
     protected abstract void saveRecord(String res);
+
+    protected List<String> getRecordedRecords() {
+        return new ArrayList<>();
+    }
+
+    public List<ReportObject> getRecordedHttp() {
+        List<String> recordedRecords = getRecordedRecords();
+        List<ReportObject> reportObjects = new ArrayList<>();
+        for (String record : recordedRecords) {
+            if (!record.startsWith("http%")) {
+                continue;
+            }
+            ClassSerializer classSerializer = new ClassSerializer();
+            int stpos = record.indexOf("%",5);
+            ReportObject recordObject = (ReportObject) classSerializer.asObject(record.substring(stpos));
+            reportObjects.add(recordObject);
+        }
+        return reportObjects;
+    }
 
     @Override
     public void event(String className, String methodname, String parameters, String result) {

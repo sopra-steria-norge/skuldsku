@@ -1,19 +1,9 @@
 package no.steria.skuldsku.example.basicservlet;
 
-import no.steria.skuldsku.example.basicservlet.recorder.FilterRecorder;
-import no.steria.skuldsku.recorder.Recorder;
-import no.steria.skuldsku.recorder.recorders.AbstractRecorder;
-import no.steria.skuldsku.recorder.recorders.DatabaseRecorder;
-import no.steria.skuldsku.recorder.recorders.StreamRecorder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.handler.ShutdownHandler;
-import org.eclipse.jetty.servlet.*;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
-
-import java.io.File;
 
 public class WebServer {
     private final Integer port;
