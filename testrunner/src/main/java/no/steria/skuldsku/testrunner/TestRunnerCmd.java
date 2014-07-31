@@ -7,7 +7,7 @@ import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
-import no.steria.skuldsku.testrunner.httprunner.StreamPlayBack;
+import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -32,19 +32,16 @@ public class TestRunnerCmd {
     private static final String DATABASE_DRIVER = "oracle.jdbc.OracleDriver";
     public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 3;
     private static BoneCPDataSource dataSource;
-    private static StreamPlayBack streamPlayBack = new StreamPlayBack();
+    private static StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
 
-    public static void main(String[] args) {
-        try {
-            Scanner sc = new Scanner(System.in);
-            args = prepareDataSource(args, sc);
-            readAndExecuteCommands(args, sc);
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) throws SQLException {
+        Scanner sc;
+        sc = new Scanner(System.in);
+        args = prepareDataSource(args, sc);
+        readAndExecuteCommands(args, sc);
     }
 
-    private static void readAndExecuteCommands(String[] args, Scanner sc) throws IOException, SQLException {
+    private static void readAndExecuteCommands(String[] args, Scanner sc) {
         int currentIndex;
         if (argumentsAreExhausted(args)) {
             args = getNewArgumentsFromUser(sc);
@@ -52,31 +49,35 @@ public class TestRunnerCmd {
         } else {
             currentIndex = NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION;
         }
-        while (!args[currentIndex].equals("exit")) {
-            if (args[currentIndex].equals("export")) {
-                currentIndex = commandExport(args, currentIndex);
-            } else if (args[currentIndex].equals("rollback")) {
-                currentIndex = rollback(args[currentIndex], currentIndex);
-            } else if (args[currentIndex].equals("clean")) {
-                cleanRecordingTables(dataSource);
-            } else if (args[currentIndex].equals("import")) {
-                currentIndex = commandImport(args, currentIndex);
-            } else if (args[currentIndex].equals("oracleImport")) {
-                currentIndex = commandOracleImport(args, currentIndex);
-            } else if (args[currentIndex].equals("runtests") || args[currentIndex].equals("runtest")) {
-                currentIndex = commandRunTest(args, currentIndex);
-            } else {
-                System.err.println("Unknown command: " + args[currentIndex]);
+        try {
+            while (!args[currentIndex].equals("exit")) {
+                if (args[currentIndex].equals("export")) {
+                    currentIndex = commandExport(args, currentIndex);
+                } else if (args[currentIndex].equals("rollback")) {
+                    currentIndex = rollback(args[currentIndex], currentIndex);
+                } else if (args[currentIndex].equals("clean")) {
+                    cleanRecordingTables(dataSource);
+                } else if (args[currentIndex].equals("import")) {
+                    currentIndex = commandImport(args, currentIndex);
+                } else if (args[currentIndex].equals("oracleImport")) {
+                    currentIndex = commandOracleImport(args, currentIndex);
+                } else if (args[currentIndex].equals("runtests") || args[currentIndex].equals("runtest")) {
+                    currentIndex = commandRunTest(args, currentIndex);
+                } else {
+                    System.err.println("Unknown command: " + args[currentIndex]);
+                }
+                currentIndex++;
+                if (args.length <= currentIndex) {
+                    args = getNewArgumentsFromUser(sc);
+                    currentIndex = 0;
+                }
             }
-            currentIndex++;
-            if (args.length <= currentIndex) {
-                args = getNewArgumentsFromUser(sc);
-                currentIndex = 0;
-            }
+        } catch (IOException | SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
-    private static int commandRunTest(String[] args, int currentIndex) throws IOException {
+    private static int commandRunTest(String[] args, int currentIndex) throws IOException, ClassNotFoundException {
         if (args.length < currentIndex + 3) {
             System.out.println("Please provide the name of the file with the recordings to be played, and the URL to play against!");
             return currentIndex;
@@ -144,10 +145,10 @@ public class TestRunnerCmd {
         }
     }
 
-    private static void runTest(String recordingsPath, String url) throws IOException {
+    private static void runTest(String recordingsPath, String url) throws IOException, ClassNotFoundException {
         FileInputStream recordings = new FileInputStream(recordingsPath);
         HttpPlayer httpPlayer = new HttpPlayer(url);
-        streamPlayBack.play(recordings, httpPlayer);
+        streamDbPlayBack.play(recordings, httpPlayer);
         recordings.close();
     }
 
@@ -295,8 +296,8 @@ public class TestRunnerCmd {
     }
 
     // "main" method for testing. Mocks out the data source, the CSV reader and the scanner.
-    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamPlayBack streamPlayBack) throws IOException, SQLException {
-        TestRunnerCmd.streamPlayBack = streamPlayBack;
+    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamDbPlayBack streamDbPlayBack) throws IOException, SQLException {
+        TestRunnerCmd.streamDbPlayBack = streamDbPlayBack;
         prepareDataSource(args, sc);
         TestRunnerCmd.dataSource = dataSource;
         readAndExecuteCommands(args, sc);

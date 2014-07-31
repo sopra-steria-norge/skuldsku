@@ -3,7 +3,7 @@ package no.steria.skuldsku.testrunner.httprunner.fileplayback;
 import no.steria.skuldsku.recorder.httprecorder.ReportObject;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.PlayStep;
-import no.steria.skuldsku.testrunner.httprunner.StreamPlayBack;
+import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class StreamPlayBackTest {
+public class StreamDbPlayBackTest {
 
     @Mock
     HttpPlayer httpPlayer;
@@ -32,8 +32,8 @@ public class StreamPlayBackTest {
     @Test
     public void shouldPlayBackHttpFromStream() throws IOException {
         InputStream inputStream = new ByteArrayInputStream((getHttpRecHeader() + getReportObject1String() + "\n " + getReportObject2String()).getBytes());
-        StreamPlayBack streamPlayBack = new StreamPlayBack();
-        streamPlayBack.play(inputStream, httpPlayer);
+        StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
+        streamDbPlayBack.play(inputStream, httpPlayer);
 
        ArgumentCaptor<PlayStep> playStep = ArgumentCaptor.forClass(PlayStep.class);
         verify(httpPlayer, times(2)).playStep(playStep.capture());
@@ -52,8 +52,8 @@ public class StreamPlayBackTest {
     public void shouldNotStartPlayingBeforeHttpRecordingsHeader() throws IOException {
         InputStream inputStream = new ByteArrayInputStream((getReportObject1String() + getHttpRecHeader() + getReportObject2String() + "\n "
                 + getReportObject2String()).getBytes());
-        StreamPlayBack streamPlayBack = new StreamPlayBack();
-        streamPlayBack.play(inputStream, httpPlayer);
+        StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
+        streamDbPlayBack.play(inputStream, httpPlayer);
 
         ArgumentCaptor<PlayStep> playStep = ArgumentCaptor.forClass(PlayStep.class);
         verify(httpPlayer, times(2)).playStep(playStep.capture());
@@ -62,33 +62,6 @@ public class StreamPlayBackTest {
         assertEquals("POST", reportObject1.getMethod());
         assertEquals("POST", reportObject2.getMethod());
     }
-
-    @Test
-    public void shouldReadJsonCorrectly() throws IOException {
-        InputStream inputStream = new ByteArrayInputStream((getJson()).getBytes());
-        StreamPlayBack streamPlayBack = new StreamPlayBack();
-        streamPlayBack.play(inputStream, httpPlayer);
-
-        ArgumentCaptor<PlayStep> playStep = ArgumentCaptor.forClass(PlayStep.class);
-        verify(httpPlayer, times(2)).playStep(playStep.capture());
-        ReportObject reportObject1 = playStep.getAllValues().get(0).getReportObject();
-        ReportObject reportObject2 = playStep.getAllValues().get(1).getReportObject();
-        assertEquals("POST", reportObject1.getMethod());
-        assertEquals("POST", reportObject2.getMethod());
-    }
-
-
-    public String getJson (){
-        return "\n" +
-                " **DATABASE RECORDINGS** \n\n" +
-                "\"SKS_ID\",\"CLIENT_IDENTIFIER\",\"SESSION_USER\",,\"TABLE_NAME\",\"ACTION\",\"DATAROW\"\n" +
-                "\"SERVICE\",\"METHOD\",,\"RESULT\",\"CREATED\",\"THREAD_ID\",\"fine\"\",\"\" data\"\n\n" +
-                " **JAVA INTERFACE RECORDINGS** \n\n" +
-                "\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\",\"THREAD_ID\",\"fine\"\",\"\" data\"\n\n" +
-                " **HTTP RECORDINGS** \n\n" +
-                "\"THREAD\",\"METHOD\",\"PATH\",\"DATA\",\"TIMEST\",\"fine\"\",\"\" data\"";
-    }
-
 
     public String getReportObject1String() {
         return "\"qtp2059904228-56\",\"GET\",\"/scripts/wimpel.js\",\"2014-7-25.17.11. 21. 0\",\"1406301123275\",\"" + getData() + "\";";

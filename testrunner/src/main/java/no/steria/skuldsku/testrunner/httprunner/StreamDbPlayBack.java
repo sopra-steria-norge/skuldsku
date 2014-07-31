@@ -9,15 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class StreamPlayBack {
+import static no.steria.skuldsku.testrunner.DbToFileExporter.ANT_COLUMNS_HTTP_RECORDINGS;
 
-    public static final int HTTP_RECORDING_FIELD_COUNT = 6;
+public class StreamDbPlayBack {
 
     public void play(InputStream recordingStream, HttpPlayer httpPlayer) throws IOException {
         InputStreamReader in = new InputStreamReader(recordingStream);
         BufferedReader bufferedReader = new BufferedReader(in);
         httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN"));
-
 
         CSVReader reader = new CSVReader(bufferedReader, ',', '"');
         String[] nextLine;
@@ -26,8 +25,8 @@ public class StreamPlayBack {
             next = reader.readNext();
         }
         while ((nextLine = reader.readNext()) != null) {
-            if (nextLine.length == HTTP_RECORDING_FIELD_COUNT) {
-                ReportObject reportObject = ReportObject.parseFromString(nextLine[HTTP_RECORDING_FIELD_COUNT -1]);
+            if (nextLine.length == ANT_COLUMNS_HTTP_RECORDINGS) {
+                ReportObject reportObject = ReportObject.parseFromString(nextLine[ANT_COLUMNS_HTTP_RECORDINGS -1]);
                 httpPlayer.playStep(new PlayStep(reportObject));
             }
         }

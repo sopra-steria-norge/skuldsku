@@ -2,7 +2,7 @@ package no.steria.skuldsku.testrunner;
 
 import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
-import no.steria.skuldsku.testrunner.httprunner.StreamPlayBack;
+import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class TestRunnerCmdTest {
     private ResultSet resultSet;
 
     @Mock
-    private StreamPlayBack streamPlayBack;
+    private StreamDbPlayBack streamDbPlayBack;
 
     private final String filename = System.getProperty("java.io.tmpdir") +  TestRunnerCmdTest.class.getCanonicalName() + ".txt";
 
@@ -155,8 +155,8 @@ public class TestRunnerCmdTest {
                 "userId",
                 "password",
                 "runtests", filename, url,
-                "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), streamPlayBack);
-        verify(streamPlayBack).play(any(InputStream.class), any(HttpPlayer.class));
+                "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), streamDbPlayBack);
+        verify(streamDbPlayBack).play(any(InputStream.class), any(HttpPlayer.class));
     }
 
     private void verifyExpectedSqlWasExecuted() throws SQLException {

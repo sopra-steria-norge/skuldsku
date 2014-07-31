@@ -9,6 +9,7 @@ import java.util.List;
 public class RecordedDataMock implements MockInterface {
     private List<RecordObject> recorded;
 
+    // Receives a list of recordings to be played back
     public RecordedDataMock(List<RecordObject> recorded) {
         this.recorded = recorded != null ? recorded : new ArrayList<RecordObject>();
 
