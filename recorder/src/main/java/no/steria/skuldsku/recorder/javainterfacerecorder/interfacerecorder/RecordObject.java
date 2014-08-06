@@ -1,6 +1,8 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-public class RecordObject {
+import java.io.Serializable;
+
+public class RecordObject implements Serializable    {
     private final String serviceName;
     private final String method;
     private final String parameters;

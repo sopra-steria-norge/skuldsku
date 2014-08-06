@@ -2,12 +2,14 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecordedDataMock implements MockInterface {
-    private List<RecordObject> recorded;
+public class RecordedDataMock implements MockInterface, Serializable {
+    private final List<RecordObject> recorded;
+    private String serviceClass;
 
     // Receives a list of recordings to be played back
     public RecordedDataMock(List<RecordObject> recorded) {
@@ -35,5 +37,13 @@ public class RecordedDataMock implements MockInterface {
 
         }
         return null;
+    }
+
+    public String  getServiceClass() {
+        return serviceClass;
+    }
+
+    public void setServiceClass(String serviceClass) {
+        this.serviceClass = serviceClass;
     }
 }

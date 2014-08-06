@@ -3,6 +3,7 @@ package no.steria.skuldsku.testrunner;
 import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
+import no.steria.skuldsku.testrunner.interfacerunner.StreamInterfacePlayBack;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,6 +43,9 @@ public class TestRunnerCmdTest {
     @Mock
     private StreamDbPlayBack streamDbPlayBack;
 
+    @Mock
+    private StreamInterfacePlayBack streamInterfacePlayBack;
+
     private final String filename = System.getProperty("java.io.tmpdir") +  TestRunnerCmdTest.class.getCanonicalName() + ".txt";
 
     @Before
@@ -60,7 +64,7 @@ public class TestRunnerCmdTest {
                 "userId",
                 "password",
                 "export",
-                filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null);
+                filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null, null);
 
         Scanner scanner = new Scanner(new File(filename));
         String content = scanner.useDelimiter("\\Z").next();
@@ -84,7 +88,7 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null);
+                "import", filename, "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null, null);
         verifyExpectedSqlWasExecuted();
     }
 
@@ -96,7 +100,7 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "clean", "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null);
+                "clean", "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), null, null);
         verify(connection, times(1)).prepareStatement("DELETE FROM " + DATABASE_RECORDINGS_TABLE);
         verify(connection, times(1)).prepareStatement("DELETE FROM " + JAVA_INTERFACE_RECORDINGS_TABLE);
         verify(connection, times(1)).prepareStatement("DELETE FROM " + HTTP_RECORDINGS_TABLE);
@@ -122,7 +126,7 @@ public class TestRunnerCmdTest {
         TestRunnerCmd.testMain(new String[]{
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
-                "password",}, dataSource, scanner, null);
+                "password",}, dataSource, scanner, null, null);
         verify(resultSet, times(3)).next(); //result set called once for each table, thus export was executed.
         verifyExpectedSqlWasExecuted();
     }
@@ -142,11 +146,11 @@ public class TestRunnerCmdTest {
                 "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
                 "userId",
                 "password",
-                "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())), null);
+                "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())), null, null);
     }
 
     @Test
-    public void shouldRunTestsFromProvidedFile() throws IOException, SQLException {
+    public void shouldRunTestsFromProvidedFile() throws IOException, SQLException, ClassNotFoundException {
         File file = new File(filename);
         assertTrue("Could not create file test resource.", file.createNewFile());
         String url = "http://localhost/wimpel";
@@ -155,7 +159,8 @@ public class TestRunnerCmdTest {
                 "userId",
                 "password",
                 "runtests", filename, url,
-                "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), streamDbPlayBack);
+                "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), streamDbPlayBack, streamInterfacePlayBack);
+        verify(streamInterfacePlayBack).play(any(InputStream.class));
         verify(streamDbPlayBack).play(any(InputStream.class), any(HttpPlayer.class));
     }
 

@@ -8,6 +8,7 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
+import no.steria.skuldsku.testrunner.interfacerunner.StreamInterfacePlayBack;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -33,6 +34,7 @@ public class TestRunnerCmd {
     public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 3;
     private static BoneCPDataSource dataSource;
     private static StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
+    private static StreamInterfacePlayBack streamInterfacePlayBack = new StreamInterfacePlayBack();
 
     public static void main(String[] args) throws SQLException {
         Scanner sc;
@@ -148,6 +150,8 @@ public class TestRunnerCmd {
     private static void runTest(String recordingsPath, String url) throws IOException, ClassNotFoundException {
         FileInputStream recordings = new FileInputStream(recordingsPath);
         HttpPlayer httpPlayer = new HttpPlayer(url);
+        streamInterfacePlayBack.play(recordings);
+        //TODO ikh: wait for recorder to pick up recordings
         streamDbPlayBack.play(recordings, httpPlayer);
         recordings.close();
     }
@@ -296,8 +300,9 @@ public class TestRunnerCmd {
     }
 
     // "main" method for testing. Mocks out the data source, the CSV reader and the scanner.
-    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamDbPlayBack streamDbPlayBack) throws IOException, SQLException {
+    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamDbPlayBack streamDbPlayBack, StreamInterfacePlayBack streamInterfacePlayBack) throws IOException, SQLException {
         TestRunnerCmd.streamDbPlayBack = streamDbPlayBack;
+        TestRunnerCmd.streamInterfacePlayBack = streamInterfacePlayBack;
         prepareDataSource(args, sc);
         TestRunnerCmd.dataSource = dataSource;
         readAndExecuteCommands(args, sc);
