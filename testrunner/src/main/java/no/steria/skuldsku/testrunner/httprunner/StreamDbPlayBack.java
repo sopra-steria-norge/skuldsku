@@ -21,7 +21,7 @@ public class StreamDbPlayBack {
         CSVReader reader = new CSVReader(bufferedReader, ',', '"');
         String[] nextLine;
         String[] next = reader.readNext();
-        while(!next[0].equals(DbToFileExporter.HTTP_RECORDINGS_HEADER)){
+        while(next != null && !next[0].equals(DbToFileExporter.HTTP_RECORDINGS_HEADER)){
             next = reader.readNext();
         }
         while ((nextLine = reader.readNext()) != null) {
