@@ -22,4 +22,8 @@ public class MockRegistration {
 
         return mocks.get(givenInterface);
     }
+
+    public static void reset() {
+        mocks = new HashMap<>();
+    }
 }

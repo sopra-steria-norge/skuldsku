@@ -3,11 +3,12 @@
  */
 package no.steria.skuldsku.testrunner;
 
+import au.com.bytecode.opencsv.CSVReader;
 import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
-import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
+import no.steria.skuldsku.testrunner.httprunner.StreamHttpPlayBack;
 import no.steria.skuldsku.testrunner.interfacerunner.StreamInterfacePlayBack;
 
 import javax.sql.DataSource;
@@ -33,7 +34,7 @@ public class TestRunnerCmd {
     private static final String DATABASE_DRIVER = "oracle.jdbc.OracleDriver";
     public static final int NUMBER_OF_ARGUMENTS_FOR_INITIALIZATION = 3;
     private static BoneCPDataSource dataSource;
-    private static StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
+    private static StreamHttpPlayBack streamHttpPlayBack = new StreamHttpPlayBack();
     private static StreamInterfacePlayBack streamInterfacePlayBack = new StreamInterfacePlayBack();
 
     public static void main(String[] args) throws SQLException {
@@ -147,13 +148,17 @@ public class TestRunnerCmd {
         }
     }
 
-    private static void runTest(String recordingsPath, String url) throws IOException, ClassNotFoundException {
-        FileInputStream recordings = new FileInputStream(recordingsPath);
-        HttpPlayer httpPlayer = new HttpPlayer(url);
-        streamInterfacePlayBack.play(recordings);
-        //TODO ikh: wait for recorder to pick up recordings
-        streamDbPlayBack.play(recordings, httpPlayer);
-        recordings.close();
+    private static void runTest(String recordingsPath, String url) {
+        try (FileInputStream recordings = new FileInputStream(recordingsPath);
+             InputStreamReader in = new InputStreamReader(recordings)) {
+            HttpPlayer httpPlayer = new HttpPlayer(url);
+            CSVReader reader = new CSVReader(in, ',', '"');
+            streamInterfacePlayBack.prepareMocks(reader);
+            streamInterfacePlayBack.waitForFileToBePickedUp(); //TODO ikh: customize waiting time for unit tests?
+            streamHttpPlayBack.play(reader, httpPlayer);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String[] readNecessaryParameters(String[] args, Scanner sc) {
@@ -300,8 +305,8 @@ public class TestRunnerCmd {
     }
 
     // "main" method for testing. Mocks out the data source, the CSV reader and the scanner.
-    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamDbPlayBack streamDbPlayBack, StreamInterfacePlayBack streamInterfacePlayBack) throws IOException, SQLException {
-        TestRunnerCmd.streamDbPlayBack = streamDbPlayBack;
+    static void testMain(String[] args, BoneCPDataSource dataSource, Scanner sc, StreamHttpPlayBack streamHttpPlayBack, StreamInterfacePlayBack streamInterfacePlayBack) throws IOException, SQLException {
+        TestRunnerCmd.streamHttpPlayBack = streamHttpPlayBack;
         TestRunnerCmd.streamInterfacePlayBack = streamInterfacePlayBack;
         prepareDataSource(args, sc);
         TestRunnerCmd.dataSource = dataSource;

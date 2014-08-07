@@ -1,25 +1,24 @@
 package no.steria.skuldsku.testrunner.httprunner.fileplayback;
 
+import au.com.bytecode.opencsv.CSVReader;
 import no.steria.skuldsku.recorder.httprecorder.ReportObject;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.PlayStep;
-import no.steria.skuldsku.testrunner.httprunner.StreamDbPlayBack;
+import no.steria.skuldsku.testrunner.httprunner.StreamHttpPlayBack;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import static no.steria.skuldsku.testrunner.DbToFileExporter.HTTP_RECORDINGS_HEADER;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class StreamDbPlayBackTest {
+public class StreamHttpPlayBackTest {
 
     @Mock
     HttpPlayer httpPlayer;
@@ -32,8 +31,10 @@ public class StreamDbPlayBackTest {
     @Test
     public void shouldPlayBackHttpFromStream() throws IOException {
         InputStream inputStream = new ByteArrayInputStream((getHttpRecHeader() + getReportObject1String() + "\n " + getReportObject2String()).getBytes());
-        StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
-        streamDbPlayBack.play(inputStream, httpPlayer);
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        CSVReader reader = new CSVReader(inputStreamReader);
+        StreamHttpPlayBack streamHttpPlayBack = new StreamHttpPlayBack();
+        streamHttpPlayBack.play(reader, httpPlayer);
 
        ArgumentCaptor<PlayStep> playStep = ArgumentCaptor.forClass(PlayStep.class);
         verify(httpPlayer, times(2)).playStep(playStep.capture());
@@ -46,21 +47,6 @@ public class StreamDbPlayBackTest {
         assertEquals("/css/print.css", reportObject2.getPath());
         assertEquals("IDporten", reportObject1.getHeaders().get("X_SLF_FIRSTNAME").get(0));
         assertEquals("IDpoorten", reportObject2.getHeaders().get("X_SLF_FIRSTNAME").get(0));
-    }
-
-    @Test
-    public void shouldNotStartPlayingBeforeHttpRecordingsHeader() throws IOException {
-        InputStream inputStream = new ByteArrayInputStream((getReportObject1String() + getHttpRecHeader() + getReportObject2String() + "\n "
-                + getReportObject2String()).getBytes());
-        StreamDbPlayBack streamDbPlayBack = new StreamDbPlayBack();
-        streamDbPlayBack.play(inputStream, httpPlayer);
-
-        ArgumentCaptor<PlayStep> playStep = ArgumentCaptor.forClass(PlayStep.class);
-        verify(httpPlayer, times(2)).playStep(playStep.capture());
-        ReportObject reportObject1 = playStep.getAllValues().get(0).getReportObject();
-        ReportObject reportObject2 = playStep.getAllValues().get(1).getReportObject();
-        assertEquals("POST", reportObject1.getMethod());
-        assertEquals("POST", reportObject2.getMethod());
     }
 
     public String getReportObject1String() {

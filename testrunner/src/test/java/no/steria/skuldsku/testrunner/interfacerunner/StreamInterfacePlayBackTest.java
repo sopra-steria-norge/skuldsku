@@ -1,11 +1,13 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
+import au.com.bytecode.opencsv.CSVReader;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordObject;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedDataMock;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,9 @@ public class StreamInterfacePlayBackTest {
     public void shouldRegisterAllMocks() throws IOException, ClassNotFoundException {
         ByteArrayInputStream recordingsStream = new ByteArrayInputStream(getTestData());
         StreamInterfacePlayBack streamInterfacePlayBack = new StreamInterfacePlayBackTester();
-        streamInterfacePlayBack.play(recordingsStream);
+        InputStreamReader inputStreamReader = new InputStreamReader(recordingsStream);
+        CSVReader reader = new CSVReader(inputStreamReader);
+        streamInterfacePlayBack.prepareMocks(reader);
         assertEquals(4, allRecordings.size());
         assertEquals(4, allRecordings.get("com.slf.wimpel.service.MotivServiceImpl").size());
         assertEquals(1, allRecordings.get("com.slf.wimpel.arkiv.impl.focus.FokusArkivService").size());
