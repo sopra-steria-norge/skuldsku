@@ -15,6 +15,14 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static no.steria.skuldsku.testrunner.DbToFileExporter.*;
 
+/**
+ * This class reads interface interaction recordings from file, and creates RecordedDataMocks, which it serializes and
+ * writes to files to a directory specified with the environment variable no.steria.skuldsku.recordedInterfaceData.
+ * <p>
+ * It also contains a method that will block while waiting for the file to be renamed. This is because the recorder will
+ * rename the file as soon as it has finished reading the serialized data and initialized the mocks for playback. When this
+ * is ready, HTTP playbacks may be started.
+ */
 public class StreamInterfacePlayBack {
 
     private String fileDestination;
@@ -34,14 +42,14 @@ public class StreamInterfacePlayBack {
     /**
      * Basically waits for any file in the designated directory to change, this should only be recorder renaming the datafile
      * to *.read, unless you are messing around in the directory.
+     *
      * @throws IOException
      */
-    //TODO: ikh: risk picking up its own writing?
-    public void waitForFileToBePickedUp() throws IOException {
+    public void waitForFileToBePickedUp(int secondsTimeout) throws IOException {
         WatchService watcher = FileSystems.getDefault().newWatchService();
         new File(new File(fileDestination).getParent()).toPath().register(watcher, ENTRY_CREATE, ENTRY_MODIFY);
         try {
-            watcher.poll(20, TimeUnit.SECONDS);
+            watcher.poll(secondsTimeout, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -93,12 +101,16 @@ public class StreamInterfacePlayBack {
         }
     }
 
-    private String getOrCreateFileDestination() {
-        //TODO ikh: create constant for property
-        String recordingsDirectoryPath = System.getProperty("no.steria.skuldsku.recordedInterfaceData");
+    private String getOrCreateFileDestination() throws IOException {
+        String recordingsDirectoryPath = System.getenv("no.steria.skuldsku.recordedInterfaceData");
         if (recordingsDirectoryPath == null) {
-            recordingsDirectoryPath = System.getProperty("java.io.tmpdir") + "RecordedInterfaceData";
-            new File(recordingsDirectoryPath).mkdir();//TODO ikh: error handling
+            recordingsDirectoryPath = System.getenv("java.io.tmpdir") + "RecordedInterfaceData";
+            File recordingsDir = new File(recordingsDirectoryPath);
+            boolean success = recordingsDir.mkdir();
+            if (!success && !recordingsDir.exists()) {
+                throw new IOException("Could not create temporary directory " + recordingsDirectoryPath +
+                " will not be able to play back interface recordings.");
+            }
 
             System.setProperty("no.steria.skuldsku.recordedInterfaceData", recordingsDirectoryPath);
         }
