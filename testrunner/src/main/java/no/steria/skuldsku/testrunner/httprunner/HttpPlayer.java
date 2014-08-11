@@ -58,7 +58,6 @@ public class HttpPlayer {
             readInputStream = manipulator.computePayload(readInputStream);
         }
 
-        System.out.println(readInputStream);
         Map<String, List<String>> headers = recordObject.getHeaders();
 
         // adjusts the headers of the request
@@ -70,7 +69,7 @@ public class HttpPlayer {
         if (headers != null) {
             Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
 
-                for (Map.Entry<String, List<String>> entry : entries) {
+            for (Map.Entry<String, List<String>> entry : entries) {
                 String key = entry.getKey();
                 for (String propval : entry.getValue()) {
                     String val = propval;
@@ -110,7 +109,7 @@ public class HttpPlayer {
             try (Reader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 int c;
                 while ((c = reader.read()) != -1) {
-                    result.append((char)c);
+                    result.append((char) c);
                 }
             }
 
@@ -119,6 +118,5 @@ public class HttpPlayer {
         playStep.setRecorded(result.toString());
 
         manipulators.forEach(m -> m.reportResult(result.toString()));
-        System.out.println(result);
     }
 }

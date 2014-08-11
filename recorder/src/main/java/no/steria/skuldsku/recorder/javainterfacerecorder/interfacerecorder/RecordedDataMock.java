@@ -21,25 +21,27 @@ public class RecordedDataMock implements MockInterface, Serializable {
     public Object invoke(Class<?> interfaceClass, Object serviceObject, Method method, Object[] args) {
         ClassSerializer serializer = new ClassSerializer();
         StringBuilder argsAsString = new StringBuilder();
-        for (Object obj : args) {
-            argsAsString.append(serializer.asString(obj));
-            argsAsString.append(";");
+
+        if (args != null) {
+            for (Object obj : args) {
+                argsAsString.append(serializer.asString(obj));
+                argsAsString.append(";");
+            }
+            argsAsString.delete(argsAsString.length() - 1, argsAsString.length());
         }
-        argsAsString.delete(argsAsString.length()-1,argsAsString.length());
+
         for (RecordObject recordObject : recorded) {
             if (serviceObject.getClass().getName().equals(recordObject.getServiceName())
                     && method.getName().equals(recordObject.getMethod())
                     && argsAsString.toString().equals(recordObject.getParameters())
                     ) {
                 return serializer.asObject(recordObject.getResult());
-
             }
-
         }
         return null;
     }
 
-    public String  getServiceClass() {
+    public String getServiceClass() {
         return serviceClass;
     }
 

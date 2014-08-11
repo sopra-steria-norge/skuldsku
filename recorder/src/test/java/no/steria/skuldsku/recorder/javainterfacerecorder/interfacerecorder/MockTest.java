@@ -21,7 +21,7 @@ public class MockTest {
 
     @Test
     public void shouldUseMock() throws Exception {
-        MockRegistration.registerMock(ServiceInterface.class,MockFromServiceImpl.create(ServiceInterface.class,new ServiceMock()));
+        MockRegistration.registerMock(ServiceClass.class,MockFromServiceImpl.create(ServiceInterface.class,new ServiceMock()));
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
 
         assertThat(serviceClass.doSimpleService("hoi")).isEqualTo("I am the mock hoi");
@@ -33,7 +33,7 @@ public class MockTest {
         List<RecordObject> recorded = new ArrayList<>();
         RecordedDataMock recordedDataMock = new RecordedDataMock(recorded);
 
-        MockRegistration.registerMock(ServiceInterface.class,recordedDataMock);
+        MockRegistration.registerMock(ServiceClass.class,recordedDataMock);
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
 
         assertThat(serviceClass.doSimpleService("hoi")).isNull();
@@ -50,7 +50,7 @@ public class MockTest {
 
         RecordedDataMock recordedDataMock = new RecordedDataMock(recorded);
 
-        MockRegistration.registerMock(ServiceInterface.class,recordedDataMock);
+        MockRegistration.registerMock(ServiceClass.class,recordedDataMock);
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
 
         assertThat(serviceClass.doSimpleService("hoi")).isEqualTo("This is fixed");

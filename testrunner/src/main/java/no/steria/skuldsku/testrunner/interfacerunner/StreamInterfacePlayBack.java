@@ -31,6 +31,12 @@ public class StreamInterfacePlayBack {
         writeMocksToFile(recordedDataMocks);
     }
 
+    /**
+     * Basically waits for any file in the designated directory to change, this should only be recorder renaming the datafile
+     * to *.read, unless you are messing around in the directory.
+     * @throws IOException
+     */
+    //TODO: ikh: risk picking up its own writing?
     public void waitForFileToBePickedUp() throws IOException {
         WatchService watcher = FileSystems.getDefault().newWatchService();
         new File(new File(fileDestination).getParent()).toPath().register(watcher, ENTRY_CREATE, ENTRY_MODIFY);

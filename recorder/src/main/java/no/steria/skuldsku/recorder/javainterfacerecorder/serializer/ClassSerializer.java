@@ -25,7 +25,6 @@ public class ClassSerializer {
 
         if (!serializedValue.contains("=")) {
             try {
-                Class<?> clazz=null;
                 if ("list".equals(parts[0]) || "map".equals(parts[0])) {
                     return objectValueFromString(serializedValue,null);
                 }
@@ -242,7 +241,7 @@ public class ClassSerializer {
 
     private Object initObject(String classname) {
         try {
-            return Class.forName(classname).newInstance();
+            return Class.forName(classname).newInstance(); //TODO ikh: this does not work, because of missing dependencies.
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
