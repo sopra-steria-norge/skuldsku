@@ -2,7 +2,6 @@ package no.steria.skuldsku.recorder;
 
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +17,10 @@ public class Recorder {
     private static boolean recordingOn = false;
 
     private static List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
+
+    public static boolean isInPlayBackMode() {
+        return "true".equals(System.getProperty("no.steria.skuldsku.doMock"));
+    }
 
     /**
      * @param databaseRecorders new database recorders to be used. This will overwrite the previous ones.
