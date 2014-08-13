@@ -3,7 +3,10 @@ package no.steria.skuldsku.example.basicservlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ShutdownHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
+
+import java.io.File;
 
 public class WebServer {
     private final Integer port;
@@ -33,18 +36,23 @@ public class WebServer {
 
     private Server createServer() {
         Server server = new Server(port);
-        if (warFile != null) {
-            WebAppContext webAppContext = new WebAppContext();
-            webAppContext.setContextPath("/");
-            webAppContext.setWar(warFile);
-            server.setHandler(webAppContext);
+
+        WebAppContext webAppContext;
+        webAppContext = new WebAppContext();
+        // webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
+        webAppContext.setContextPath("/");
+
+        if (isDevEnviroment()) {
+            webAppContext.setResourceBase("src/main/resources/webapp");
         } else {
-            HandlerList handlerList = new HandlerList();
-            handlerList.addHandler(new ShutdownHandler("yablayabla", false, true));
-            handlerList.addHandler(new WebAppContext("src/main/webapp", "/"));
-            server.setHandler(handlerList);
+            webAppContext.setBaseResource(Resource.newClassPathResource("webapp", true, false));
         }
+        server.setHandler(webAppContext);
         return server;
+    }
+
+    private boolean isDevEnviroment() {
+        return new File("pom.xml").exists();
     }
 
     private static int getPort(int defaultPort) {
