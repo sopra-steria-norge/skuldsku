@@ -1,13 +1,24 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import no.steria.skuldsku.recorder.httprecorder.ReportObject;
 
 public class HttpPlayer {
     private final String baseUrl;
@@ -19,7 +30,15 @@ public class HttpPlayer {
     }
 
 
-    public void play(List<PlayStep> playbook) {
+    public void play(List<ReportObject> recordedHttp) {
+        List<PlayStep> playBook = new ArrayList<>();
+        for (ReportObject reportObject : recordedHttp) {
+            playBook.add(new PlayStep(reportObject));
+        }
+        playSteps(playBook);
+    }
+    
+    private void playSteps(List<PlayStep> playbook) {
         for (PlayStep playStep : playbook) {
             try {
                 playStep(playStep);
