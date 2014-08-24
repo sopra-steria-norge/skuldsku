@@ -52,7 +52,6 @@
             <groupId>no.steria.skuldsku</groupId>
             <artifactId>testrunner</artifactId>
             <version>0.1-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
