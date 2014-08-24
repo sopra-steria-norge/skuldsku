@@ -52,15 +52,6 @@ public class HttpPlayer {
         manipulators.add(manipulator);
     }
 
-    private <S> S doAllmanipulatorsx(Stream<Function<S,S>> doIt, S start) {
-        Optional<Function<S, S>> reduce = doIt.reduce((a, b) -> a.andThen(b));
-        if (!reduce.isPresent()) {
-            return start;
-        }
-        S result = reduce.get().apply(start);
-        return result;
-    }
-
     public void playStep(PlayStep playStep) throws IOException {
 
         ReportObject recordObject = playStep.getReportObject();
