@@ -1,18 +1,21 @@
 package no.steria.skuldsku.testrunner.httprunner.fileplayback;
 
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
-import no.steria.skuldsku.testrunner.httprunner.HiddenFieldManipulator;
-import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
-import no.steria.skuldsku.testrunner.httprunner.PlayStep;
+import static no.steria.skuldsku.DatabaseTableNames.HTTP_RECORDINGS_TABLE;
+import static no.steria.skuldsku.DatabaseTableNames.JAVA_INTERFACE_RECORDINGS_TABLE;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import static no.steria.skuldsku.DatabaseTableNames.HTTP_RECORDINGS_TABLE;
-import static no.steria.skuldsku.DatabaseTableNames.JAVA_INTERFACE_RECORDINGS_TABLE;
+import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.testrunner.httprunner.HiddenFieldManipulator;
+import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 
 public class OraclePlayback {
     private static class Played {
@@ -185,9 +188,8 @@ public class OraclePlayback {
 
     private static void runit(List<ReportObject> script) {
         HttpPlayer httpPlayer = new HttpPlayer("http://localhost:21110/wimpel");
-        List<PlayStep> playBook = script.stream().map(PlayStep::new).collect(Collectors.toList());
         httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN"));
 
-        httpPlayer.play(playBook);
+        httpPlayer.play(script);
     }
 }

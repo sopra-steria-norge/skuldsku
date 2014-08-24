@@ -38,7 +38,7 @@ public class HttpPlayer {
         playSteps(playBook);
     }
     
-    private void playSteps(List<PlayStep> playbook) {
+    void playSteps(List<PlayStep> playbook) {
         for (PlayStep playStep : playbook) {
             try {
                 playStep(playStep);
