@@ -3,9 +3,7 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -73,7 +71,7 @@ public class ClassSerializerTest {
     @Test
     public void shouldHandleArraysAndCollections() throws Exception {
         String arrval[] = {"a","b","c"};
-        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval).setNumbers(Arrays.asList(1,2,4));
+        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval).setNumbers(Arrays.asList(1, 2, 4));
 
         String serialized = serializer.asString(classWithCollection);
         System.out.println(serialized);
@@ -82,6 +80,14 @@ public class ClassSerializerTest {
 
         assertThat(cloned.getArrVal()).containsOnly("a", "b", "c");
         assertThat(cloned.getNumbers()).containsOnly(1,2,4);
+    }
+
+    @Test
+    public void shouldDeSerializeListOfObjectsWithFields() {
+        List<ClassWithSimpleFields> list = Arrays.asList(new ClassWithSimpleFields());
+        String serialized = serializer.asString(list);
+        System.out.println(serialized);
+        serializer.asObject(serialized);
     }
 
     @Test

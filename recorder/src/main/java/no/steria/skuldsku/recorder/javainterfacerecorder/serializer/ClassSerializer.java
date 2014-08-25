@@ -23,11 +23,13 @@ public class ClassSerializer {
         }
         String[] parts = splitToParts(serializedValue);
 
+        if ("list".equals(parts[0]) || "map".equals(parts[0])) {
+            return objectValueFromString(serializedValue, null);
+        }
+
         if (!serializedValue.contains("=")) {
             try {
-                if ("list".equals(parts[0]) || "map".equals(parts[0])) {
-                    return objectValueFromString(serializedValue,null);
-                }
+
                 return objectValueFromString(parts[1], Class.forName(parts[0]));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -94,7 +96,7 @@ public class ClassSerializer {
             value = complexValueFromString(fieldValue, type);
         } else if (type.isEnum()) {
             Class<? extends Enum> enuClazz = (Class<? extends Enum>) type;
-            return Enum.valueOf(enuClazz,fieldValue);
+            return Enum.valueOf(enuClazz, fieldValue);
         } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else if (long.class.equals(type) || Long.class.equals(type)) {
@@ -245,7 +247,7 @@ public class ClassSerializer {
 
     private Object initObject(String classname) {
         try {
-            return Class.forName(classname).newInstance(); //TODO ikh: this does not work, because of missing dependencies.
+            return Class.forName(classname).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
