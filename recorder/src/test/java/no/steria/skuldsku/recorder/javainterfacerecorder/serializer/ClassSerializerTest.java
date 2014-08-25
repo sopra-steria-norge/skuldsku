@@ -9,6 +9,7 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+// Apparently you cannot use internal classes for testing this. I don't know why, it just doesn't work.
 public class ClassSerializerTest {
 
     private final ClassSerializer serializer = new ClassSerializer();
@@ -38,7 +39,7 @@ public class ClassSerializerTest {
     @Test
     public void shouldParseSimpleStringField() throws Exception {
         ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("pedro");
-        assertThat(serializer.asString(simpleFields)).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=pedro;intval=0>");
+        assertThat(serializer.asString(simpleFields)).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=pedro;intval=0;anotherVar=false>");
     }
 
     @Test
@@ -65,7 +66,7 @@ public class ClassSerializerTest {
         String serialized = serializer.asString(simpleFields);
         ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serialized);
 
-        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0>");
+        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0;anotherVar=false>");
         assertThat(cloned.getStringval()).isEqualTo("a&;<>bc");
     }
 
