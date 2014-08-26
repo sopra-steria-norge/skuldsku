@@ -3,9 +3,13 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 // Apparently you cannot use internal classes for testing this. I don't know why, it just doesn't work.
 public class ClassSerializerTest {
@@ -79,7 +83,7 @@ public class ClassSerializerTest {
         ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
 
         assertThat(cloned.getArrVal()).containsOnly("a", "b", "c");
-        assertThat(cloned.getNumbers()).containsOnly(1,2,4);
+        assertThat(cloned.getNumbers()).containsOnly(1, 2, 4);
     }
 
     @Test
@@ -154,5 +158,13 @@ public class ClassSerializerTest {
         assertThat(duplicate).isNotNull();
         assertThat(duplicate.getMyEnum()).isEqualTo(DummyEnum.THREE);
         assertThat(duplicate.getMyText()).isEqualTo("hello");
+    }
+
+    @Test
+    public void shouldDeDeSerializeBooleanSeparately(){
+        Boolean bool = false;
+        String serializedBool = serializer.asString(bool);
+        bool = (Boolean) serializer.asObject(serializedBool);
+        assertNotNull(bool);
     }
 }

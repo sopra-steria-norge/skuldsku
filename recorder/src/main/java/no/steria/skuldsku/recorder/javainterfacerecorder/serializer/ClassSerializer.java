@@ -105,6 +105,8 @@ public class ClassSerializer {
             value = fieldValue.charAt(0);
         } else if (double.class.equals(type) || Double.class.equals(type)) {
             value = Double.parseDouble(fieldValue);
+        } else if (boolean.class.equals(type) || Boolean.class.equals(type)) {
+            value = Boolean.parseBoolean(fieldValue);
         } else if (Date.class.equals(type)) {
             try {
                 value = dateFormat.parse(fieldValue);
@@ -232,11 +234,7 @@ public class ClassSerializer {
             field.setAccessible(true);
         }
         try {
-            if (field.getType().getName().equals("boolean") || (field.getType() == Boolean.class)) {
-                field.set(object, Boolean.parseBoolean((String) value));
-            } else {
-                field.set(object, value);
-            }
+            field.set(object, value);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -245,9 +243,9 @@ public class ClassSerializer {
         }
     }
 
-    private Object initObject(String classname) {
+    private Object initObject(String className) {
         try {
-            return Class.forName(classname).newInstance();
+            return Class.forName(className).newInstance();
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
