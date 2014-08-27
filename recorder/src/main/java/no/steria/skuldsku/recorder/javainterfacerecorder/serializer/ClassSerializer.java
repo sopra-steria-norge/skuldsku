@@ -2,6 +2,8 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -243,13 +245,22 @@ public class ClassSerializer {
         }
     }
 
-    private Object initObject(String className) {
-        try {
-            return Class.forName(className).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    private Object initObject(final String className) {
+        return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    Constructor<?> c = clazz.getDeclaredConstructor();
+                    c.setAccessible(true);
+                    return c.newInstance();
+                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
+
 
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);
