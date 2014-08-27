@@ -2,6 +2,8 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,11 +25,13 @@ public class ClassSerializer {
         }
         String[] parts = splitToParts(serializedValue);
 
+        if ("list".equals(parts[0]) || "map".equals(parts[0])) {
+            return objectValueFromString(serializedValue, null);
+        }
+
         if (!serializedValue.contains("=")) {
             try {
-                if ("list".equals(parts[0]) || "map".equals(parts[0])) {
-                    return objectValueFromString(serializedValue,null);
-                }
+
                 return objectValueFromString(parts[1], Class.forName(parts[0]));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
@@ -36,11 +40,11 @@ public class ClassSerializer {
 
         Object object = initObject(parts[0]);
 
-        for (int i=1;i<parts.length;i++) {
+        for (int i = 1; i < parts.length; i++) {
             //String[] fieldParts = parts[i].split("=");
-            int eqPos=parts[i].indexOf("=");
-            String fieldName = parts[i].substring(0,eqPos);
-            String encFieldValue = parts[i].substring(eqPos+1);
+            int eqPos = parts[i].indexOf("=");
+            String fieldName = parts[i].substring(0, eqPos);
+            String encFieldValue = parts[i].substring(eqPos + 1);
 
             try {
                 Field field = object.getClass().getDeclaredField(fieldName);
@@ -59,27 +63,27 @@ public class ClassSerializer {
         List<String> result = new ArrayList<>();
 
         int level = 0;
-        int prevpos=0;
-        for (int pos=0;pos<serializedValue.length();pos++) {
+        int prevpos = 0;
+        for (int pos = 0; pos < serializedValue.length(); pos++) {
             Character c = serializedValue.charAt(pos);
             if (c == '<') {
                 level++;
                 if (level == 1) {
-                    prevpos=pos+1;
+                    prevpos = pos + 1;
                 }
                 continue;
             }
             if (c == '>') {
                 level--;
                 if (level == 0) {
-                    result.add(serializedValue.substring(prevpos,pos));
-                    prevpos=pos+1;
+                    result.add(serializedValue.substring(prevpos, pos));
+                    prevpos = pos + 1;
                 }
                 continue;
             }
             if (c == ';' && level == 1) {
-                result.add(serializedValue.substring(prevpos,pos));
-                prevpos=pos+1;
+                result.add(serializedValue.substring(prevpos, pos));
+                prevpos = pos + 1;
             }
         }
         return result.toArray(new String[result.size()]);
@@ -94,7 +98,7 @@ public class ClassSerializer {
             value = complexValueFromString(fieldValue, type);
         } else if (type.isEnum()) {
             Class<? extends Enum> enuClazz = (Class<? extends Enum>) type;
-            return Enum.valueOf(enuClazz,fieldValue);
+            return Enum.valueOf(enuClazz, fieldValue);
         } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else if (long.class.equals(type) || Long.class.equals(type)) {
@@ -103,6 +107,8 @@ public class ClassSerializer {
             value = fieldValue.charAt(0);
         } else if (double.class.equals(type) || Double.class.equals(type)) {
             value = Double.parseDouble(fieldValue);
+        } else if (boolean.class.equals(type) || Boolean.class.equals(type)) {
+            value = Boolean.parseBoolean(fieldValue);
         } else if (Date.class.equals(type)) {
             try {
                 value = dateFormat.parse(fieldValue);
@@ -121,7 +127,7 @@ public class ClassSerializer {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
             value = fieldValue
-                    .replaceAll("&amp","&")
+                    .replaceAll("&amp", "&")
                     .replaceAll("&semi", ";")
                     .replaceAll("&eq", "=")
                     .replaceAll("&lt", "<")
@@ -137,10 +143,10 @@ public class ClassSerializer {
         if (fieldValue instanceof Enum) {
             Enum en = (Enum) fieldValue;
 
-            return String.format("<%s;%s>",en.getClass().getName(),en.name());
+            return String.format("<%s;%s>", en.getClass().getName(), en.name());
         }
         if (fieldValue instanceof Object[]) {
-            Object[] arr=(Object[]) fieldValue;
+            Object[] arr = (Object[]) fieldValue;
             StringBuilder res = new StringBuilder("<array");
             for (Object objInArr : arr) {
                 encode(res, objInArr);
@@ -148,7 +154,7 @@ public class ClassSerializer {
             res.append(">");
             return res.toString();
         }
-        if (fieldValue instanceof  List) {
+        if (fieldValue instanceof List) {
             List<Object> listValues = (List<Object>) fieldValue;
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
@@ -158,9 +164,9 @@ public class ClassSerializer {
             return res.toString();
         }
         if (fieldValue instanceof Map) {
-            Map<Object,Object> mapValue= (Map<Object, Object>) fieldValue;
+            Map<Object, Object> mapValue = (Map<Object, Object>) fieldValue;
             StringBuilder res = new StringBuilder("<map");
-            for (Map.Entry<Object,Object> entry : mapValue.entrySet()) {
+            for (Map.Entry<Object, Object> entry : mapValue.entrySet()) {
                 Object val = entry.getKey();
                 encode(res, val);
                 val = entry.getValue();
@@ -185,11 +191,11 @@ public class ClassSerializer {
         String packageName = fieldValue.getClass().getPackage().getName();
         if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
             return fieldValue.toString()
-                    .replaceAll("&","&amp")
-                    .replaceAll(";","&semi")
-                    .replaceAll("<","&lt")
-                    .replaceAll(">","&gt")
-                    .replaceAll("=","&eq");
+                    .replaceAll("&", "&amp")
+                    .replaceAll(";", "&semi")
+                    .replaceAll("<", "&lt")
+                    .replaceAll(">", "&gt")
+                    .replaceAll("=", "&eq");
         }
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
@@ -239,20 +245,29 @@ public class ClassSerializer {
         }
     }
 
-    private Object initObject(String classname) {
-        try {
-            return Class.forName(classname).newInstance(); //TODO ikh: this does not work, because of missing dependencies.
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    private Object initObject(final String className) {
+        return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            @Override
+            public Object run() {
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    Constructor<?> c = clazz.getDeclaredConstructor();
+                    c.setAccessible(true);
+                    return c.newInstance();
+                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
+
 
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);
         if ("array".equals(parts[0])) {
             Object arr = Array.newInstance(type.getComponentType(), parts.length - 1);
 
-            for (int i=0;i<parts.length-1;i++) {
+            for (int i = 0; i < parts.length - 1; i++) {
                 String codeStr = parts[i + 1];
                 String[] valType = splitToParts(codeStr);
                 Class<?> aClass;
@@ -269,7 +284,7 @@ public class ClassSerializer {
         if ("list".equals(parts[0])) {
             List<Object> resList = new ArrayList<>();
 
-            for (int i=0;i<parts.length-1;i++) {
+            for (int i = 0; i < parts.length - 1; i++) {
                 String codeStr = parts[i + 1];
                 String[] valType = splitToParts(codeStr);
                 Class<?> aClass;
@@ -284,13 +299,13 @@ public class ClassSerializer {
             return resList;
         }
         if ("map".equals(parts[0])) {
-            Map<Object,Object> resMap = new HashMap<>();
+            Map<Object, Object> resMap = new HashMap<>();
 
-            for (int i=0;i<parts.length-1;i++) {
+            for (int i = 0; i < parts.length - 1; i++) {
                 Object key = extractObject(parts[i + 1]);
                 i++;
-                Object value = extractObject(parts[i +  1]);
-                resMap.put(key,value);
+                Object value = extractObject(parts[i + 1]);
+                resMap.put(key, value);
             }
 
             return resMap;

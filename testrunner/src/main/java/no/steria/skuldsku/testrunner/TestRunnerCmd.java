@@ -36,6 +36,7 @@ public class TestRunnerCmd {
     private static BoneCPDataSource dataSource;
     private static StreamHttpPlayBack streamHttpPlayBack = new StreamHttpPlayBack();
     private static StreamInterfacePlayBack streamInterfacePlayBack = new StreamInterfacePlayBack();
+    private static int secondsTimeoutSerializedInterfaceRecordings = 20;
 
     public static void main(String[] args) throws SQLException {
         Scanner sc;
@@ -154,7 +155,7 @@ public class TestRunnerCmd {
             HttpPlayer httpPlayer = new HttpPlayer(url);
             CSVReader reader = new CSVReader(in, ',', '"');
             streamInterfacePlayBack.prepareMocks(reader);
-            streamInterfacePlayBack.waitForFileToBePickedUp(); //TODO ikh: customize waiting time for unit tests?
+            streamInterfacePlayBack.waitForFileToBePickedUp(secondsTimeoutSerializedInterfaceRecordings);
             streamHttpPlayBack.play(reader, httpPlayer);
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -311,5 +312,6 @@ public class TestRunnerCmd {
         prepareDataSource(args, sc);
         TestRunnerCmd.dataSource = dataSource;
         readAndExecuteCommands(args, sc);
+        secondsTimeoutSerializedInterfaceRecordings = 0;
     }
 }

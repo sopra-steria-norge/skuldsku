@@ -16,12 +16,12 @@ public class MockFromServiceImpl<T> implements MockInterface {
         this.mockService = mockService;
     }
 
-    public static <T> MockInterface create(Class<T> interfaceClass,T mockService) {
+    public static <T> MockInterface create(T mockService) {
         return new MockFromServiceImpl<>(mockService);
     }
 
     @Override
-    public Object invoke(Class<?> interfaceClass, Object serviceObject, Method method, Object[] args) {
+    public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
         try {
             return method.invoke(mockService,args);
         } catch (IllegalAccessException | InvocationTargetException e) {

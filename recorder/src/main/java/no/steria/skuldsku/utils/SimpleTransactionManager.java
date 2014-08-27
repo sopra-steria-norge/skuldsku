@@ -91,8 +91,7 @@ public final class SimpleTransactionManager implements TransactionManager {
             try {
                 connection.rollback();
             } catch (SQLException e1) {
-                // TODO: Logging.
-                e1.printStackTrace();
+                RecorderLog.error("Could not roll back transaction.", e1);
             }
         }
     }
@@ -102,7 +101,6 @@ public final class SimpleTransactionManager implements TransactionManager {
             try {
                 connection.close();
             } catch (SQLException e) {
-                // TODO: Logging.
                 RecorderLog.error("Could not close connection.", e);
             }
         }

@@ -5,10 +5,13 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
+// Apparently you cannot use internal classes for testing this. I don't know why, it just doesn't work.
 public class ClassSerializerTest {
 
     private final ClassSerializer serializer = new ClassSerializer();
@@ -38,7 +41,7 @@ public class ClassSerializerTest {
     @Test
     public void shouldParseSimpleStringField() throws Exception {
         ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("pedro");
-        assertThat(serializer.asString(simpleFields)).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=pedro;intval=0>");
+        assertThat(serializer.asString(simpleFields)).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=pedro;intval=0;anotherVar=false>");
     }
 
     @Test
@@ -65,14 +68,14 @@ public class ClassSerializerTest {
         String serialized = serializer.asString(simpleFields);
         ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serialized);
 
-        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0>");
+        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0;anotherVar=false>");
         assertThat(cloned.getStringval()).isEqualTo("a&;<>bc");
     }
 
     @Test
     public void shouldHandleArraysAndCollections() throws Exception {
         String arrval[] = {"a","b","c"};
-        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval).setNumbers(Arrays.asList(1,2,4));
+        ClassWithCollection classWithCollection = new ClassWithCollection().setArrVal(arrval).setNumbers(Arrays.asList(1, 2, 4));
 
         String serialized = serializer.asString(classWithCollection);
         System.out.println(serialized);
@@ -80,7 +83,15 @@ public class ClassSerializerTest {
         ClassWithCollection cloned = (ClassWithCollection) serializer.asObject(serialized);
 
         assertThat(cloned.getArrVal()).containsOnly("a", "b", "c");
-        assertThat(cloned.getNumbers()).containsOnly(1,2,4);
+        assertThat(cloned.getNumbers()).containsOnly(1, 2, 4);
+    }
+
+    @Test
+    public void shouldDeSerializeListOfObjectsWithFields() {
+        List<ClassWithSimpleFields> list = Arrays.asList(new ClassWithSimpleFields());
+        String serialized = serializer.asString(list);
+        System.out.println(serialized);
+        serializer.asObject(serialized);
     }
 
     @Test
@@ -147,5 +158,13 @@ public class ClassSerializerTest {
         assertThat(duplicate).isNotNull();
         assertThat(duplicate.getMyEnum()).isEqualTo(DummyEnum.THREE);
         assertThat(duplicate.getMyText()).isEqualTo("hello");
+    }
+
+    @Test
+    public void shouldDeDeSerializeBooleanSeparately(){
+        Boolean bool = false;
+        String serializedBool = serializer.asString(bool);
+        bool = (Boolean) serializer.asObject(serializedBool);
+        assertNotNull(bool);
     }
 }
