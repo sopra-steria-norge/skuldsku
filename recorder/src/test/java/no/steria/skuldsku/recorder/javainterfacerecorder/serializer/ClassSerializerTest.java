@@ -167,4 +167,18 @@ public class ClassSerializerTest {
         bool = (Boolean) serializer.asObject(serializedBool);
         assertNotNull(bool);
     }
+
+    @Test
+    public void shouldHandleLoops() throws Exception {
+        ClassWithLoop a = new ClassWithLoop();
+        a.setValue("a");
+        ClassWithLoop b = new ClassWithLoop();
+        b.setValue("b");
+        a.setOther(b);
+        b.setOther(a);
+
+        String serialized = serializer.asString(a);
+        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithLoop;value=a;other=<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithLoop;value=b;other=<duplicate;0>>>");
+
+    }
 }

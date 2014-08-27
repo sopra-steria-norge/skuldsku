@@ -10,8 +10,22 @@ import java.util.*;
 
 public class ClassSerializer {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+    private List<Object> knownObjects = new ArrayList<>();
+
+    private int isKnown(Object obj) {
+        for (int i=0;i<knownObjects.size();i++) {
+            if (knownObjects.get(i) == obj) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public String asString(Object object) {
+        return new ClassSerializer().myAsString(object);
+    }
+
+    private String myAsString(Object object) {
         String encodedValue = encodeValue(object);
         if (object != null && !encodedValue.startsWith("<")) {
             return "<" + object.getClass().getName() + ";" + encodedValue + ">";
@@ -20,6 +34,12 @@ public class ClassSerializer {
     }
 
     public Object asObject(String serializedValue) {
+
+        return new ClassSerializer().myAsObject(serializedValue);
+    }
+
+
+    private Object myAsObject(String serializedValue) {
         if ("<null>".equals(serializedValue)) {
             return null;
         }
@@ -59,7 +79,7 @@ public class ClassSerializer {
         return object;
     }
 
-    public String[] splitToParts(String serializedValue) {
+    private String[] splitToParts(String serializedValue) {
         List<String> result = new ArrayList<>();
 
         int level = 0;
@@ -89,7 +109,7 @@ public class ClassSerializer {
         return result.toArray(new String[result.size()]);
     }
 
-    public Object objectValueFromString(String fieldValue, Class<?> type) {
+    private Object objectValueFromString(String fieldValue, Class<?> type) {
         Object value;
 
         if ("&null".equals(fieldValue)) {
@@ -136,15 +156,34 @@ public class ClassSerializer {
         return value;
     }
 
-    public String encodeValue(Object fieldValue) {
+    private String encodeValue(Object fieldValue) {
         if (fieldValue == null) {
             return "<null>";
         }
+
         if (fieldValue instanceof Enum) {
             Enum en = (Enum) fieldValue;
 
             return String.format("<%s;%s>", en.getClass().getName(), en.name());
         }
+        if ("org.joda.time.DateTime".equals(fieldValue.getClass().getName())) {
+            try {
+                Method toDate = fieldValue.getClass().getMethod("toDate");
+                Date asDate = (Date) toDate.invoke(fieldValue);
+                return dateFormat.format(asDate);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Package aPackage = fieldValue.getClass().getPackage();
+        String packageName = aPackage != null ? aPackage.getName() : null;
+        if (!isValueClass(packageName)) {
+            int ind = isKnown(fieldValue);
+            if (ind != -1) {
+                return "<duplicate;" + ind + ">";
+            }
+        }
+        knownObjects.add(fieldValue);
         if (fieldValue instanceof Object[]) {
             Object[] arr = (Object[]) fieldValue;
             StringBuilder res = new StringBuilder("<array");
@@ -179,17 +218,8 @@ public class ClassSerializer {
         if (Date.class.equals(fieldValue.getClass())) {
             return dateFormat.format(fieldValue);
         }
-        if ("org.joda.time.DateTime".equals(fieldValue.getClass().getName())) {
-            try {
-                Method toDate = fieldValue.getClass().getMethod("toDate");
-                Date asDate = (Date) toDate.invoke(fieldValue);
-                return dateFormat.format(asDate);
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        String packageName = fieldValue.getClass().getPackage().getName();
-        if ("java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName)) {
+
+        if (isValueClass(packageName)) {
             return fieldValue.toString()
                     .replaceAll("&", "&amp")
                     .replaceAll(";", "&semi")
@@ -200,6 +230,10 @@ public class ClassSerializer {
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
         return "<" + classname + fieldsCode + ">";
+    }
+
+    private boolean isValueClass(String packageName) {
+        return "java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName);
     }
 
     private String computeFields(Object object) {
@@ -311,7 +345,7 @@ public class ClassSerializer {
             return resMap;
         }
 
-        return asObject(fieldValue);
+        return myAsObject(fieldValue);
     }
 
     private Object extractObject(String part) {
