@@ -4,14 +4,14 @@
         xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.steria.skuldsku</groupId>
-    <artifactId>testrunner</artifactId>
+    <artifactId>skuldsku-testrunner</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>no.steria.skuldsku</groupId>
-            <artifactId>recorder</artifactId>
+            <artifactId>skuldsku-prod</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

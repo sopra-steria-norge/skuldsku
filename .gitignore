@@ -1,7 +1,9 @@
 /target
 .DS_Store
 .idea
-recorder/target/
-testrunner/target/
+skuldsku-prod/target/
+skuldsku-testrunner/target/
 *.iml
 examples/basicServlet/target/
+examples/basicServlet/basicServletApplication/target/
+examples/basicServlet/basicServletTest/target/
