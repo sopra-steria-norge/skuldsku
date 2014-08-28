@@ -49,6 +49,11 @@ public class ClassSerializer {
             return objectValueFromString(serializedValue, null);
         }
 
+        if ("duplicate".equals(parts[0])) {
+            int index = Integer.parseInt(parts[1]);
+            return knownObjects.get(index);
+        }
+
         if (!serializedValue.contains("=")) {
             try {
 
@@ -59,6 +64,8 @@ public class ClassSerializer {
         }
 
         Object object = initObject(parts[0]);
+
+        knownObjects.add(object);
 
         for (int i = 1; i < parts.length; i++) {
             //String[] fieldParts = parts[i].split("=");

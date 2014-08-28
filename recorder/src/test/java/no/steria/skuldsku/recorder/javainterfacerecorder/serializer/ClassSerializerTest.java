@@ -180,5 +180,11 @@ public class ClassSerializerTest {
         String serialized = serializer.asString(a);
         assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithLoop;value=a;other=<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithLoop;value=b;other=<duplicate;0>>>");
 
+        ClassWithLoop acopy = (ClassWithLoop) serializer.asObject(serialized);
+        assertThat(acopy).isNotNull();
+        assertThat(acopy.getValue()).isEqualTo("a");
+        assertThat(acopy.getOther()).isNotNull();
+        assertThat(acopy.getOther().getValue()).isEqualTo("b");
+        assertThat(acopy.getOther().getOther()).isSameAs(acopy);
     }
 }
