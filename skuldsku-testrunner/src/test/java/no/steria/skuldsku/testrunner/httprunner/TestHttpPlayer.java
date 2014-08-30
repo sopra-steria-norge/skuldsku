@@ -1,6 +1,6 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.httprecorder.CallReporter;
 import no.steria.skuldsku.recorder.httprecorder.ReportObject;
 import org.json.JSONObject;
@@ -26,7 +26,7 @@ public class TestHttpPlayer {
 
     @Before
     public void setUp() throws SQLException {
-        Recorder.start();
+        Skuldsku.start();
     }
 
     @Test

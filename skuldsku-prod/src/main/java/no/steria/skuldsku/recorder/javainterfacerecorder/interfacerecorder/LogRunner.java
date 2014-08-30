@@ -1,7 +1,7 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 import java.util.concurrent.ExecutorService;
@@ -27,7 +27,7 @@ public class LogRunner implements Runnable {
     }
 
     private boolean doLog() {
-        return Recorder.recordingIsOn();
+        return Skuldsku.recordingIsOn();
     }
 
     private void logEvent() {

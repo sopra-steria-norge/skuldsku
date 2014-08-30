@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.httprecorder.testjetty.TestFilter;
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,7 +38,7 @@ public class ServletFilterTest {
 
     @Test
     public void shouldNotRecordWhenRecordingIsOff() throws IOException, ServletException {
-        Recorder.stop();
+        Skuldsku.stop();
         servletFilter.doFilter(request, response, chain);
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);

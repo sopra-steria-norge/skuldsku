@@ -11,9 +11,9 @@ import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder
 /**
  * Facade for starting and stopping all available recorders.
  */
-public class Recorder {
+public class Skuldsku {
 
-    private Recorder() {
+    private Skuldsku() {
         // avoid instantiation
     }
 
@@ -30,7 +30,7 @@ public class Recorder {
      */
     @Deprecated
     public static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
-        Recorder.databaseRecorders = databaseRecorders;
+        Skuldsku.databaseRecorders = databaseRecorders;
         for (DatabaseRecorder databaseRecorder : databaseRecorders) {
             databaseRecorder.initialize();
         }

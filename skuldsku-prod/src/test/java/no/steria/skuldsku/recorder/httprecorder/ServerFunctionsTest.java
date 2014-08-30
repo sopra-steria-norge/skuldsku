@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.httprecorder.testjetty.JettyServer;
 import no.steria.skuldsku.recorder.httprecorder.testjetty.TestFilter;
 import org.json.JSONObject;
@@ -25,7 +25,7 @@ public class ServerFunctionsTest {
 
     @Before
     public void setUp() throws SQLException {
-        Recorder.start();
+        Skuldsku.start();
     }
 
     @Test
@@ -110,7 +110,7 @@ public class ServerFunctionsTest {
     @After
     public void tearDown() throws Exception {
         TestFilter.setReporter(null);
-        Recorder.stop();
+        Skuldsku.stop();
     }
 
     private static String toString(InputStream inputStream) throws IOException {

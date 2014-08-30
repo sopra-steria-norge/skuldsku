@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import java.lang.reflect.InvocationTargetException;
@@ -40,7 +40,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
         } catch (InvocationTargetException e) { //TODO ikh: is this necessary?
             throw e.getTargetException();
         } finally {
-            if (Recorder.recordingIsOn()) {
+            if (Skuldsku.recordingIsOn()) {
                 try {
                     RecorderLog.debug("IRW: Logging..");
                     String className = obj.getClass().getName();

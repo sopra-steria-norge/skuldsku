@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class MockRegistration {
     }
 
     public static MockInterface getMock(Class<?> givenInterface) {
-        return Recorder.isInPlayBackMode() ? mocks.get(givenInterface) : null;
+        return Skuldsku.isInPlayBackMode() ? mocks.get(givenInterface) : null;
     }
 
     public static void reset() {

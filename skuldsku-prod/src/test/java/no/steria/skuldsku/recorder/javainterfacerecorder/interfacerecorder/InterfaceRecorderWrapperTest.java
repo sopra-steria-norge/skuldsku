@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class InterfaceRecorderWrapperTest {
 
     @Before
     public void setUp() throws SQLException {
-        Recorder.start();
+        Skuldsku.start();
     }
 
     @Test
@@ -110,7 +110,7 @@ public class InterfaceRecorderWrapperTest {
     public void shouldInvokeMethodButNotRecordWhenRecordingIsOff() throws SQLException {
         ServiceClass serviceClassObject = mock(ServiceClass.class);
         when(serviceClassObject.doSimpleService(anyString())).thenReturn("Hello MyName");
-        Recorder.stop();
+        Skuldsku.stop();
         ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
@@ -120,7 +120,7 @@ public class InterfaceRecorderWrapperTest {
         assertNull(reportCallback.getMethodname());
         assertNull(reportCallback.getParameters());
         assertNull(reportCallback.getResult());
-        Recorder.start();
+        Skuldsku.start();
     }
 
     @Test

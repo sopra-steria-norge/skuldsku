@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
-import no.steria.skuldsku.recorder.Recorder;
+import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import javax.servlet.*;
@@ -27,7 +27,7 @@ public abstract class ServletFilter implements Filter{
 
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(!Recorder.recordingIsOn()){
+        if(!Skuldsku.recordingIsOn()){
             chain.doFilter(request, response);
             return;
         }
