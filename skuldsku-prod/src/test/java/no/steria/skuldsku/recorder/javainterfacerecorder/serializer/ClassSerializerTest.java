@@ -200,7 +200,25 @@ public class ClassSerializerTest {
         ClassWithSimpleFields dupl = (ClassWithSimpleFields) serializer.asObject(asString);
 
         assertThat(dupl.getStringval()).isEqualTo("Noe\nMer");
+    }
 
+    @Test
+    public void shouldHandleSubclasses() throws Exception {
+        SubClass subClass = new SubClass();
+
+        subClass.setSupervalue("a");
+        subClass.setSubvalue("b");
+
+        String asString = serializer.asString(subClass);
+
+        assertThat(asString)
+                .startsWith("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.SubClass")
+                .contains("supervalue=a")
+                .contains("subvalue=b");
+
+        SubClass duplicate = (SubClass) serializer.asObject(asString);
+
+        assertThat(duplicate.getSupervalue()).isEqualTo("a");
 
     }
 }

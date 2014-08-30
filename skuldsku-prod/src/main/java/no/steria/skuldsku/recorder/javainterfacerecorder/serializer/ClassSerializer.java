@@ -74,16 +74,28 @@ public class ClassSerializer {
             String encFieldValue = parts[i].substring(eqPos + 1);
 
             try {
-                Field field = object.getClass().getDeclaredField(fieldName);
+                Field field = findField(object.getClass(),fieldName);
 
                 setFieldValue(object, encFieldValue, field);
 
-            } catch (NoSuchFieldException | IllegalAccessError e) {
+            } catch (IllegalAccessError e) {
                 throw new RuntimeException(e);
             }
         }
 
         return object;
+    }
+
+    private Field findField(Class<?> clazz, String fieldName)  {
+        try {
+            return clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            Class<?> superclass = clazz.getSuperclass();
+            if (superclass != null) {
+                return findField(superclass,fieldName);
+            }
+            throw new RuntimeException(e);
+        }
     }
 
     private String[] splitToParts(String serializedValue) {
@@ -159,7 +171,7 @@ public class ClassSerializer {
                     .replaceAll("&eq", "=")
                     .replaceAll("&lt", "<")
                     .replaceAll("&gt", ">")
-                    .replaceAll("&newline","\n");
+                    .replaceAll("&newline", "\n");
         }
         return value;
     }
@@ -245,8 +257,18 @@ public class ClassSerializer {
         return "java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName);
     }
 
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        for (Field field: type.getDeclaredFields()) {
+            fields.add(field);
+        }
+        if (type.getSuperclass() != null) {
+            fields = getAllFields(fields, type.getSuperclass());
+        }
+        return fields;
+    }
+
     private String computeFields(Object object) {
-        Field[] declaredFields = object.getClass().getDeclaredFields();
+        List<Field> declaredFields = getAllFields(new ArrayList<Field>(),object.getClass());
         StringBuilder result = new StringBuilder();
         for (Field field : declaredFields) {
             result.append(";");
