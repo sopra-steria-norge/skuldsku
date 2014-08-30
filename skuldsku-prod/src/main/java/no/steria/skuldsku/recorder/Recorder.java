@@ -1,9 +1,12 @@
 package no.steria.skuldsku.recorder;
 
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
+
+import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 
 /**
  * Facade for starting and stopping all available recorders.
@@ -25,11 +28,19 @@ public class Recorder {
     /**
      * @param databaseRecorders new database recorders to be used. This will overwrite the previous ones.
      */
+    @Deprecated
     public static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
         Recorder.databaseRecorders = databaseRecorders;
         for (DatabaseRecorder databaseRecorder : databaseRecorders) {
             databaseRecorder.initialize();
         }
+    }
+    
+    public static void addDataSourceForRecording(DataSource dataSource) {
+        // TODO: Update with driver detection when we have other implementations:
+        final OracleDatabaseRecorder dbr = new OracleDatabaseRecorder(dataSource);
+        dbr.initialize();
+        databaseRecorders.add(dbr);
     }
 
     public static boolean recordingIsOn() {
