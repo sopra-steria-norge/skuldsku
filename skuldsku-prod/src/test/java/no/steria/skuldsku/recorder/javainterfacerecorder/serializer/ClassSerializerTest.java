@@ -187,4 +187,20 @@ public class ClassSerializerTest {
         assertThat(acopy.getOther().getValue()).isEqualTo("b");
         assertThat(acopy.getOther().getOther()).isSameAs(acopy);
     }
+
+    @Test
+    public void shouldHandleLinechanges() throws Exception {
+        ClassWithSimpleFields classWithSimpleFields = new ClassWithSimpleFields();
+        classWithSimpleFields.setStringval("Noe\nMer");
+
+        String asString = serializer.asString(classWithSimpleFields);
+
+        assertThat(asString).doesNotContain("\n");
+
+        ClassWithSimpleFields dupl = (ClassWithSimpleFields) serializer.asObject(asString);
+
+        assertThat(dupl.getStringval()).isEqualTo("Noe\nMer");
+
+
+    }
 }

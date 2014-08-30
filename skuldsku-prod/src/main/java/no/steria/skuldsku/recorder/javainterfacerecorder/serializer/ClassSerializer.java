@@ -158,7 +158,8 @@ public class ClassSerializer {
                     .replaceAll("&semi", ";")
                     .replaceAll("&eq", "=")
                     .replaceAll("&lt", "<")
-                    .replaceAll("&gt", ">");
+                    .replaceAll("&gt", ">")
+                    .replaceAll("&newline","\n");
         }
         return value;
     }
@@ -232,7 +233,8 @@ public class ClassSerializer {
                     .replaceAll(";", "&semi")
                     .replaceAll("<", "&lt")
                     .replaceAll(">", "&gt")
-                    .replaceAll("=", "&eq");
+                    .replaceAll("=", "&eq")
+                    .replaceAll("\n","&newline");
         }
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
