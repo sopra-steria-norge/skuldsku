@@ -17,7 +17,7 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
-public class ServletFilterTest {
+public class SkuldskuFilterTest {
 
     @Mock
     private HttpServletRequest request;
@@ -26,7 +26,7 @@ public class ServletFilterTest {
     @Mock
     private FilterChain chain;
 
-    ServletFilter servletFilter = new TestFilter();
+    SkuldskuFilter skuldskuFilter = new TestFilter();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -39,7 +39,7 @@ public class ServletFilterTest {
     @Test
     public void shouldNotRecordWhenRecordingIsOff() throws IOException, ServletException {
         Skuldsku.stop();
-        servletFilter.doFilter(request, response, chain);
+        skuldskuFilter.doFilter(request, response, chain);
         verifyNoMoreInteractions(request);
         verifyNoMoreInteractions(response);
         verify(chain, times(1)).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));

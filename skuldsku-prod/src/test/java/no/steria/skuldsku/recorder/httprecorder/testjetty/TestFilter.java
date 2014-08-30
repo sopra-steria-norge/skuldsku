@@ -1,12 +1,12 @@
 package no.steria.skuldsku.recorder.httprecorder.testjetty;
 
 import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ServletFilter;
+import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
-public class TestFilter extends ServletFilter {
+public class TestFilter extends SkuldskuFilter {
     private static CallReporter myReporter;
 
     public TestFilter() {

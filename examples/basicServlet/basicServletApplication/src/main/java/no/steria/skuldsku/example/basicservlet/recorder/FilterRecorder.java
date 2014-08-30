@@ -3,7 +3,7 @@ package no.steria.skuldsku.example.basicservlet.recorder;
 import no.steria.skuldsku.example.basicservlet.OraclePlaceDao;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ServletFilter;
+import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
 import no.steria.skuldsku.recorder.recorders.AbstractRecorderCommunicator;
 import no.steria.skuldsku.recorder.recorders.DatabaseRecorderCommunicator;
 import no.steria.skuldsku.recorder.recorders.StreamRecorderCommunicator;
@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-public class FilterRecorder extends ServletFilter{
+public class FilterRecorder extends SkuldskuFilter{
     public static final AbstractRecorderCommunicator recorder = initRecorder();
 
     private static AbstractRecorderCommunicator initRecorder() {

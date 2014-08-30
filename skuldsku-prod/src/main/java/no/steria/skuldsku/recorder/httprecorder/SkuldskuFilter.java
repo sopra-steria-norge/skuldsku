@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Filter for recording HTTP interactions.
  */
-public abstract class ServletFilter implements Filter{
+public abstract class SkuldskuFilter implements Filter{
 
     public static long getRequestId() {
         Long id = requestId.get();
