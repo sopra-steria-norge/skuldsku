@@ -1,12 +1,15 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.skuldsku.recorder.Skuldsku;
-
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import no.steria.skuldsku.recorder.Skuldsku;
 
 /**
  * Each Java API that should be mocked when playing back tests, has a corresponding proxy (created by
@@ -41,8 +44,23 @@ public class MockRegistration {
         signal();
     }
 
-    public static MockInterface getMock(Class<?> givenInterface) {
+    @Deprecated
+    public static MockInterface getMockInterface(Class<?> givenInterface) {
         return Skuldsku.isInPlayBackMode() ? mocks.get(givenInterface) : null;
+    }
+    
+    public static <T> T getMock(final Class<T> interfaceClass) {
+        final MockInterface mi = getMockInterface(interfaceClass);
+        
+        @SuppressWarnings("unchecked")
+        T service = (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] {interfaceClass},
+                new InvocationHandler() {
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        return mi.invoke(interfaceClass, interfaceClass.getName(), method, args); // interfaceClass.getName() ?
+                    }
+                });
+        return service;
     }
 
     public static void reset() {

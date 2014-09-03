@@ -1,8 +1,11 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuAccessor;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +27,8 @@ public class InterfaceRecorderWrapperTest {
 
     @Before
     public void setUp() throws SQLException {
+        SkuldskuAccessor.reset();
+        Skuldsku.initialize(new SkuldskuConfig());
         Skuldsku.start();
     }
 

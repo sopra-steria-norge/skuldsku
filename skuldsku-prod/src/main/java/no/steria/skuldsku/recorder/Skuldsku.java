@@ -1,54 +1,135 @@
 package no.steria.skuldsku.recorder;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
-import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
 
 /**
- * Facade for starting and stopping all available recorders.
+ * Main class for controlling recording and mocking.
+ * 
+ * @see Skuldsku#initialize(SkuldskuConfig)
  */
-public class Skuldsku {
+public final class Skuldsku {
 
     private Skuldsku() {
         // avoid instantiation
     }
 
+    private static SkuldskuConfig config = null;
     private static boolean recordingOn = false;
+    private static List<DatabaseRecorder> databaseRecorders;
 
-    private static List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
-
+    
+    /**
+     * Initializes <code>Skuldsku</code>.
+     * 
+     * @param config The configuration.
+     */
+    public static void initialize(SkuldskuConfig config) {
+        if (Skuldsku.config != null) {
+            throw new IllegalStateException("Already initialized: This is the second time the initialize method gets called.");
+        }
+        // TODO: Copy-constructor:
+        Skuldsku.config = config;
+        initializeDatabaseRecorders(config.getDatabaseRecorders());
+    }
+    
+    /**
+     * Only used for testing: Resets Skuldsku to its initial state.
+     */
+    static void reset() {
+        config = null;
+        recordingOn = false;
+        databaseRecorders = null;
+    }
+    
+    public static SkuldskuConfig getSkuldskuConfig() {
+        // TODO: Copy-constructor:
+        return config;
+    }
+    
+    private static void assertInitialized() {
+        if (config == null) {
+            throw new IllegalStateException("Skuldsku.initialize should be called before any other method.");
+        }
+    }
+    
+    /**
+     * Checks if Skuldsku is in "playback mode".
+     * 
+     * @return <code>true</code> if the JVM property <code>no.steria.skuldsku.doMock</code>
+     *          is set to "true", and <code>false</code> otherwise.
+     */
     public static boolean isInPlayBackMode() {
+        assertInitialized();
         return "true".equals(System.getProperty("no.steria.skuldsku.doMock"));
     }
-
+    
     /**
-     * @param databaseRecorders new database recorders to be used. This will overwrite the previous ones.
+     * Checks if recording is enabled.
+     * @return <code>true</code> if {@link #start()} has been called
+     *          without a subsequent call to {@link #stop()}.
      */
+    public static boolean isRecordingOn() {
+        assertInitialized();
+        return recordingOn;
+    }
+
     @Deprecated
     public static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
+        assertInitialized();
         Skuldsku.databaseRecorders = databaseRecorders;
         for (DatabaseRecorder databaseRecorder : databaseRecorders) {
             databaseRecorder.initialize();
         }
     }
-    
-    public static void addDataSourceForRecording(DataSource dataSource) {
-        // TODO: Update with driver detection when we have other implementations:
-        final OracleDatabaseRecorder dbr = new OracleDatabaseRecorder(dataSource);
-        dbr.initialize();
-        databaseRecorders.add(dbr);
+
+    /**
+     * Wraps the object given by the {@link InstantiationCallback#create() callback}
+     * in order to support both recording and mocking. The latter is only activated
+     * if {@link #isInPlayBackMode() in playback mode}.
+     * 
+     * This method should be used for decorating every interface you want
+     * to mock out in playback mode.
+     * 
+     * @param clazz The java interface.
+     * @param ic A callback for instantiating the implementation. The callback
+     *          is used in order to avoid instantiating the object when it
+     *          should be mocked out in playback. 
+     * @return A decorated version of the object given through the
+     *          <code>InstantiationCallback</code>.
+     */
+    public static <T> T wrap(Class<T> clazz, InstantiationCallback<T> ic) {
+        assertInitialized();
+        
+        final T service;
+        if (isInPlayBackMode()) {
+            service = MockRegistration.getMock(clazz);
+        } else {
+            service = ic.create();
+        }
+
+        /*
+         * TODO: Ved sammenlikning vil vi helt sikkert ønske å sjekke implementasjonsklasse. Ved opptak
+         * mot mock vil vi ha en annen type enn ved normal kjøring. Implementasjonsklasse bør derfor hentes ut
+         * av mocken og sendes med som parameter til InterfaceRecorderWrapper fremfor å bruke getClass(). Bør
+         * skrive en test her for å sikre at mock-output og vanlig impl-output blir likt :-)
+         */
+        return InterfaceRecorderWrapper.newInstance(service, clazz, config.getReportCallback(), config.getInterfaceRecorderConfig());
     }
 
-    public static boolean recordingIsOn() {
-        return recordingOn;
-    }
-
+    /**
+     * Starts recording data.
+     * 
+     * @see #isRecordingOn()
+     * @see #stop()
+     */
     public static void start() {
-        if (!recordingIsOn()) {
+        assertInitialized();
+        if (!isRecordingOn()) {
             for (DatabaseRecorder dbRecorder : databaseRecorders) {
                 dbRecorder.start();
             }
@@ -56,8 +137,15 @@ public class Skuldsku {
         }
     }
 
+    /**
+     * Stops recording data.
+     * 
+     * @see #isRecordingOn()
+     * @see #start()
+     */
     public static void stop() {
-        if (recordingIsOn()) {
+        assertInitialized();
+        if (isRecordingOn()) {
             for (DatabaseRecorder dbRecorder : databaseRecorders) {
                 dbRecorder.stop();
             }

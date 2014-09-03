@@ -27,7 +27,7 @@ public class LogRunner implements Runnable {
     }
 
     private boolean doLog() {
-        return Skuldsku.recordingIsOn();
+        return Skuldsku.isRecordingOn();
     }
 
     private void logEvent() {

@@ -1,12 +1,19 @@
 package no.steria.skuldsku.example.basicservlet;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
+import no.steria.skuldsku.recorder.recorders.AbstractRecorderCommunicator;
+import no.steria.skuldsku.recorder.recorders.DatabaseRecorderCommunicator;
+import no.steria.skuldsku.recorder.recorders.StreamRecorderCommunicator;
+
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.server.handler.ShutdownHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
-
-import java.io.File;
 
 public class WebServer {
     private final Integer port;
@@ -21,11 +28,41 @@ public class WebServer {
     }
 
     public static void main(String[] args) throws Exception {
+        setUpSkuldsku();
+        
         String warFile = null;
         if (args.length > 0) {
             warFile = args[0];
         }
         new WebServer(getPort(8081),warFile).start();
+    }
+    
+    private static void setUpSkuldsku() {
+        final SkuldskuConfig config = new SkuldskuConfig();
+        AbstractRecorderCommunicator c = createRecorderCommunicator();
+        config.setReportCallback(c);
+        config.setCallReporter(c);
+        Skuldsku.initialize(config);
+        Skuldsku.start();
+    }
+    
+    private static AbstractRecorderCommunicator createRecorderCommunicator() {
+        if ("debug".equalsIgnoreCase(System.getProperty("mode"))) {
+            System.out.println("DEBUG....");
+            OutputStream out = System.out;
+            String outfile = System.getProperty("outfile");
+            if (outfile != null && !outfile.isEmpty()) {
+                System.out.println("Writing to file " + outfile);
+                try {
+                    out = new FileOutputStream(new File(outfile));
+                } catch (FileNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return new StreamRecorderCommunicator(out);
+        }
+        System.out.println("With DB...");
+        return new DatabaseRecorderCommunicator(OraclePlaceDao.getDataSource());
     }
 
     private void start() throws Exception {

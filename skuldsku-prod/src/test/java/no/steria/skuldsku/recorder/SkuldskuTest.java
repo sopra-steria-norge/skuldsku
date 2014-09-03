@@ -21,7 +21,7 @@ import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class RecorderTest {
+public class SkuldskuTest {
 
     @Mock
     private DatabaseRecorder databaseRecorder1;
@@ -42,30 +42,38 @@ public class RecorderTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        SkuldskuAccessor.reset();
+        Skuldsku.initialize(new SkuldskuConfig());
         Skuldsku.initializeDatabaseRecorders(Arrays.asList(databaseRecorder1, databaseRecorder2));
-        Skuldsku.stop();
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void canOnlyCallInitializeOnce() {
+        // Note: initialize already called in setUp.
+        Skuldsku.initialize(new SkuldskuConfig());
     }
 
     @Test
     public void shouldTurnOnWhenStartIsCalledAndOffWhenStopIsCalled() throws SQLException {
+        assertFalse(Skuldsku.isRecordingOn());
         Skuldsku.start();
-        assertTrue(Skuldsku.recordingIsOn());
+        assertTrue(Skuldsku.isRecordingOn());
         Skuldsku.stop();
-        assertFalse(Skuldsku.recordingIsOn());
+        assertFalse(Skuldsku.isRecordingOn());
         Skuldsku.start();
-        assertTrue(Skuldsku.recordingIsOn());
+        assertTrue(Skuldsku.isRecordingOn());
         Skuldsku.stop();
-        assertFalse(Skuldsku.recordingIsOn());
+        assertFalse(Skuldsku.isRecordingOn());
     }
 
     @Test
     public void shouldAlsoTurnOnAndOffWhenNoDatabaseRecorder() throws SQLException {
         Skuldsku.initializeDatabaseRecorders(new ArrayList<DatabaseRecorder>(0));
-        assertFalse(Skuldsku.recordingIsOn());
+        assertFalse(Skuldsku.isRecordingOn());
         Skuldsku.start();
-        assertTrue(Skuldsku.recordingIsOn());
+        assertTrue(Skuldsku.isRecordingOn());
         Skuldsku.stop();
-        Assert.assertFalse(Skuldsku.recordingIsOn());
+        Assert.assertFalse(Skuldsku.isRecordingOn());
     }
 
     @Test

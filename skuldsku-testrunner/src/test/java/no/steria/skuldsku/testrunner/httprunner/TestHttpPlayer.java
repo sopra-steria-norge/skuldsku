@@ -1,8 +1,11 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
 import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuAccessor;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
 import no.steria.skuldsku.recorder.httprecorder.CallReporter;
 import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +29,8 @@ public class TestHttpPlayer {
 
     @Before
     public void setUp() throws SQLException {
+        SkuldskuAccessor.reset();
+        Skuldsku.initialize(new SkuldskuConfig());
         Skuldsku.start();
     }
 

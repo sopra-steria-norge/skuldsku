@@ -40,7 +40,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
         } catch (InvocationTargetException e) { //TODO ikh: is this necessary?
             throw e.getTargetException();
         } finally {
-            if (Skuldsku.recordingIsOn()) {
+            if (Skuldsku.isRecordingOn()) {
                 try {
                     RecorderLog.debug("IRW: Logging..");
                     String className = obj.getClass().getName();

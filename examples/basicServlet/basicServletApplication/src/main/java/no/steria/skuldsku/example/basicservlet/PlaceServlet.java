@@ -1,17 +1,16 @@
 package no.steria.skuldsku.example.basicservlet;
 
-import no.steria.skuldsku.example.basicservlet.recorder.FilterRecorder;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
+
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
 
 public class PlaceServlet extends HttpServlet {
     private PlaceDao placeDao;
@@ -82,15 +81,16 @@ public class PlaceServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        PlaceDao pd = createPlaceDao();
-        placeDao = createRecorderWrapper(pd);
+        placeDao = createRecorderWrapper();
     }
 
-    private PlaceDao createRecorderWrapper(PlaceDao pd) {
-        return InterfaceRecorderWrapper.newInstance(pd,
-                PlaceDao.class,
-                FilterRecorder.recorder,
-                InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+    private PlaceDao createRecorderWrapper() {
+        return Skuldsku.wrap(PlaceDao.class, new InstantiationCallback<PlaceDao>() {
+            @Override
+            public PlaceDao create() {
+                return createPlaceDao();
+            }
+        });
     }
 
     private PlaceDao createPlaceDao() {

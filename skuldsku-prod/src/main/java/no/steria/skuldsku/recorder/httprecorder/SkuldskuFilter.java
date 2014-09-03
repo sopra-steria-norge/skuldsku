@@ -1,19 +1,29 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
-import no.steria.skuldsku.recorder.Skuldsku;
-import no.steria.skuldsku.recorder.logging.RecorderLog;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 /**
  * Filter for recording HTTP interactions.
  */
-public abstract class SkuldskuFilter implements Filter{
+public class SkuldskuFilter implements Filter{
 
     public static long getRequestId() {
         Long id = requestId.get();
@@ -27,7 +37,7 @@ public abstract class SkuldskuFilter implements Filter{
 
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(!Skuldsku.recordingIsOn()){
+        if(!Skuldsku.isRecordingOn()){
             chain.doFilter(request, response);
             return;
         }
@@ -86,8 +96,17 @@ public abstract class SkuldskuFilter implements Filter{
         reportObject.setPath(path.toString());
     }
 
-    public abstract CallReporter getReporter();
-
-
-
+    public CallReporter getReporter() {
+        return Skuldsku.getSkuldskuConfig().getCallReporter();
+    }
+    
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        
+    }
+    
+    @Override
+    public void destroy() {
+        
+    }
 }

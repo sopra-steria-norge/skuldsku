@@ -1,8 +1,28 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.SQLException;
+import java.util.List;
+
 import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuAccessor;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
 import no.steria.skuldsku.recorder.httprecorder.testjetty.JettyServer;
 import no.steria.skuldsku.recorder.httprecorder.testjetty.TestFilter;
+
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -12,19 +32,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.SQLException;
-import java.util.List;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class ServerFunctionsTest {
 
     @Before
     public void setUp() throws SQLException {
+        SkuldskuAccessor.reset();
+        Skuldsku.initialize(new SkuldskuConfig());
         Skuldsku.start();
     }
 

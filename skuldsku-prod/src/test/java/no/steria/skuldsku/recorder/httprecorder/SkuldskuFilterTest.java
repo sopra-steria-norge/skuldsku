@@ -1,7 +1,10 @@
 package no.steria.skuldsku.recorder.httprecorder;
 
 import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuAccessor;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
 import no.steria.skuldsku.recorder.httprecorder.testjetty.TestFilter;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,6 +16,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 
 import static org.mockito.Mockito.*;
@@ -33,6 +37,8 @@ public class SkuldskuFilterTest {
 
     @Before
     public void setUp() {
+        SkuldskuAccessor.reset();
+        Skuldsku.initialize(new SkuldskuConfig());
         MockitoAnnotations.initMocks(this);
     }
 
