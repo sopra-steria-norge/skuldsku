@@ -23,6 +23,12 @@ public final class SkuldskuConfig {
         
     }
     
+    SkuldskuConfig(SkuldskuConfig config) {
+        this.databaseRecorders.addAll(config.databaseRecorders);
+        this.reportCallback = config.reportCallback;
+        this.callReporter = config.callReporter;
+    }
+    
     
     public void setReportCallback(ReportCallback reportCallback) {
         this.reportCallback = reportCallback;

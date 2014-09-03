@@ -32,13 +32,13 @@ public final class Skuldsku {
         if (Skuldsku.config != null) {
             throw new IllegalStateException("Already initialized: This is the second time the initialize method gets called.");
         }
-        // TODO: Copy-constructor:
-        Skuldsku.config = config;
+        Skuldsku.config = new SkuldskuConfig(config);
         initializeDatabaseRecorders(config.getDatabaseRecorders());
     }
     
     /**
      * Only used for testing: Resets Skuldsku to its initial state.
+     * @see SkuldskuAccessor#reset()
      */
     static void reset() {
         config = null;
@@ -47,8 +47,7 @@ public final class Skuldsku {
     }
     
     public static SkuldskuConfig getSkuldskuConfig() {
-        // TODO: Copy-constructor:
-        return config;
+        return new SkuldskuConfig(config);
     }
     
     private static void assertInitialized() {
