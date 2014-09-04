@@ -4,7 +4,7 @@ import java.util.List;
 
 public class InterfaceRecordingChecker {
 
-    public boolean compare(List<RecordedInterfaceCall> expected, List<RecordedInterfaceCall> actual) {
-        return false;
+    public CompareResult compare(List<RecordedInterfaceCall> expected, List<RecordedInterfaceCall> actual) {
+        return null;
     }
 }
