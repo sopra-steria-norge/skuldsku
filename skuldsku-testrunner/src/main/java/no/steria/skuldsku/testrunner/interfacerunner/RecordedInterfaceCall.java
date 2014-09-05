@@ -28,4 +28,28 @@ public class RecordedInterfaceCall {
     public String getResult() {
         return result;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RecordedInterfaceCall that = (RecordedInterfaceCall) o;
+
+        if (!className.equals(that.className)) return false;
+        if (!methodname.equals(that.methodname)) return false;
+        if (!parameters.equals(that.parameters)) return false;
+        if (!result.equals(that.result)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result1 = className.hashCode();
+        result1 = 31 * result1 + methodname.hashCode();
+        result1 = 31 * result1 + parameters.hashCode();
+        result1 = 31 * result1 + result.hashCode();
+        return result1;
+    }
 }
