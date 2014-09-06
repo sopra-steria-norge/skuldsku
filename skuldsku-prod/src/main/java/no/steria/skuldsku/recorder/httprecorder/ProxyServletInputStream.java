@@ -6,12 +6,12 @@ import java.io.IOException;
 public class ProxyServletInputStream extends ServletInputStream {
 
     private final ServletInputStream delegate;
-    private final ReportObject reportObject;
+    private final HttpCall httpCall;
     private StringBuilder result = new StringBuilder();
 
-    public ProxyServletInputStream(ServletInputStream delegate, ReportObject reportObject) {
+    public ProxyServletInputStream(ServletInputStream delegate, HttpCall httpCall) {
         this.delegate = delegate;
-        this.reportObject = reportObject;
+        this.httpCall = httpCall;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ProxyServletInputStream extends ServletInputStream {
     @Override
     public void close() throws IOException {
         if (result != null) {
-            reportObject.setReadInputStream(result.toString());
+            httpCall.setReadInputStream(result.toString());
             result = null;
         }
         delegate.close();

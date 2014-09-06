@@ -1,18 +1,18 @@
 package no.steria.skuldsku.recorder.httprecorder.testjetty;
 
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
 public class TestFilter extends SkuldskuFilter {
-    private static CallReporter myReporter;
+    private static HttpCallPersister myReporter;
 
     public TestFilter() {
     }
 
-    public static void setReporter(CallReporter reporter) {
+    public static void setReporter(HttpCallPersister reporter) {
         myReporter = reporter;
     }
 
@@ -27,7 +27,7 @@ public class TestFilter extends SkuldskuFilter {
     }
 
     @Override
-    public CallReporter getReporter() {
+    public HttpCallPersister getReporter() {
         return myReporter;
     }
 }

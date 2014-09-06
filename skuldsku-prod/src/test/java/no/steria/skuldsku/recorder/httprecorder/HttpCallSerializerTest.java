@@ -4,16 +4,16 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ReportObjectSerializerTest {
+public class HttpCallSerializerTest {
 
     @Test
     public void shouldSerializeSingelElement() throws Exception {
-        ReportObject reportObject = new ReportObject()
+        HttpCall httpCall = new HttpCall()
                 .setMethod("GET").setPath("/mypath").setOutput("<html><body><h1>This is my output</h1></body></html>");
 
-        String serialized = reportObject.serializedString();
+        String serialized = httpCall.serializedString();
 
-        ReportObject copy = ReportObject.parseFromString(serialized);
+        HttpCall copy = HttpCall.parseFromString(serialized);
 
         assertThat(copy).isNotNull();
 

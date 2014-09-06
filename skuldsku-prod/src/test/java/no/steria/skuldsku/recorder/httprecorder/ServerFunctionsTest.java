@@ -43,8 +43,8 @@ public class ServerFunctionsTest {
 
     @Test
     public void shouldReturnName() throws Exception {
-        CallReporter callReporter = mock(CallReporter.class);
-        TestFilter.setReporter(callReporter);
+        HttpCallPersister httpCallPersister = mock(HttpCallPersister.class);
+        TestFilter.setReporter(httpCallPersister);
         JettyServer jettyServer = new JettyServer(0);
         jettyServer.start();
 
@@ -68,14 +68,14 @@ public class ServerFunctionsTest {
             }
             JSONObject received = new JSONObject(res);
             assertThat(received.getString("name")).isEqualTo("Darth Vader");
-            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
-            verify(callReporter).reportCall(captor.capture());
-            ReportObject reportObject = captor.getValue();
+            ArgumentCaptor<HttpCall> captor = ArgumentCaptor.forClass(HttpCall.class);
+            verify(httpCallPersister).reportCall(captor.capture());
+            HttpCall httpCall = captor.getValue();
 
-            assertThat(reportObject.getMethod()).isEqualTo("POST");
-            assertThat(reportObject.getPath()).isEqualTo("/data");
-            assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
-            assertThat(reportObject.getOutput()).isEqualTo(res);
+            assertThat(httpCall.getMethod()).isEqualTo("POST");
+            assertThat(httpCall.getPath()).isEqualTo("/data");
+            assertThat(httpCall.getReadInputStream()).isEqualTo(postObj.toString());
+            assertThat(httpCall.getOutput()).isEqualTo(res);
 
         } finally {
             jettyServer.stop();
@@ -85,8 +85,8 @@ public class ServerFunctionsTest {
 
     @Test
     public void shouldHandleBasicForms() throws Exception {
-        CallReporter callReporter = mock(CallReporter.class);
-        TestFilter.setReporter(callReporter);
+        HttpCallPersister httpCallPersister = mock(HttpCallPersister.class);
+        TestFilter.setReporter(httpCallPersister);
         JettyServer jettyServer = new JettyServer(0);
         jettyServer.start();
 
@@ -102,9 +102,9 @@ public class ServerFunctionsTest {
 
             assertThat(browser.getPageSource()).contains("Your name is Darth Vader");
 
-            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
-            verify(callReporter,times(2)).reportCall(captor.capture());
-            List<ReportObject> allValues = captor.getAllValues();
+            ArgumentCaptor<HttpCall> captor = ArgumentCaptor.forClass(HttpCall.class);
+            verify(httpCallPersister,times(2)).reportCall(captor.capture());
+            List<HttpCall> allValues = captor.getAllValues();
 
             assertThat(allValues.get(1).getReadInputStream()).isEqualTo("firstname=Darth&lastname=Vader&doPerson=Do+it");
 

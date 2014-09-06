@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 public class ProxyBufferedReader extends BufferedReader {
-    public ProxyBufferedReader(BufferedReader reader, ReportObject reportObject) {
+    public ProxyBufferedReader(BufferedReader reader, HttpCall httpCall) {
         super(reader);
     }
 

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ReportObject implements Serializable {
+public class HttpCall implements Serializable {
     private String readInputStream;
     private Map<String,String> parameters = new HashMap<>();
     private String method;
@@ -15,7 +15,7 @@ public class ReportObject implements Serializable {
     private String output;
     private Map<String, List<String>> headers;
 
-    public ReportObject setReadInputStream(String readInputStream) {
+    public HttpCall setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
         return this;
     }
@@ -32,7 +32,7 @@ public class ReportObject implements Serializable {
         return method;
     }
 
-    public ReportObject setMethod(String method) {
+    public HttpCall setMethod(String method) {
         this.method = method;
         return this;
     }
@@ -41,7 +41,7 @@ public class ReportObject implements Serializable {
         return path;
     }
 
-    public ReportObject setPath(String path) {
+    public HttpCall setPath(String path) {
         this.path = path;
         return this;
     }
@@ -50,7 +50,7 @@ public class ReportObject implements Serializable {
         return output;
     }
 
-    public ReportObject setOutput(String output) {
+    public HttpCall setOutput(String output) {
         this.output = output;
         return this;
     }
@@ -60,8 +60,8 @@ public class ReportObject implements Serializable {
         return serialized;
     }
 
-    public static ReportObject parseFromString(String serializedStr) {
-        return (ReportObject) new ClassSerializer().asObject(serializedStr);
+    public static HttpCall parseFromString(String serializedStr) {
+        return (HttpCall) new ClassSerializer().asObject(serializedStr);
     }
 
     public void setHeaders(Map<String, List<String>> headers) {

@@ -7,7 +7,7 @@ import javax.sql.DataSource;
 
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ReportCallback;
@@ -17,7 +17,7 @@ public final class SkuldskuConfig {
     private final List<DatabaseRecorder> databaseRecorders = new ArrayList<DatabaseRecorder>();
     
     private ReportCallback reportCallback = null; // TODO: Default value
-    private CallReporter callReporter = null;
+    private HttpCallPersister httpCallPersister = null;
     
     public SkuldskuConfig() {
         
@@ -38,12 +38,12 @@ public final class SkuldskuConfig {
         return reportCallback;
     }
     
-    public void setCallReporter(CallReporter callReporter) {
-        this.callReporter = callReporter;
+    public void setHttpCallPersister(HttpCallPersister httpCallPersister) {
+        this.httpCallPersister = httpCallPersister;
     }
     
-    public CallReporter getCallReporter() {
-        return callReporter;
+    public HttpCallPersister getHttpCallPersister() {
+        return httpCallPersister;
     }
     
     
