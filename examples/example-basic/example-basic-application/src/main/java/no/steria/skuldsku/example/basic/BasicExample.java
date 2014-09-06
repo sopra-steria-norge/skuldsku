@@ -2,7 +2,6 @@ package no.steria.skuldsku.example.basic;
 
 import java.io.File;
 
-import no.steria.skuldsku.example.basic.impl.OraclePlaceDao;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
 
@@ -22,8 +21,7 @@ public class BasicExample {
     
     
     private static void setUpSkuldsku() {
-        final SkuldskuConfig config = new SkuldskuConfig(OraclePlaceDao.getDataSource());
-        Skuldsku.initialize(config);
+        Skuldsku.initialize(new SkuldskuConfig("data.txt"));
         Skuldsku.start();
     }
 

@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import no.steria.skuldsku.example.basic.impl.OraclePlaceDao;
+import no.steria.skuldsku.example.basic.impl.InMemoryPlaceDao;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
 
@@ -28,7 +28,7 @@ public class PlaceServlet extends HttpServlet {
         return Skuldsku.wrap(PlaceDao.class, new InstantiationCallback<PlaceDao>() {
             @Override
             public PlaceDao create() {
-                return new OraclePlaceDao();
+                return new InMemoryPlaceDao();
             }
         });
     }

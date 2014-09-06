@@ -1,5 +1,6 @@
 package no.steria.skuldsku.recorder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.Inter
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
 import no.steria.skuldsku.recorder.recorders.AbstractRecorderCommunicator;
 import no.steria.skuldsku.recorder.recorders.DatabaseRecorderCommunicator;
+import no.steria.skuldsku.recorder.recorders.FileRecorderCommunicator;
 
 public final class SkuldskuConfig {
 
@@ -23,6 +25,16 @@ public final class SkuldskuConfig {
     
     public SkuldskuConfig() {
         
+    }
+    
+    public SkuldskuConfig(String outputFile) {
+        try {
+            final FileRecorderCommunicator frc = new FileRecorderCommunicator(outputFile);
+            javaIntefaceCallPersister = frc;
+            httpCallPersister = frc;
+        } catch (IOException e) {
+            throw new RuntimeException (e);
+        }
     }
 
     public SkuldskuConfig(DataSource dataSource) {
