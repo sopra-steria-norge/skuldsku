@@ -5,6 +5,8 @@ Skuldsku
 
 Skuldsku is a Java library for automating input/output based regression testing. The most common use case for the library is the recording of inputs and outputs from a system in a production environment, and using the recorded data in order to run regression tests on a new version of the system.
 
+![Blackbox system](site/blackbox.png)
+
 # Features
 * Records requests and responses from: HTTP, Java interface implementations and database.
 * Playback of recorded HTTP requests even when there is CSRF-protection.
