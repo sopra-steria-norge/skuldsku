@@ -94,12 +94,6 @@ public class PlaceServlet extends HttpServlet {
     }
 
     private PlaceDao createPlaceDao() {
-        PlaceDao placeD;
-        if ("debug".equalsIgnoreCase(System.getProperty("mode"))) {
-            placeD = new MemoryPlaceDao();
-        } else {
-            placeD = new OraclePlaceDao();
-        }
-        return placeD;
+        return new OraclePlaceDao();
     }
 }

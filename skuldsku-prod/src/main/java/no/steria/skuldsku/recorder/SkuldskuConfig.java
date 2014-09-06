@@ -11,6 +11,8 @@ import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
+import no.steria.skuldsku.recorder.recorders.AbstractRecorderCommunicator;
+import no.steria.skuldsku.recorder.recorders.DatabaseRecorderCommunicator;
 
 public final class SkuldskuConfig {
 
@@ -21,6 +23,12 @@ public final class SkuldskuConfig {
     
     public SkuldskuConfig() {
         
+    }
+
+    public SkuldskuConfig(DataSource dataSource) {
+        final AbstractRecorderCommunicator arc = new DatabaseRecorderCommunicator(dataSource);
+        javaIntefaceCallPersister = arc;
+        httpCallPersister = arc;
     }
     
     SkuldskuConfig(SkuldskuConfig config) {

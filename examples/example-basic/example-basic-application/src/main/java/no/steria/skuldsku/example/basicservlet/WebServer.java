@@ -38,32 +38,13 @@ public class WebServer {
     }
     
     private static void setUpSkuldsku() {
-        final SkuldskuConfig config = new SkuldskuConfig();
-        AbstractRecorderCommunicator c = createRecorderCommunicator();
-        config.setJavaIntefaceCallPersister(c);
-        config.setHttpCallPersister(c);
+        final SkuldskuConfig config = new SkuldskuConfig(OraclePlaceDao.getDataSource());
+
         Skuldsku.initialize(config);
         Skuldsku.start();
     }
     
-    private static AbstractRecorderCommunicator createRecorderCommunicator() {
-        if ("debug".equalsIgnoreCase(System.getProperty("mode"))) {
-            System.out.println("DEBUG....");
-            OutputStream out = System.out;
-            String outfile = System.getProperty("outfile");
-            if (outfile != null && !outfile.isEmpty()) {
-                System.out.println("Writing to file " + outfile);
-                try {
-                    out = new FileOutputStream(new File(outfile));
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return new StreamRecorderCommunicator(out);
-        }
-        System.out.println("With DB...");
-        return new DatabaseRecorderCommunicator(OraclePlaceDao.getDataSource());
-    }
+
 
     private void start() throws Exception {
         Server server = createServer();
@@ -76,7 +57,6 @@ public class WebServer {
 
         WebAppContext webAppContext;
         webAppContext = new WebAppContext();
-        // webAppContext.getInitParams().put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false");
         webAppContext.setContextPath("/");
 
         if (isDevEnviroment()) {
