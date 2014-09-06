@@ -22,8 +22,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private final TransactionManager transactionManager;
 
-    private boolean initialized = false;
-
+    
     public OracleDatabaseRecorder(DataSource dataSource) {
         this(new SimpleTransactionManager(dataSource), new ArrayList<String>(0));
     }
@@ -40,20 +39,19 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     @Override
     public void initialize() {
-        prepareDatabaseForRecording();
-        initialized = true;
+        transactionManager.doInTransaction(new TransactionCallback<Object>() {
+            @Override
+            public Object callback(Jdbc jdbc) {
+                createRecorderTableIfNotExists(jdbc);
+                createDbSequenceIfNotExists(jdbc);
+                return null;
+            }
+        });
     }
 
     @Override
     public void start() {
-        if (initialized) {
-            createTriggersInTransaction();
-        } else {
-            // If initialize has not run, we risk obstructing the application under recording if running
-            // this method anyway. This check causes a slight overhead, but I believe it is worth it for the extra security.
-            RecorderLog.error("You cannot call start() on " + DatabaseRecorder.class.getSimpleName() +
-                    " before you have called initialize(). Database calls are NOT being recorded.");
-        }
+        createTriggersInTransaction();
     }
 
     @Override
@@ -157,17 +155,6 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     List<String> getTriggerNames(Jdbc jdbc) {
         return jdbc.queryForList("SELECT TRIGGER_NAME FROM USER_TRIGGERS", String.class);
-    }
-
-    private void prepareDatabaseForRecording() {
-        transactionManager.doInTransaction(new TransactionCallback<Object>() {
-            @Override
-            public Object callback(Jdbc jdbc) {
-                createRecorderTableIfNotExists(jdbc);
-                createDbSequenceIfNotExists(jdbc);
-                return null;
-            }
-        });
     }
 
     private void createRecorderTableIfNotExists(Jdbc jdbc) {
