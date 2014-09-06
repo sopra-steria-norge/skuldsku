@@ -1,7 +1,8 @@
-package no.steria.skuldsku.example.basicservlet;
+package no.steria.skuldsku.example.basic;
 
 import java.io.File;
 
+import no.steria.skuldsku.example.basic.impl.OraclePlaceDao;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
 
@@ -9,6 +10,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+/**
+ * The main entry point for the example application.
+ */
 public class BasicExample {
 
     public static void main(String[] args) throws Exception {

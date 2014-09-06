@@ -1,12 +1,17 @@
-package no.steria.skuldsku.example.basicservlet;
+package no.steria.skuldsku.example.basic.impl;
 
-import oracle.jdbc.pool.OracleConnectionPoolDataSource;
-import oracle.jdbc.pool.OracleDataSource;
-
-import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
+
+import no.steria.skuldsku.example.basic.PlaceDao;
+import oracle.jdbc.pool.OracleConnectionPoolDataSource;
 
 public class OraclePlaceDao implements PlaceDao {
     private static DataSource dataSource = setup();
@@ -28,6 +33,7 @@ public class OraclePlaceDao implements PlaceDao {
         }
     }
 
+    
     public static DataSource getDataSource() {
         return dataSource;
     }
@@ -47,16 +53,19 @@ public class OraclePlaceDao implements PlaceDao {
     @Override
     public List<String> findMatches(String part) {
         if (part == null) {
-            part = "";
+            return new ArrayList<>();
         }
+        
+        final List<String> result = new ArrayList<>();
         String a = "select name from PLACES where upper(name) like '%" + part + "%'";
         try (Connection conn = dataSource.getConnection()) {
             Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(a);
-
+            try (ResultSet resultSet = statement.executeQuery(a)) {
+                result.add(resultSet.getString(1)); 
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return new ArrayList<>();
+        return result;
     }
 }

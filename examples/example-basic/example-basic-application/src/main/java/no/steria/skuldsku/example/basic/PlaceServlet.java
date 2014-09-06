@@ -1,4 +1,4 @@
-package no.steria.skuldsku.example.basicservlet;
+package no.steria.skuldsku.example.basic;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,12 +9,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import no.steria.skuldsku.example.basic.impl.OraclePlaceDao;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
 
 public class PlaceServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    
     private PlaceDao placeDao;
 
+    
+    @Override
+    public void init() throws ServletException {
+        placeDao = createPlaceDao();
+    }
+    
+    private PlaceDao createPlaceDao() {
+        return Skuldsku.wrap(PlaceDao.class, new InstantiationCallback<PlaceDao>() {
+            @Override
+            public PlaceDao create() {
+                return new OraclePlaceDao();
+            }
+        });
+    }
+    
+    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html");
@@ -63,6 +82,7 @@ public class PlaceServlet extends HttpServlet {
         ;
     }
 
+    
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         placeDao.addPlace(req.getParameter("name"));
@@ -77,23 +97,5 @@ public class PlaceServlet extends HttpServlet {
                 .append("<p>Place added</p>")
                 .append("</body></html>")
         ;
-    }
-
-    @Override
-    public void init() throws ServletException {
-        placeDao = createRecorderWrapper();
-    }
-
-    private PlaceDao createRecorderWrapper() {
-        return Skuldsku.wrap(PlaceDao.class, new InstantiationCallback<PlaceDao>() {
-            @Override
-            public PlaceDao create() {
-                return createPlaceDao();
-            }
-        });
-    }
-
-    private PlaceDao createPlaceDao() {
-        return new OraclePlaceDao();
     }
 }

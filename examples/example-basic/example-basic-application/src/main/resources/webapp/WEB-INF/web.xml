@@ -7,7 +7,7 @@
 
     <servlet>
         <servlet-name>placeServlet</servlet-name>
-        <servlet-class>no.steria.skuldsku.example.basicservlet.PlaceServlet</servlet-class>
+        <servlet-class>no.steria.skuldsku.example.basic.PlaceServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>placeServlet</servlet-name>
