@@ -1,4 +1,4 @@
-package no.steria.skuldsku.example.basicservlet;
+package no.steria.skuldsku.example.basic.test;
 
 import java.util.List;
 

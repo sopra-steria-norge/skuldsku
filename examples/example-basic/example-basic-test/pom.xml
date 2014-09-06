@@ -35,7 +35,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>no.steria.skuldsku.example.basicservlet.RunPlayback</mainClass>
+                            <mainClass>no.steria.skuldsku.example.basic.test.RunPlayback</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
