@@ -3,7 +3,7 @@ Skuldsku
 
 > "Automated input/output based regression testing made simple!"
 
-Skuldsku is a Java library for automating input/output based regression testing. The most common use case for the library is the recording of inputs and outputs in a production environment, and using the recorded data
+Skuldsku is a Java library for automating input/output based regression testing. The most common use case for the library is the recording of inputs and outputs from a system in a production environment, and using the recorded data in order to run regression tests on a new version of the system.
 
 # Features
 * Records requests and responses from: HTTP, Java interface implementations and database.

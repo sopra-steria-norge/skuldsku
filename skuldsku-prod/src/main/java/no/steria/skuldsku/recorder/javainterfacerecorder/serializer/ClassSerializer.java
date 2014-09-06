@@ -171,6 +171,7 @@ public class ClassSerializer {
                     .replaceAll("&eq", "=")
                     .replaceAll("&lt", "<")
                     .replaceAll("&gt", ">")
+                    .replaceAll("&percent","%")
                     .replaceAll("&newline", "\n");
         }
         return value;
@@ -246,6 +247,7 @@ public class ClassSerializer {
                     .replaceAll("<", "&lt")
                     .replaceAll(">", "&gt")
                     .replaceAll("=", "&eq")
+                    .replaceAll("%","&percent")
                     .replaceAll("\n","&newline");
         }
         String classname = fieldValue.getClass().getName();
