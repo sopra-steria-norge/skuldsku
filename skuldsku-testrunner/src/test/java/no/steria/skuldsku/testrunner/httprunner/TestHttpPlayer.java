@@ -3,9 +3,9 @@ package no.steria.skuldsku.testrunner.httprunner;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuAccessor;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
 
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class TestHttpPlayer {
                 res = toString(is);
             }
 
-            CallReporter callReporter = mock(CallReporter.class);
+            HttpCallPersister callReporter = mock(HttpCallPersister.class);
             TestFilter.setReporter(callReporter);
 
 
@@ -67,9 +67,9 @@ public class TestHttpPlayer {
             HttpPlayer player = new HttpPlayer(baseurl);
             player.play(reporter.getPlayBook());
 
-            ArgumentCaptor<ReportObject> captor = ArgumentCaptor.forClass(ReportObject.class);
+            ArgumentCaptor<HttpCall> captor = ArgumentCaptor.forClass(HttpCall.class);
             verify(callReporter).reportCall(captor.capture());
-            ReportObject reportObject = captor.getValue();
+            HttpCall reportObject = captor.getValue();
 
             assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
             assertThat(reportObject.getOutput()).isEqualTo(res);
@@ -100,7 +100,7 @@ public class TestHttpPlayer {
             browser.findElement(By.name("lastname")).sendKeys("Vader");
             browser.findElement(By.name("doPerson")).click();
 
-            CallReporter callReporter = mock(CallReporter.class);
+            HttpCallPersister callReporter = mock(HttpCallPersister.class);
             TestFilter.setReporter(callReporter);
 
 

@@ -41,7 +41,7 @@ public class WebServer {
         final SkuldskuConfig config = new SkuldskuConfig();
         AbstractRecorderCommunicator c = createRecorderCommunicator();
         config.setReportCallback(c);
-        config.setCallReporter(c);
+        config.setHttpCallPersister(c);
         Skuldsku.initialize(config);
         Skuldsku.start();
     }

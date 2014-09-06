@@ -1,7 +1,7 @@
 package no.steria.skuldsku.testrunner.httprunner.fileplayback;
 
 import au.com.bytecode.opencsv.CSVReader;
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.PlayStep;
 import no.steria.skuldsku.testrunner.httprunner.StreamHttpPlayBack;
@@ -38,8 +38,8 @@ public class StreamHttpPlayBackTest {
 
        ArgumentCaptor<PlayStep> playStep = ArgumentCaptor.forClass(PlayStep.class);
         verify(httpPlayer, times(2)).playStep(playStep.capture());
-        ReportObject reportObject1 = playStep.getAllValues().get(0).getReportObject();
-        ReportObject reportObject2 = playStep.getAllValues().get(1).getReportObject();
+        HttpCall reportObject1 = playStep.getAllValues().get(0).getReportObject();
+        HttpCall reportObject2 = playStep.getAllValues().get(1).getReportObject();
 
         assertEquals("GET", reportObject1.getMethod());
         assertEquals("POST", reportObject2.getMethod());

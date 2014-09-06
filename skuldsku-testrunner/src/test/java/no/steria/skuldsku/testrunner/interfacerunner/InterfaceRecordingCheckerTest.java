@@ -1,5 +1,6 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedInterfaceCall;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import org.junit.Test;
 
