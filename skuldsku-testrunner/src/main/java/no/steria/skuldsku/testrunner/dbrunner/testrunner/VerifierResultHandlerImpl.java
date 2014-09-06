@@ -1,16 +1,16 @@
 package no.steria.skuldsku.testrunner.dbrunner.testrunner;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
 
 public class VerifierResultHandlerImpl implements VerifierResultHandler {
 
     @Override
-    public void handle(VerifierResult result) {
+    public void handle(DatabaseVerifierResult result) {
         for (DatabaseChange expectedDatabaseChange : result.getMissingFromActual()) {
             throw new IllegalStateException("Cannot find actual data matching expected data on line: " + expectedDatabaseChange.getLineNumber());
         }
-        for (VerifierResult.VerifierResultPair pair : result.getNotEquals()) {
+        for (DatabaseVerifierResult.VerifierResultPair pair : result.getNotEquals()) {
             throw new IllegalStateException("The actual data on line " + pair.getActual().getLineNumber()
                     + " does not match the expected data on line number " + pair.getExpected().getLineNumber());
         }

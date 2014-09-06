@@ -4,16 +4,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class VerifierOptions {
+public final class DatabaseVerifierOptions {
 
     private final Set<String> skipFields;
     
-    public VerifierOptions() {
+    public DatabaseVerifierOptions() {
         this.skipFields = new HashSet<String>(getDefaultSkipFields());
     }
     
-    public VerifierOptions(VerifierOptions verifierOptions) {
-        this.skipFields = new HashSet<String>(verifierOptions.getSkipFields());
+    public DatabaseVerifierOptions(DatabaseVerifierOptions databaseVerifierOptions) {
+        this.skipFields = new HashSet<String>(databaseVerifierOptions.getSkipFields());
     }
     
     

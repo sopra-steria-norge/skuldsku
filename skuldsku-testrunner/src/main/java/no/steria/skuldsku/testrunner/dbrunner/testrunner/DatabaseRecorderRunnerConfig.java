@@ -1,7 +1,7 @@
 package no.steria.skuldsku.testrunner.dbrunner.testrunner;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers.BestFitDatabaseChangeVerifier;
 
 import java.io.File;
@@ -10,13 +10,13 @@ public class DatabaseRecorderRunnerConfig {
 
     private DatabaseChangeVerifier databaseChangeVerifier;
     private File baseDirectory;
-    private VerifierOptions defaultVerifierOptions;
+    private DatabaseVerifierOptions defaultVerifierOptions;
     private boolean rollbackEnabled;
     private VerifierResultHandler verifierResultHandler;
     
     
     public DatabaseRecorderRunnerConfig() {
-        this.defaultVerifierOptions = new VerifierOptions();
+        this.defaultVerifierOptions = new DatabaseVerifierOptions();
         this.baseDirectory = new File("src/test/resources");
         this.databaseChangeVerifier = new BestFitDatabaseChangeVerifier();
         this.rollbackEnabled = true;
@@ -32,7 +32,7 @@ public class DatabaseRecorderRunnerConfig {
         return verifierResultHandler;
     }
     
-    public void setDefaultVerifierOptions(VerifierOptions defaultVerifierOptions) {
+    public void setDefaultVerifierOptions(DatabaseVerifierOptions defaultVerifierOptions) {
         this.defaultVerifierOptions = defaultVerifierOptions;
     }
     
@@ -56,7 +56,7 @@ public class DatabaseRecorderRunnerConfig {
         return baseDirectory;
     }
 
-    public VerifierOptions getDefaultVerifierOptions() {
+    public DatabaseVerifierOptions getDefaultVerifierOptions() {
         return defaultVerifierOptions;
     }
     

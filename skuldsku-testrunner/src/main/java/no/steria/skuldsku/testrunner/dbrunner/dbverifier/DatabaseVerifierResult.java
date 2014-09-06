@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class VerifierResult {
+public final class DatabaseVerifierResult {
     
     private final List<DatabaseChange> missingFromActual = new ArrayList<DatabaseChange>();
     private final List<DatabaseChange> additionalInActual = new ArrayList<DatabaseChange>();
@@ -14,12 +14,12 @@ public final class VerifierResult {
     private final List<String> assertionFailed = new ArrayList<String>();
     
     
-    public VerifierResult() {
+    public DatabaseVerifierResult() {
         
     }
     
-    public VerifierResult(Collection<VerifierResult> results) {
-        for (VerifierResult vr : results) {
+    public DatabaseVerifierResult(Collection<DatabaseVerifierResult> results) {
+        for (DatabaseVerifierResult vr : results) {
             missingFromActual.addAll(vr.missingFromActual);
             additionalInActual.addAll(vr.additionalInActual);
             notEquals.addAll(vr.notEquals);

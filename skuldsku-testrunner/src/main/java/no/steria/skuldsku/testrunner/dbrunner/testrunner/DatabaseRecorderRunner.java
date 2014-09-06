@@ -5,8 +5,8 @@ import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -22,7 +22,7 @@ public final class DatabaseRecorderRunner {
     private final DatabaseChangeRollback databaseChangeRollback;
     private final DatabaseChangeVerifier databaseChangeVerifier;
     private final File baseDirectory;
-    private final VerifierOptions defaultVerifierOptions;
+    private final DatabaseVerifierOptions defaultVerifierOptions;
     private final boolean rollbackEnabled;
     private final VerifierResultHandler verifierResultHandler;
     
@@ -49,7 +49,7 @@ public final class DatabaseRecorderRunner {
         this.databaseChangeRollback = databaseChangeRollback;
         this.databaseChangeVerifier = config.getDatabaseChangeVerifier();
         this.baseDirectory = config.getBaseDirectory();
-        this.defaultVerifierOptions = new VerifierOptions(config.getDefaultVerifierOptions());
+        this.defaultVerifierOptions = new DatabaseVerifierOptions(config.getDefaultVerifierOptions());
         this.rollbackEnabled = config.isRollbackEnabled();
         this.verifierResultHandler = config.getVerifierResultHandler();
     }
@@ -59,7 +59,7 @@ public final class DatabaseRecorderRunner {
         recordAndCompare(callback, filename, defaultVerifierOptions);
     }
     
-    public void recordAndCompare(DatabaseRecorderCallback callback, String filename, VerifierOptions verifierOptions) {
+    public void recordAndCompare(DatabaseRecorderCallback callback, String filename, DatabaseVerifierOptions databaseVerifierOptions) {
         final File actualDirectory = createDirectoryIfNotExists(baseDirectory, ACTUAL_DIRECTORY_NAME);
         final File actualFile = new File(actualDirectory, filename);
         
@@ -74,18 +74,18 @@ public final class DatabaseRecorderRunner {
         final File expectedDirectory = createDirectoryIfNotExists(baseDirectory, EXPECTED_DIRECTORY_NAME);
         final File expectedFile = new File(expectedDirectory, filename);
         
-        assertEquals(actualFile, expectedFile, verifierOptions);
+        assertEquals(actualFile, expectedFile, databaseVerifierOptions);
     }
 
-    private void assertEquals(final File actualFile, final File expectedFile, VerifierOptions verifierOptions) {
-        final VerifierResult result;
+    private void assertEquals(final File actualFile, final File expectedFile, DatabaseVerifierOptions databaseVerifierOptions) {
+        final DatabaseVerifierResult result;
         if (expectedFile.exists()) {
             result = databaseChangeVerifier.assertEquals(
                     DatabaseChange.readDatabaseChanges(expectedFile),
                     DatabaseChange.readDatabaseChanges(actualFile),
-                    verifierOptions);
+                    databaseVerifierOptions);
         } else {
-            result = new VerifierResult();
+            result = new DatabaseVerifierResult();
             result.addAssertionFailed("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
                     + "\nIf this is the first execution of the test, you can take a look at the actual data ("
                     + actualFile.getAbsolutePath()

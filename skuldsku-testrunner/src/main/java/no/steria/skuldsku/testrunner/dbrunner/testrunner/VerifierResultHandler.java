@@ -1,9 +1,9 @@
 package no.steria.skuldsku.testrunner.dbrunner.testrunner;
 
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
 
 public interface VerifierResultHandler {
 
-    public void handle(VerifierResult verifierResult);
+    public void handle(DatabaseVerifierResult databaseVerifierResult);
 
 }

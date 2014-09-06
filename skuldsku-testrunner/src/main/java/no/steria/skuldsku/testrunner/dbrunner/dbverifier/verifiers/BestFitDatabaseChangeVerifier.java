@@ -2,8 +2,8 @@ package no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.VerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
 
 import java.util.*;
 
@@ -20,14 +20,14 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
     //     if this.next one's actual value is larger: make n
     
     @Override
-    public VerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, VerifierOptions verifierOptions) {
-        final VerifierResult verifierResult = new VerifierResult();
+    public DatabaseVerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseVerifierOptions databaseVerifierOptions) {
+        final DatabaseVerifierResult databaseVerifierResult = new DatabaseVerifierResult();
         
         /*
          * Sort list so that expected data with best fit (ie the most number of fields match a given
          * actual data row) gets treated first.
          */
-        List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, verifierOptions.getSkipFields());
+        List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, databaseVerifierOptions.getSkipFields());
         
         /*
          * Connect each expected data row to the actual data rows with the best fit. Note that already
@@ -36,24 +36,24 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
         final Set<DatabaseChange> candidates = new HashSet<DatabaseChange>(actual);
         while (!expectedSorted.isEmpty()) {
             final DatabaseChange expectedDatabaseChange = expectedSorted.remove(0);
-            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, verifierOptions.getSkipFields());
+            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, databaseVerifierOptions.getSkipFields());
             if (actualDatabaseChange == null) {
-                verifierResult.addMissingFromActual(expectedDatabaseChange);
+                databaseVerifierResult.addMissingFromActual(expectedDatabaseChange);
             } else {
                 candidates.remove(actualDatabaseChange);
-                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, verifierOptions.getSkipFields());
+                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, databaseVerifierOptions.getSkipFields());
                 if (!match) {
-                    verifierResult.addNotEquals(expectedDatabaseChange, actualDatabaseChange);
+                    databaseVerifierResult.addNotEquals(expectedDatabaseChange, actualDatabaseChange);
                 }
             }
             
-            expectedSorted = createSortedListOnBestFit(expectedSorted, candidates, verifierOptions.getSkipFields());
+            expectedSorted = createSortedListOnBestFit(expectedSorted, candidates, databaseVerifierOptions.getSkipFields());
         }
         for (DatabaseChange unmatchedCandidate : candidates) {
-            verifierResult.addAdditionalInActual(unmatchedCandidate);
+            databaseVerifierResult.addAdditionalInActual(unmatchedCandidate);
         }
         
-        return verifierResult;
+        return databaseVerifierResult;
     }
 
     private static List<DatabaseChange> createSortedListOnBestFit(final Collection<DatabaseChange> expected,

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface DatabaseChangeVerifier {
 
-    public VerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, VerifierOptions verifierOptions);
+    public DatabaseVerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseVerifierOptions databaseVerifierOptions);
     
 }
  
