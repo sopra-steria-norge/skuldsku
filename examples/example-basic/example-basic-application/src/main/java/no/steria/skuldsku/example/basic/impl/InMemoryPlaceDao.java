@@ -22,7 +22,7 @@ public class InMemoryPlaceDao implements PlaceDao {
 
     @Override
     public void addPlace(String name) {
-        InMemoryPlaceDao.add(name);
+        //InMemoryPlaceDao.add(name);
     }
 
     @Override

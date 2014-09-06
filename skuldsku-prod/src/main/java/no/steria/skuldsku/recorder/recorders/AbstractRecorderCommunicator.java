@@ -1,14 +1,14 @@
 package no.steria.skuldsku.recorder.recorders;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
+import java.util.ArrayList;
+import java.util.List;
+
 import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractRecorderCommunicator implements HttpCallPersister, JavaIntefaceCallPersister {
     @Override
@@ -46,6 +46,21 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
             httpCalls.add(recordObject);
         }
         return httpCalls;
+    }
+    
+    public List<JavaInterfaceCall> getJavaInterfaceCalls() {
+        List<String> recordedRecords = getRecordedRecords();
+        List<JavaInterfaceCall> javaInterfaceCalls = new ArrayList<>();
+        for (String record : recordedRecords) {
+            if (!record.startsWith("inter%")) {
+                continue;
+            }
+            ClassSerializer classSerializer = new ClassSerializer();
+            int stpos = record.indexOf("%", 6);
+            JavaInterfaceCall recordObject = (JavaInterfaceCall) classSerializer.asObject(record.substring(stpos));
+            javaInterfaceCalls.add(recordObject);
+        }
+        return javaInterfaceCalls;
     }
 
     @Override

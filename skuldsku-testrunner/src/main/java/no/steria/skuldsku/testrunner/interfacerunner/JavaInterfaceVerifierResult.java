@@ -1,79 +1,42 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
-import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 
 public class JavaInterfaceVerifierResult {
     private final List<JavaInterfaceCall> missingFromActual = new ArrayList<JavaInterfaceCall>();
     private final List<JavaInterfaceCall> additionalInActual = new ArrayList<JavaInterfaceCall>();
     private final List<Pair<JavaInterfaceCall>> notEquals = new ArrayList<Pair<JavaInterfaceCall>>();
 
-    public static JavaInterfaceVerifierResult compare(List<JavaInterfaceCall> expected,List<JavaInterfaceCall> actual) {
-        JavaInterfaceVerifierResult result = new JavaInterfaceVerifierResult();
 
-        int expnum=0;
-        int actnum=0;
-
-        while (expnum < expected.size() && actnum < actual.size()) {
-            JavaInterfaceCall exp = expected.get(expnum);
-            JavaInterfaceCall act = actual.get(actnum);
-
-            if (exp.equals(act)) {
-                expnum++;
-                actnum++;
-                continue;
-            }
-            if (exp.getClassName().equals(act.getClassName()) && exp.getMethodname().equals(act.getMethodname())) {
-                result.notEquals.add(new Pair<JavaInterfaceCall>(exp,act));
-                expnum++;
-                actnum++;
-                continue;
-            }
-
-            int nextMatchInExpected = nextExactMatchIn(act,expnum+1,expected);
-            int nextMatchInActual = nextExactMatchIn(exp,actnum+1,actual);
-
-            if (nextMatchInExpected != -1) {
-                for (int i=expnum;i<nextMatchInExpected;i++) {
-                    result.missingFromActual.add(expected.get(i));
-                }
-                expnum = nextMatchInExpected;
-                continue;
-            }
-            if (nextMatchInActual != -1) {
-                for (int i=actnum;i<nextMatchInActual;i++) {
-                    result.additionalInActual.add(actual.get(i));
-                }
-                actnum = nextMatchInActual;
-                continue;
-            }
-            break;
-        }
-
-        for (int i=expnum;i<expected.size();i++) {
-            result.missingFromActual.add(expected.get(i));
-        }
-        for (int i=actnum;i<actual.size();i++) {
-            result.additionalInActual.add(actual.get(i));
-        }
-
-
-        return result;
+    public JavaInterfaceVerifierResult() {
+        
     }
-
-    private static int nextExactMatchIn(JavaInterfaceCall match, int start, List<JavaInterfaceCall> list) {
-        for (int i=start;i<list.size();i++) {
-            JavaInterfaceCall javaInterfaceCall = list.get(i);
-            if (match.equals(javaInterfaceCall)) {
-                return i;
-            }
+    
+    public JavaInterfaceVerifierResult(Collection<JavaInterfaceVerifierResult> results) {
+        for (JavaInterfaceVerifierResult vr : results) {
+            missingFromActual.addAll(vr.missingFromActual);
+            additionalInActual.addAll(vr.additionalInActual);
+            notEquals.addAll(vr.notEquals);
         }
-        return -1;
     }
-
+    
+    
+    public void addMissingFromActual(JavaInterfaceCall javaInterfaceCall) {
+        missingFromActual.add(javaInterfaceCall);
+    }
+    
+    public void addAdditionalInActual(JavaInterfaceCall javaInterfaceCall) {
+        additionalInActual.add(javaInterfaceCall);
+    }
+    
+    public void addNotEquals(JavaInterfaceCall expected, JavaInterfaceCall actual) {
+        notEquals.add(new Pair<JavaInterfaceCall>(expected, actual));
+    }
+    
     public List<JavaInterfaceCall> getMissingFromActual() {
         return missingFromActual;
     }
