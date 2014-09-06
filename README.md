@@ -16,9 +16,9 @@ Skuldsku is a Java library for automating input/output based regression testing.
 # Modules
 |Module                   |Description|
 |:------------------------|:----------|
-|skuldsku&#8209;prod      |The dependency you need to include in your application in order to record production data.|
-|skuldsku&#8209;testrunner|Functionality for executing a regression test. Normally included as a dependency in a separate project for executing tests for a single application.|
-|[examples](examples/README.md)|Examples on how to use Skuldsku.|
+|[skuldsku&#8209;prod](skuldsku-prod)      |The dependency you need to include in your application in order to record production data.|
+|[skuldsku&#8209;testrunner](skuldsku-testrunner)|Functionality for executing a regression test. Normally included as a dependency in a separate project for executing tests for a single application.|
+|[examples](examples)|Examples on how to use Skuldsku.|
 
 
 
