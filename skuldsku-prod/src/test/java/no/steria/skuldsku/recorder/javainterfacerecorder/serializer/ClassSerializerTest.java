@@ -64,12 +64,12 @@ public class ClassSerializerTest {
 
     @Test
     public void shouldHandleControlCharacters() throws Exception {
-        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("a&;<>bc");
+        ClassWithSimpleFields simpleFields = new ClassWithSimpleFields().setStringval("a&;<>%bc");
         String serialized = serializer.asString(simpleFields);
         ClassWithSimpleFields cloned = (ClassWithSimpleFields) serializer.asObject(serialized);
 
-        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gtbc;intval=0;anotherVar=false>");
-        assertThat(cloned.getStringval()).isEqualTo("a&;<>bc");
+        assertThat(serialized).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=a&amp&semi&lt&gt&percentbc;intval=0;anotherVar=false>");
+        assertThat(cloned.getStringval()).isEqualTo("a&;<>%bc");
     }
 
     @Test
