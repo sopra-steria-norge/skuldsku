@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
 public class HttpPlayer {
     private final String baseUrl;
@@ -26,10 +27,15 @@ public class HttpPlayer {
         manipulators.add(new CookieHandler());
     }
 
+    
+    public void play(String filename) {
+        final List<HttpCall> httpCalls = new FileRecorderReader("data.txt").getRecordedHttp();
+        play(httpCalls);
+    }
 
-    public void play(List<HttpCall> recordedHttp) {
+    public void play(List<HttpCall> httpCalls) {
         List<PlayStep> playBook = new ArrayList<>();
-        for (HttpCall httpCall : recordedHttp) {
+        for (HttpCall httpCall : httpCalls) {
             playBook.add(new PlayStep(httpCall));
         }
         playSteps(playBook);
