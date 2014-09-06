@@ -1,4 +1,4 @@
-package no.steria.skuldsku.testrunner.interfacerunner;
+package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 public class RecordedInterfaceCall {
     private String className;

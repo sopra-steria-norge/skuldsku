@@ -1,5 +1,7 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedInterfaceCall;
+
 import java.util.List;
 
 public class InterfaceRecordingChecker {
