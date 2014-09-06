@@ -23,4 +23,8 @@ Skuldsku is a Java library for automating input/output based regression testing.
 # License
 Skuldsku is licensed under [LGPL version 2.1 or later](LICENSE.txt).
 
+
+<br />
+
+-------------------------
 Copyright (C) 2014 Steria
