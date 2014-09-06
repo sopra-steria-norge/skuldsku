@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>no.steria.skuldsku</groupId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <artifactId>skuldsku-all</artifactId>
+
+    <modules>
+         <module>../skuldsku-prod</module>
+         <module>../skuldsku-testrunner</module>
+         <module>../examples/example-basic/example-basic-application</module>
+         <module>../examples/example-basic/example-basic-test</module>
+    </modules>    
+</project>
