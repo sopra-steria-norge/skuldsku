@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class InterfaceRecordingCheckerTest {
+public class JavaInterfaceVerifierTest {
     private static class Simple {
         private String value;
     }
@@ -29,9 +29,9 @@ public class InterfaceRecordingCheckerTest {
         String para = classSerializer.asString("para");
         JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
         JavaInterfaceCall b = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
-        JavaInterfaceVerifierResult verifierResult = JavaInterfaceVerifierResult.compare(Arrays.asList(a), Arrays.asList(b));
 
-        assertThat(verifierResult.getNotEquals()).isEmpty();
+
+
     }
 
     @Test
@@ -42,9 +42,10 @@ public class InterfaceRecordingCheckerTest {
         JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", classSerializer.asString("parax"), classSerializer.asString(simple));
         JavaInterfaceCall b = new JavaInterfaceCall("Service", "doIt", classSerializer.asString("para"), classSerializer.asString(simple));
 
-        JavaInterfaceVerifierResult verifierResult = JavaInterfaceVerifierResult.compare(Arrays.asList(a), Arrays.asList(b));
-
-        assertThat(verifierResult.getNotEquals()).isNotEmpty();
+        InterfaceRecordingChecker interfaceRecordingChecker = new InterfaceRecordingChecker();
+        CompareResult compareResult = interfaceRecordingChecker.compare(Arrays.asList(a), Arrays.asList(b));
+        assertThat(compareResult.isEqual()).isFalse();
 
     }
+
 }

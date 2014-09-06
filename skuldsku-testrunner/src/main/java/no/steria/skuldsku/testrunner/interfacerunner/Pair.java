@@ -7,7 +7,7 @@ public class Pair<T> {
     private T a;
     private T b;
 
-    private Pair(T a,T b) {
+    public Pair(T a,T b) {
         this.a = a;
         this.b = b;
     }
