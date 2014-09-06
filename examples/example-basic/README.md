@@ -12,8 +12,9 @@ This example is a basic web application. It a classic three tier application wit
 
 ## Running the example application
 You need an oracle db installed to run. Since the oracle jdbc driver isn't on maven central, you need to download it and install it yourself. Download the file and run:
-'''
+
+```
 mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc12 -Dversion=12.0 -Dpackaging=jar -Dfile=ojdbc7.jar -DgeneratePom=true
-'''
+```
 
 To run the application start the basic example class, or just use the executable jar to run from command line.
