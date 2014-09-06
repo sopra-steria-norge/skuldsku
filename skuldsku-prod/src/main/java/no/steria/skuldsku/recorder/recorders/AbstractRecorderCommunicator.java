@@ -56,7 +56,7 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
         res.append("%");
         String asString = new ClassSerializer().asString(javaInterfaceCall);
         res.append(asString);
-        
+
         saveRecord(res.toString());
     }
 }
