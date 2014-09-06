@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 public class InterfaceRecorderWrapperTest {
 
-    private final DummyReportCallback reportCallback = new DummyReportCallback();
+    private final DummyJavaIntefaceCallPersister reportCallback = new DummyJavaIntefaceCallPersister();
 
     @Before
     public void setUp() throws SQLException {

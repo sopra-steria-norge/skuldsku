@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-public class DummyReportCallback implements ReportCallback {
+public class DummyJavaIntefaceCallPersister implements JavaIntefaceCallPersister {
     private String className;
     private String methodname;
     private String parameters;

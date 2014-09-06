@@ -10,15 +10,15 @@ import java.util.concurrent.Executors;
 public class LogRunner implements Runnable {
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final ReportCallback reportCallback;
+    private final JavaIntefaceCallPersister javaIntefaceCallPersister;
     private final String className;
     private final String methodName;
     private final Object[] args;
     private final Object result;
     private final InterfaceRecorderConfig interfaceRecorderConfig;
 
-    private LogRunner(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
-        this.reportCallback = reportCallback;
+    private LogRunner(JavaIntefaceCallPersister javaIntefaceCallPersister, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
+        this.javaIntefaceCallPersister = javaIntefaceCallPersister;
         this.className = className;
         this.methodName = methodName;
         this.args = args;
@@ -53,7 +53,7 @@ public class LogRunner implements Runnable {
                 logger.debug("LogRunner: writing result");
             String resultStr = classSerializer.asString(result);
             logger.debug("LogRunner: Calling report callback");
-            reportCallback.event(className, methodName, parameters.toString(), resultStr);
+            javaIntefaceCallPersister.event(className, methodName, parameters.toString(), resultStr);
         } catch (Throwable e) {
             logger.debug("LogRunner: exeption logging " + e);
         } finally {
@@ -69,8 +69,8 @@ public class LogRunner implements Runnable {
     }
 
 
-    public static void log(ReportCallback reportCallback, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
-        LogRunner logRunner = new LogRunner(reportCallback, className, methodName, args, result, interfaceRecorderConfig);
+    public static void log(JavaIntefaceCallPersister javaIntefaceCallPersister, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
+        LogRunner logRunner = new LogRunner(javaIntefaceCallPersister, className, methodName, args, result, interfaceRecorderConfig);
         AsyncMode asyncMode = interfaceRecorderConfig.getAsyncMode();
         if (asyncMode == AsyncMode.ALL_ASYNC) {
             executorService.submit(logRunner);

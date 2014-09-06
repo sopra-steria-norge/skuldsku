@@ -123,7 +123,7 @@ public final class Skuldsku {
          * av mocken og sendes med som parameter til InterfaceRecorderWrapper fremfor å bruke getClass(). Bør
          * skrive en test her for å sikre at mock-output og vanlig impl-output blir likt :-)
          */
-        return InterfaceRecorderWrapper.newInstance(service, clazz, config.getReportCallback(), config.getInterfaceRecorderConfig());
+        return InterfaceRecorderWrapper.newInstance(service, clazz, config.getJavaIntefaceCallPersister(), config.getInterfaceRecorderConfig());
     }
 
     /**

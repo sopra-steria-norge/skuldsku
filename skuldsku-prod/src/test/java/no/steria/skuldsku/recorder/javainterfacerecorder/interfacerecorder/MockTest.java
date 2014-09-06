@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 
 public class MockTest {
-    private final DummyReportCallback reportCallback = new DummyReportCallback();
+    private final DummyJavaIntefaceCallPersister reportCallback = new DummyJavaIntefaceCallPersister();
 
 
     @Before

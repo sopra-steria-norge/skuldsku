@@ -3,13 +3,13 @@ package no.steria.skuldsku.recorder.recorders;
 import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ReportCallback;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractRecorderCommunicator implements HttpCallPersister, ReportCallback {
+public abstract class AbstractRecorderCommunicator implements HttpCallPersister, JavaIntefaceCallPersister {
     @Override
     public void initialize() {
 
