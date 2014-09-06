@@ -1,6 +1,6 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedInterfaceCall;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 import org.junit.Test;
 
@@ -27,8 +27,8 @@ public class InterfaceRecordingCheckerTest {
         simple.value = "result";
         ClassSerializer classSerializer = new ClassSerializer();
         String para = classSerializer.asString("para");
-        RecordedInterfaceCall a = new RecordedInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
-        RecordedInterfaceCall b = new RecordedInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall b = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
 
         InterfaceRecordingChecker interfaceRecordingChecker = new InterfaceRecordingChecker();
         CompareResult compareResult = interfaceRecordingChecker.compare(Arrays.asList(a), Arrays.asList(b));
@@ -41,8 +41,8 @@ public class InterfaceRecordingCheckerTest {
         Simple simple = new Simple();
         simple.value = "result";
         ClassSerializer classSerializer = new ClassSerializer();
-        RecordedInterfaceCall a = new RecordedInterfaceCall("Service", "doIt", classSerializer.asString("parax"), classSerializer.asString(simple));
-        RecordedInterfaceCall b = new RecordedInterfaceCall("Service", "doIt", classSerializer.asString("para"), classSerializer.asString(simple));
+        JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", classSerializer.asString("parax"), classSerializer.asString(simple));
+        JavaInterfaceCall b = new JavaInterfaceCall("Service", "doIt", classSerializer.asString("para"), classSerializer.asString(simple));
 
         InterfaceRecordingChecker interfaceRecordingChecker = new InterfaceRecordingChecker();
         CompareResult compareResult = interfaceRecordingChecker.compare(Arrays.asList(a), Arrays.asList(b));

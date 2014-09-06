@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 public class InterfaceRecorderWrapperTest {
 
-    private final DummyJavaIntefaceCallPersister reportCallback = new DummyJavaIntefaceCallPersister();
+    private final DummyJavaIntefaceCallPersister dummyJavaIntefaceCallPersister = new DummyJavaIntefaceCallPersister();
 
     @Before
     public void setUp() throws SQLException {
@@ -34,15 +34,15 @@ public class InterfaceRecorderWrapperTest {
 
     @Test
     public void shouldHandleBasic() throws Exception {
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
         assertThat(result).isEqualTo("Hello MyName");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
-        assertThat(reportCallback.getMethodname()).isEqualTo("doSimpleService");
-        assertThat(reportCallback.getParameters()).isEqualTo("<java.lang.String;MyName>");
-        assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;Hello MyName>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doSimpleService");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<java.lang.String;MyName>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;Hello MyName>");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class InterfaceRecorderWrapperTest {
                 .withAsyncMode(AsyncMode.ALL_SYNC)
                 .ignore(ServiceClass.class, doWithPara, ignore)
                 .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, interfaceRecorderConfig);
 
         ServiceParameterClass para = new ServiceParameterClass();
         para.setInfo("This is it");
@@ -61,10 +61,10 @@ public class InterfaceRecorderWrapperTest {
 
         assertThat(result).isEqualTo("This is it");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
-        assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
-        assertThat(reportCallback.getParameters()).isEqualTo("<null>");
-        assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doWithPara");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<null>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;This is it>");
 
     }
 
@@ -75,7 +75,7 @@ public class InterfaceRecorderWrapperTest {
                 .withAsyncMode(AsyncMode.ALL_SYNC)
                 .ignore(ServiceClass.class, null, ignore)
                 .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, interfaceRecorderConfig);
 
         ServiceParameterClass para = new ServiceParameterClass();
         para.setInfo("This is it");
@@ -83,31 +83,31 @@ public class InterfaceRecorderWrapperTest {
 
         assertThat(result).isEqualTo("This is it");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
-        assertThat(reportCallback.getMethodname()).isEqualTo("doWithPara");
-        assertThat(reportCallback.getParameters()).isEqualTo("<null>");
-        assertThat(reportCallback.getResult()).isEqualTo("<java.lang.String;This is it>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doWithPara");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<null>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;This is it>");
 
     }
 
     @Test
     public void shouldHandleListsAsResults() throws Exception {
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         List<String> result = serviceClass.returnList(new ClassWithSimpleFields().setIntval(42));
 
         assertThat(result).containsOnly("This", "is", "not", "null");
 
-        assertThat(reportCallback.getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
-        assertThat(reportCallback.getMethodname()).isEqualTo("returnList");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ServiceClass");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("returnList");
 
         ClassSerializer classSerializer = new ClassSerializer();
 
-        ClassWithSimpleFields simpleFields = (ClassWithSimpleFields) classSerializer.asObject(reportCallback.getParameters());
+        ClassWithSimpleFields simpleFields = (ClassWithSimpleFields) classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters());
 
         assertThat(simpleFields).isNotNull();
         assertThat(simpleFields.getIntval()).isEqualTo(42);
 
-        @SuppressWarnings("unchecked") List<String> recordedResult = (List<String>) classSerializer.asObject(reportCallback.getResult());
+        @SuppressWarnings("unchecked") List<String> recordedResult = (List<String>) classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult());
         assertThat(recordedResult).containsOnly("This", "is", "not", "null");
     }
 
@@ -116,15 +116,12 @@ public class InterfaceRecorderWrapperTest {
         ServiceClass serviceClassObject = mock(ServiceClass.class);
         when(serviceClassObject.doSimpleService(anyString())).thenReturn("Hello MyName");
         Skuldsku.stop();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, reportCallback, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(serviceClassObject, ServiceInterface.class, dummyJavaIntefaceCallPersister, InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
         String result = serviceClass.doSimpleService("MyName");
 
         assertThat(result).isEqualTo("Hello MyName");
 
-        assertNull(reportCallback.getClassName());
-        assertNull(reportCallback.getMethodname());
-        assertNull(reportCallback.getParameters());
-        assertNull(reportCallback.getResult());
+        assertNull(dummyJavaIntefaceCallPersister.getJavaInterfaceCall());
         Skuldsku.start();
     }
 
@@ -134,7 +131,7 @@ public class InterfaceRecorderWrapperTest {
                 .withAsyncMode(AsyncMode.ALL_SYNC)
                 .ignore(ServiceClass.class, null, File.class)
                 .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, interfaceRecorderConfig);
         File tempFile = File.createTempFile("test", "txt");
         PrintWriter printWriter = new PrintWriter(new FileWriter(tempFile));
         printWriter.append("This is Johnny");
@@ -145,11 +142,11 @@ public class InterfaceRecorderWrapperTest {
         assertTrue("could not delete resource file", tempFile.delete());
 
         ClassSerializer classSerializer = new ClassSerializer();
-        System.out.println(reportCallback.getParameters());
-        assertThat(reportCallback.getMethodname()).isEqualTo("readAFile");
-        assertThat(classSerializer.asObject(reportCallback.getResult())).isEqualTo("Hello, This is Johnny");
+        System.out.println(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters());
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("readAFile");
+        assertThat(classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult())).isEqualTo("Hello, This is Johnny");
 
-        assertThat(reportCallback.getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
     }
 
     @Test
@@ -158,7 +155,7 @@ public class InterfaceRecorderWrapperTest {
                 .withAsyncMode(AsyncMode.ALL_SYNC)
                 .ignore(null, null, File.class)
                 .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, reportCallback, interfaceRecorderConfig);
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, interfaceRecorderConfig);
         File tempFile = File.createTempFile("test", "txt");
         PrintWriter printWriter = new PrintWriter(new FileWriter(tempFile));
         printWriter.append("This is Johnny");
@@ -169,11 +166,11 @@ public class InterfaceRecorderWrapperTest {
         assertTrue("could not delete resource file", tempFile.delete());
 
         ClassSerializer classSerializer = new ClassSerializer();
-        System.out.println(reportCallback.getParameters());
-        assertThat(reportCallback.getMethodname()).isEqualTo("readAFile");
-        assertThat(classSerializer.asObject(reportCallback.getResult())).isEqualTo("Hello, This is Johnny");
+        System.out.println(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters());
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("readAFile");
+        assertThat(classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult())).isEqualTo("Hello, This is Johnny");
 
-        assertThat(reportCallback.getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
 
     }
 }

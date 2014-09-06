@@ -4,6 +4,7 @@ import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 import java.util.ArrayList;
@@ -48,17 +49,17 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
     }
 
     @Override
-    public void event(String className, String methodname, String parameters, String result) {
+    public void event(JavaInterfaceCall javaInterfaceCall) {
         StringBuilder res = new StringBuilder();
         res.append("inter%");
         res.append(SkuldskuFilter.getRequestId());
         res.append("%");
-        res.append(className);
+        res.append(javaInterfaceCall.getClassName());
         res.append("%");
-        res.append(methodname);
+        res.append(javaInterfaceCall.getMethodname());
         res.append("%");
-        res.append(parameters);
-        res.append(result);
+        res.append(javaInterfaceCall.getMethodname());
+        res.append(javaInterfaceCall.getResult());
         saveRecord(res.toString());
     }
 }

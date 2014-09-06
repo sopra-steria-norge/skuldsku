@@ -1,6 +1,7 @@
 package no.steria.skuldsku.recorder.recorders;
 
 import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class RecorderCommunicatorTest {
                 ;
 
         inMemoryRecorderCommunicator.reportCall(httpCall);
-        inMemoryRecorderCommunicator.event("class","method","para","result");
+        inMemoryRecorderCommunicator.event(new JavaInterfaceCall("class","method","para","result"));
 
         List<HttpCall> recordedHttpObjects = inMemoryRecorderCommunicator.getRecordedHttp();
 

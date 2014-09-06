@@ -1,33 +1,14 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 public class DummyJavaIntefaceCallPersister implements JavaIntefaceCallPersister {
-    private String className;
-    private String methodname;
-    private String parameters;
-    private String result;
+    private JavaInterfaceCall javaInterfaceCall;
 
     @Override
-    public void event(String className, String methodname, String parameters, String result) {
-        this.className = className;
-        this.methodname = methodname;
-        this.parameters = parameters;
-        this.result = result;
+    public void event(JavaInterfaceCall javaInterfaceCall) {
+        this.javaInterfaceCall = javaInterfaceCall;
     }
 
-
-    public String getClassName() {
-        return className;
-    }
-
-    public String getMethodname() {
-        return methodname;
-    }
-
-    public String getParameters() {
-        return parameters;
-    }
-
-    public String getResult() {
-        return result;
+    public JavaInterfaceCall getJavaInterfaceCall() {
+        return javaInterfaceCall;
     }
 }

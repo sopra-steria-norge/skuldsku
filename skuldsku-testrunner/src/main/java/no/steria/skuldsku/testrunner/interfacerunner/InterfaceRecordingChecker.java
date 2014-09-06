@@ -1,12 +1,12 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedInterfaceCall;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 
 import java.util.List;
 
 public class InterfaceRecordingChecker {
 
-    public CompareResult compare(List<RecordedInterfaceCall> expected, List<RecordedInterfaceCall> actual) {
+    public CompareResult compare(List<JavaInterfaceCall> expected, List<JavaInterfaceCall> actual) {
         boolean ok = !Pair.pairs(expected, actual).stream()
             .filter(pa -> !pa.getA().equals(pa.getB()))
             .findAny().isPresent();

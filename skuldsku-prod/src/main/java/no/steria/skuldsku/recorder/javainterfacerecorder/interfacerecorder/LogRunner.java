@@ -53,7 +53,8 @@ public class LogRunner implements Runnable {
                 logger.debug("LogRunner: writing result");
             String resultStr = classSerializer.asString(result);
             logger.debug("LogRunner: Calling report callback");
-            javaIntefaceCallPersister.event(className, methodName, parameters.toString(), resultStr);
+
+            javaIntefaceCallPersister.event(new JavaInterfaceCall(className,methodName,parameters.toString(),resultStr));
         } catch (Throwable e) {
             logger.debug("LogRunner: exeption logging " + e);
         } finally {
