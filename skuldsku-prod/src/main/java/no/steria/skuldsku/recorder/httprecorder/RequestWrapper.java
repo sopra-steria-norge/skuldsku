@@ -10,11 +10,11 @@ import java.util.*;
 public class RequestWrapper extends HttpServletRequestWrapper {
     private Map<String,List<String>> parameters;
 
-    private final ReportObject reportObject;
+    private final HttpCall httpCall;
 
-    public RequestWrapper(HttpServletRequest request, ReportObject reportObject) {
+    public RequestWrapper(HttpServletRequest request, HttpCall httpCall) {
         super(request);
-        this.reportObject = reportObject;
+        this.httpCall = httpCall;
 
     }
 
@@ -22,13 +22,13 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() throws IOException {
         final ServletInputStream servletIS = super.getInputStream();
 
-        return new ProxyServletInputStream(servletIS,reportObject);
+        return new ProxyServletInputStream(servletIS, httpCall);
     }
 
 
     @Override
     public BufferedReader getReader() throws IOException {
-        return new ProxyBufferedReader(super.getReader(),reportObject);
+        return new ProxyBufferedReader(super.getReader(), httpCall);
     }
 
     private synchronized void readParams() {

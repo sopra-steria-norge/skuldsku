@@ -46,31 +46,31 @@ public class SkuldskuFilter implements Filter{
 
         HttpServletRequest req = (HttpServletRequest) request;
 
-        ReportObject reportObject = new ReportObject();
-        reportObject.setMethod(req.getMethod());
-        recordPath(req, reportObject);
+        HttpCall httpCall = new HttpCall();
+        httpCall.setMethod(req.getMethod());
+        recordPath(req, httpCall);
 
-        RequestWrapper requestSpy = new RequestWrapper(req, reportObject);
+        RequestWrapper requestSpy = new RequestWrapper(req, httpCall);
 
         HttpServletResponse resp = (HttpServletResponse) response;
 
         ResponseWrapper responseSpy = new ResponseWrapper(resp);
 
-        logHeaders(req,reportObject);
+        logHeaders(req, httpCall);
 
         chain.doFilter(requestSpy,responseSpy);
 
-        reportObject.setOutput(responseSpy.getWritten());
+        httpCall.setOutput(responseSpy.getWritten());
 
-        CallReporter reporter = getReporter();
+        HttpCallPersister reporter = getReporter();
         if (reporter != null) {
-            reporter.reportCall(reportObject);
+            reporter.reportCall(httpCall);
         } else {
             RecorderLog.error("There is no CallReporter associated with the current HTTP filter. HTTP interactions will not be recorded.");
         }
     }
 
-    private void logHeaders(HttpServletRequest req, ReportObject reportObject) {
+    private void logHeaders(HttpServletRequest req, HttpCall httpCall) {
         Map<String,List<String>> headers = new HashMap<>();
 
         Enumeration<String> headerNames = req.getHeaderNames();
@@ -83,21 +83,21 @@ public class SkuldskuFilter implements Filter{
             }
             headers.put(headerName,values);
         }
-        reportObject.setHeaders(headers);
+        httpCall.setHeaders(headers);
     }
 
-    private void recordPath(HttpServletRequest req, ReportObject reportObject) {
+    private void recordPath(HttpServletRequest req, HttpCall httpCall) {
         StringBuilder path = new StringBuilder(req.getServletPath());
         String pathInfo = req.getPathInfo();
         if (pathInfo != null) {
             path.append(pathInfo);
         }
 
-        reportObject.setPath(path.toString());
+        httpCall.setPath(path.toString());
     }
 
-    public CallReporter getReporter() {
-        return Skuldsku.getSkuldskuConfig().getCallReporter();
+    public HttpCallPersister getReporter() {
+        return Skuldsku.getSkuldskuConfig().getHttpCallPersister();
     }
     
     @Override

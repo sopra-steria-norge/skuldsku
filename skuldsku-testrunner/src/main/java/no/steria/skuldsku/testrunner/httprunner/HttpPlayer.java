@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 
 public class HttpPlayer {
     private final String baseUrl;
@@ -27,10 +27,10 @@ public class HttpPlayer {
     }
 
 
-    public void play(List<ReportObject> recordedHttp) {
+    public void play(List<HttpCall> recordedHttp) {
         List<PlayStep> playBook = new ArrayList<>();
-        for (ReportObject reportObject : recordedHttp) {
-            playBook.add(new PlayStep(reportObject));
+        for (HttpCall httpCall : recordedHttp) {
+            playBook.add(new PlayStep(httpCall));
         }
         playSteps(playBook);
     }
@@ -51,13 +51,13 @@ public class HttpPlayer {
 
     public void playStep(PlayStep playStep) throws IOException {
 
-        ReportObject recordObject = playStep.getReportObject();
+        HttpCall httpCall = playStep.getReportObject();
 
-        System.out.println(String.format("Step: %s %s ***", recordObject.getMethod(), recordObject.getPath()));
+        System.out.println(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
 
-        URL url = new URL(baseUrl + recordObject.getPath());
+        URL url = new URL(baseUrl + httpCall.getPath());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        String method = recordObject.getMethod();
+        String method = httpCall.getMethod();
         conn.setRequestMethod(method);
         String readInputStream = playStep.getReportObject().getReadInputStream();
 
@@ -65,7 +65,7 @@ public class HttpPlayer {
             readInputStream = manipulator.computePayload(readInputStream);
         }
 
-        Map<String, List<String>> headers = recordObject.getHeaders();
+        Map<String, List<String>> headers = httpCall.getHeaders();
 
         // adjusts the headers of the request
         for (PlaybackManipulator manipulator : manipulators) {
@@ -101,7 +101,7 @@ public class HttpPlayer {
 
 
         //writes the parameters of the request
-        String parameters = recordObject.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
+        String parameters = httpCall.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
         if (parameters != null) {
             conn.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());

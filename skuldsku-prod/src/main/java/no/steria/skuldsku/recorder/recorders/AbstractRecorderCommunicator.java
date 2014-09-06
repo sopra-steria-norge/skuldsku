@@ -1,28 +1,29 @@
 package no.steria.skuldsku.recorder.recorders;
 
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ReportCallback;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractRecorderCommunicator implements CallReporter, ReportCallback {
+public abstract class AbstractRecorderCommunicator implements HttpCallPersister, JavaIntefaceCallPersister {
     @Override
     public void initialize() {
 
     }
 
     @Override
-    public void reportCall(ReportObject reportObject) {
+    public void reportCall(HttpCall httpCall) {
         StringBuilder res = new StringBuilder();
         res.append("http%");
         res.append(SkuldskuFilter.getRequestId());
         res.append("%");
         ClassSerializer classSerializer = new ClassSerializer();
-        res.append(classSerializer.asString(reportObject));
+        res.append(classSerializer.asString(httpCall));
         saveRecord(res.toString());
     }
 
@@ -32,33 +33,33 @@ public abstract class AbstractRecorderCommunicator implements CallReporter, Repo
         return new ArrayList<>();
     }
 
-    public List<ReportObject> getRecordedHttp() {
+    public List<HttpCall> getRecordedHttp() {
         List<String> recordedRecords = getRecordedRecords();
-        List<ReportObject> reportObjects = new ArrayList<>();
+        List<HttpCall> httpCalls = new ArrayList<>();
         for (String record : recordedRecords) {
             if (!record.startsWith("http%")) {
                 continue;
             }
             ClassSerializer classSerializer = new ClassSerializer();
             int stpos = record.indexOf("%",5);
-            ReportObject recordObject = (ReportObject) classSerializer.asObject(record.substring(stpos));
-            reportObjects.add(recordObject);
+            HttpCall recordObject = (HttpCall) classSerializer.asObject(record.substring(stpos));
+            httpCalls.add(recordObject);
         }
-        return reportObjects;
+        return httpCalls;
     }
 
     @Override
-    public void event(String className, String methodname, String parameters, String result) {
+    public void event(JavaInterfaceCall javaInterfaceCall) {
         StringBuilder res = new StringBuilder();
         res.append("inter%");
         res.append(SkuldskuFilter.getRequestId());
         res.append("%");
-        res.append(className);
+        res.append(javaInterfaceCall.getClassName());
         res.append("%");
-        res.append(methodname);
+        res.append(javaInterfaceCall.getMethodname());
         res.append("%");
-        res.append(parameters);
-        res.append(result);
+        res.append(javaInterfaceCall.getMethodname());
+        res.append(javaInterfaceCall.getResult());
         saveRecord(res.toString());
     }
 }

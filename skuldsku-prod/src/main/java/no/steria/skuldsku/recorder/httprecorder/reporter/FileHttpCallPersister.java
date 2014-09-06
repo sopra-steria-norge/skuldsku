@@ -1,7 +1,7 @@
 package no.steria.skuldsku.recorder.httprecorder.reporter;
 
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  * This specific CallReporter writes the ReportObjects to a file, with a name as specified in the constructor.
  */
-public class FileCallReporter implements CallReporter {
+public class FileHttpCallPersister implements HttpCallPersister {
     private PrintWriter writer;
     private final File givenReportFile;
 
@@ -22,7 +22,7 @@ public class FileCallReporter implements CallReporter {
         writer = null;
     }
 
-    public FileCallReporter(File givenReportFile) {
+    public FileHttpCallPersister(File givenReportFile) {
         this.givenReportFile = givenReportFile;
     }
 
@@ -38,16 +38,16 @@ public class FileCallReporter implements CallReporter {
 
     /**
      *
-     * @param reportObject Data that should be reported
+     * @param httpCall Data that should be reported
      */
     @Override
-        public void reportCall(ReportObject reportObject) {
-        writer.append(reportObject.serializedString());
+        public void reportCall(HttpCall httpCall) {
+        writer.append(httpCall.serializedString());
         writer.append("\n");
         writer.flush();
     }
 
-    public static List<ReportObject> readReportedObjects(String filename) {
+    public static List<HttpCall> readReportedObjects(String filename) {
         String serializedObjects;
         try (FileInputStream fis = new FileInputStream(filename)) {
             serializedObjects = toString(fis);
@@ -55,11 +55,11 @@ public class FileCallReporter implements CallReporter {
             throw new RuntimeException(e);
         }
 
-        List<ReportObject> result = new ArrayList<>();
+        List<HttpCall> result = new ArrayList<>();
 
         for (String serializedStr : serializedObjects.split("\n")) {
-            ReportObject reportObject = ReportObject.parseFromString(serializedStr);
-            result.add(reportObject);
+            HttpCall httpCall = HttpCall.parseFromString(serializedStr);
+            result.add(httpCall);
         }
         return result;
     }

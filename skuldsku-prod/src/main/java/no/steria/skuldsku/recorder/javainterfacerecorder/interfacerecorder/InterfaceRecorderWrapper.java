@@ -14,20 +14,20 @@ import java.lang.reflect.Proxy;
 public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHandler {
     private static InterfaceRecorderConfig interfaceRecorderConfig;
     private final Object obj;
-    private final ReportCallback reportCallback;
+    private final JavaIntefaceCallPersister javaIntefaceCallPersister;
 
     @SuppressWarnings("unchecked")
-    public static <T> T newInstance(Object obj, Class<T> givenInterface, ReportCallback reportCallback, InterfaceRecorderConfig interfaceRecorderConfig) {
+    public static <T> T newInstance(Object obj, Class<T> givenInterface, JavaIntefaceCallPersister javaIntefaceCallPersister, InterfaceRecorderConfig interfaceRecorderConfig) {
         RecorderLog.debug("IRW: Setup with " + givenInterface);
         InterfaceRecorderWrapper.interfaceRecorderConfig = interfaceRecorderConfig;
-        InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj, reportCallback);
+        InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj, javaIntefaceCallPersister);
         Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, invocationHandler);
         return (T) o;
     }
 
-    private InterfaceRecorderWrapper(Object obj, ReportCallback reportCallback) {
+    private InterfaceRecorderWrapper(Object obj, JavaIntefaceCallPersister javaIntefaceCallPersister) {
         this.obj = obj;
-        this.reportCallback = reportCallback;
+        this.javaIntefaceCallPersister = javaIntefaceCallPersister;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
                     String className = obj.getClass().getName();
                     String methodName = method.getName();
                     RecorderLog.debug("IRW: Logging for " + className + "," + methodName);
-                    LogRunner.log(reportCallback, className, methodName, args, result, interfaceRecorderConfig);
+                    LogRunner.log(javaIntefaceCallPersister, className, methodName, args, result, interfaceRecorderConfig);
                 } catch (Exception e) {
                     RecorderLog.debug("IRW: Exception loggin result : " + e);
                 }

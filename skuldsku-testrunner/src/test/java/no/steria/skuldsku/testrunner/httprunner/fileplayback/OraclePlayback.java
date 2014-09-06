@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 import no.steria.skuldsku.testrunner.httprunner.HiddenFieldManipulator;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 
@@ -95,14 +95,14 @@ public class OraclePlayback {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         System.out.println("OK");
         Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb", "wimpel_dba", args[0]);
-        List<ReportObject> script = new ArrayList<>();
+        List<HttpCall> script = new ArrayList<>();
         try (PreparedStatement stmnt = connection.prepareStatement("select data from "+ HTTP_RECORDINGS_TABLE
                 + " order by timest")) {
             ResultSet resultSet = stmnt.executeQuery();
             while (resultSet.next()) {
                 String data = resultSet.getString(1);
-                ReportObject reportObject = ReportObject.parseFromString(data);
-                script.add(reportObject);
+                HttpCall httpCall = HttpCall.parseFromString(data);
+                script.add(httpCall);
             }
         }
 
@@ -186,7 +186,7 @@ public class OraclePlayback {
 
 
 
-    private static void runit(List<ReportObject> script) {
+    private static void runit(List<HttpCall> script) {
         HttpPlayer httpPlayer = new HttpPlayer("http://localhost:21110/wimpel");
         httpPlayer.addManipulator(new HiddenFieldManipulator("oracle.adf.faces.STATE_TOKEN"));
 

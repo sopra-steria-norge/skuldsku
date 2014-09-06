@@ -1,9 +1,5 @@
 /target
+target/
 .DS_Store
 .idea
-skuldsku-prod/target/
-skuldsku-testrunner/target/
 *.iml
-examples/basicServlet/target/
-examples/basicServlet/basicServletApplication/target/
-examples/basicServlet/basicServletTest/target/

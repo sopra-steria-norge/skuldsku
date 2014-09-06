@@ -7,17 +7,17 @@ import javax.sql.DataSource;
 
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.ReportCallback;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
 
 public final class SkuldskuConfig {
 
     private final List<DatabaseRecorder> databaseRecorders = new ArrayList<DatabaseRecorder>();
     
-    private ReportCallback reportCallback = null; // TODO: Default value
-    private CallReporter callReporter = null;
+    private JavaIntefaceCallPersister javaIntefaceCallPersister = null; // TODO: Default value
+    private HttpCallPersister httpCallPersister = null;
     
     public SkuldskuConfig() {
         
@@ -25,25 +25,25 @@ public final class SkuldskuConfig {
     
     SkuldskuConfig(SkuldskuConfig config) {
         this.databaseRecorders.addAll(config.databaseRecorders);
-        this.reportCallback = config.reportCallback;
-        this.callReporter = config.callReporter;
+        this.javaIntefaceCallPersister = config.javaIntefaceCallPersister;
+        this.httpCallPersister = config.httpCallPersister;
     }
     
     
-    public void setReportCallback(ReportCallback reportCallback) {
-        this.reportCallback = reportCallback;
+    public void setJavaIntefaceCallPersister(JavaIntefaceCallPersister javaIntefaceCallPersister) {
+        this.javaIntefaceCallPersister = javaIntefaceCallPersister;
     }
     
-    ReportCallback getReportCallback() {
-        return reportCallback;
+    JavaIntefaceCallPersister getJavaIntefaceCallPersister() {
+        return javaIntefaceCallPersister;
     }
     
-    public void setCallReporter(CallReporter callReporter) {
-        this.callReporter = callReporter;
+    public void setHttpCallPersister(HttpCallPersister httpCallPersister) {
+        this.httpCallPersister = httpCallPersister;
     }
     
-    public CallReporter getCallReporter() {
-        return callReporter;
+    public HttpCallPersister getHttpCallPersister() {
+        return httpCallPersister;
     }
     
     

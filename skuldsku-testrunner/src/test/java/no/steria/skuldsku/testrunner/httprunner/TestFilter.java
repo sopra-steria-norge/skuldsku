@@ -3,13 +3,13 @@ package no.steria.skuldsku.testrunner.httprunner;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
 
 public class TestFilter extends SkuldskuFilter {
-    private static CallReporter myReporter;
+    private static HttpCallPersister myReporter;
 
-    public static void setReporter(CallReporter reporter) {
+    public static void setReporter(HttpCallPersister reporter) {
         myReporter = reporter;
     }
 
@@ -24,7 +24,7 @@ public class TestFilter extends SkuldskuFilter {
     }
 
     @Override
-    public CallReporter getReporter() {
+    public HttpCallPersister getReporter() {
         return myReporter;
     }
 }

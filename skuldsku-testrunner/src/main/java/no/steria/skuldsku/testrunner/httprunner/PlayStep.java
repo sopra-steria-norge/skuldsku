@@ -1,16 +1,16 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
 
 public class PlayStep {
-    private final ReportObject reportObject;
+    private final HttpCall reportObject;
     private String recorded;
 
-    public PlayStep(ReportObject reportObject) {
+    public PlayStep(HttpCall reportObject) {
         this.reportObject = reportObject;
     }
 
-    public ReportObject getReportObject() {
+    public HttpCall getReportObject() {
         return reportObject;
     }
 

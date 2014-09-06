@@ -1,23 +1,23 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.httprecorder.CallReporter;
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryReporter implements CallReporter {
-    private final List<ReportObject> playBook = new ArrayList<>();
+public class InMemoryReporter implements HttpCallPersister {
+    private final List<HttpCall> playBook = new ArrayList<>();
 
     @Override
     public void initialize() {/* No initialization necessary. */}
 
     @Override
-    public void reportCall(ReportObject reportObject) {
+    public void reportCall(HttpCall reportObject) {
         playBook.add(reportObject);
     }
 
-    public List<ReportObject> getPlayBook() {
+    public List<HttpCall> getPlayBook() {
         return playBook;
     }
 }

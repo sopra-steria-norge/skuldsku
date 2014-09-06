@@ -1,6 +1,7 @@
 package no.steria.skuldsku.recorder.recorders;
 
-import no.steria.skuldsku.recorder.httprecorder.ReportObject;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -27,19 +28,19 @@ public class RecorderCommunicatorTest {
     public void shouldReturnRecordedHttpCalls() throws Exception {
         InMemoryRecorderCommunicator inMemoryRecorderCommunicator = new InMemoryRecorderCommunicator();
 
-        ReportObject reportObject = new ReportObject()
+        HttpCall httpCall = new HttpCall()
                 .setMethod("GET")
                 .setPath("/path")
                 .setReadInputStream("my input stream")
                 ;
 
-        inMemoryRecorderCommunicator.reportCall(reportObject);
-        inMemoryRecorderCommunicator.event("class","method","para","result");
+        inMemoryRecorderCommunicator.reportCall(httpCall);
+        inMemoryRecorderCommunicator.event(new JavaInterfaceCall("class","method","para","result"));
 
-        List<ReportObject> recordedHttpObjects = inMemoryRecorderCommunicator.getRecordedHttp();
+        List<HttpCall> recordedHttpObjects = inMemoryRecorderCommunicator.getRecordedHttp();
 
         assertThat(recordedHttpObjects).hasSize(1);
-        ReportObject fetched = recordedHttpObjects.get(0);
+        HttpCall fetched = recordedHttpObjects.get(0);
 
         assertThat(fetched.getMethod()).isEqualTo("GET");
         assertThat(fetched.getReadInputStream()).isEqualTo("my input stream");

@@ -1,12 +1,12 @@
-package no.steria.skuldsku.testrunner.interfacerunner;
+package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-public class RecordedInterfaceCall {
+public class JavaInterfaceCall {
     private String className;
     private String methodname;
     private String parameters;
     private String result;
 
-    public RecordedInterfaceCall(String className, String methodname, String parameters, String result) {
+    public JavaInterfaceCall(String className, String methodname, String parameters, String result) {
         this.className = className;
         this.methodname = methodname;
         this.parameters = parameters;
@@ -34,7 +34,7 @@ public class RecordedInterfaceCall {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        RecordedInterfaceCall that = (RecordedInterfaceCall) o;
+        JavaInterfaceCall that = (JavaInterfaceCall) o;
 
         if (!className.equals(that.className)) return false;
         if (!methodname.equals(that.methodname)) return false;
