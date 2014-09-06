@@ -13,6 +13,10 @@ public class JavaInterfaceCall {
         this.result = result;
     }
 
+    public JavaInterfaceCall() {
+
+    }
+
     public String getClassName() {
         return className;
     }
