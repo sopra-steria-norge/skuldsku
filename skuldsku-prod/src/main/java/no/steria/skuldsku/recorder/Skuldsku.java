@@ -24,7 +24,8 @@ public final class Skuldsku {
 
     
     /**
-     * Initializes <code>Skuldsku</code>.
+     * Initializes <code>Skuldsku</code>. This method should be called before
+     * any other method on this class, and can only be called once.
      * 
      * @param config The configuration.
      */
@@ -46,6 +47,11 @@ public final class Skuldsku {
         databaseRecorders = null;
     }
     
+    /**
+     * Returns the <code>SkuldskuConfig</code>.
+     * @return A copy of the <code>SkuldskuConfig</code> that was passed
+     *          into {@link #initialize(SkuldskuConfig)}. 
+     */
     public static SkuldskuConfig getSkuldskuConfig() {
         return new SkuldskuConfig(config);
     }
