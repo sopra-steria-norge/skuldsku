@@ -33,6 +33,24 @@ public class JavaInterfaceVerifierResult {
                 continue;
             }
 
+            int nextMatchInExpected = nextExactMatchIn(act,expnum+1,expected);
+            int nextMatchInActual = nextExactMatchIn(exp,actnum+1,actual);
+
+            if (nextMatchInExpected != -1) {
+                for (int i=expnum;i<nextMatchInExpected;i++) {
+                    result.missingFromActual.add(expected.get(i));
+                }
+                expnum = nextMatchInExpected;
+                continue;
+            }
+            if (nextMatchInActual != -1) {
+                for (int i=actnum;i<nextMatchInActual;i++) {
+                    result.additionalInActual.add(actual.get(i));
+                }
+                actnum = nextMatchInActual;
+                continue;
+            }
+            break;
         }
 
         for (int i=expnum;i<expected.size();i++) {
@@ -44,6 +62,16 @@ public class JavaInterfaceVerifierResult {
 
 
         return result;
+    }
+
+    private static int nextExactMatchIn(JavaInterfaceCall match, int start, List<JavaInterfaceCall> list) {
+        for (int i=start;i<list.size();i++) {
+            JavaInterfaceCall javaInterfaceCall = list.get(i);
+            if (match.equals(javaInterfaceCall)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public List<JavaInterfaceCall> getMissingFromActual() {
