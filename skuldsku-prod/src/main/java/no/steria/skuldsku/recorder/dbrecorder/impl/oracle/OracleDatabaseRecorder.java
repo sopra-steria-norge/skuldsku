@@ -85,6 +85,30 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         });
     }
 
+    /**
+     *
+     * @param out Exports all database recordings, but without the field session ID, so that results from different
+     *            executions can be easily compared (for unit-test level integration tests).
+     */
+    public void exportWithoutSessionIdTo(final PrintWriter out) {
+        transactionManager.doInTransaction(new TransactionCallback<Object>() {
+            @Override
+            public Object callback(Jdbc jdbc) {
+                jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||'" +
+                        ";TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
+                        DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
+                    @Override
+                    public void extractData(ResultSet rs) throws SQLException {
+                        while (rs.next()) {
+                            out.println(rs.getString(1));
+                        }
+                    }
+                });
+                return null;
+            }
+        });
+    }
+
     public void exportAndRemove(final PrintWriter out) {
         final List<String> retrievedDataIds = new ArrayList<>();
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
