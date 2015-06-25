@@ -3,10 +3,7 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -36,6 +33,53 @@ public class ClassSerializerTest {
     public void shouldReturnClass() throws Exception {
         EmptyClass emptyClass = (EmptyClass) serializer.asObject(serializer.asString(new EmptyClass()));
         assertThat(emptyClass.getClass()).isEqualTo(EmptyClass.class);
+    }
+
+    @Test
+    public void shouldHandleArraysOfPrimitives() throws Exception {
+        long arrval[] = {0l,1l,2l};
+        char bytval[] = {'a', 'b', 'c'};
+        ClassWithArrayOfPrimitives classWithCollection = new ClassWithArrayOfPrimitives();
+        classWithCollection.setArrayOfLongs(arrval);
+        classWithCollection.setArrayOfChars(bytval);
+
+        String serialized = serializer.asString(classWithCollection);
+
+        ClassWithArrayOfPrimitives cloned = (ClassWithArrayOfPrimitives) serializer.asObject(serialized);
+
+        assertThat(cloned.getArrayOfLongs()).containsOnly(0l, 1l, 2l);
+        assertThat(cloned.getArrayOfChars()).containsOnly('a', 'b', 'c');
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeArray() throws Exception {
+        final String actual = serializer.asString(new String[]{"asdf", "asdf "});
+
+        assertThat(serializer.asObject(actual)).isEqualTo(new String[]{"asdf", "asdf "});
+    }
+
+    @Test
+    public void shouldBoxPrimitivesWhenSerializing() throws Exception {
+        final long[] primitives = new long[] { 0l,1l };
+        final String serialized = serializer.asString(primitives);
+
+        assertThat(serialized).isEqualTo("<array;<java.lang.Long;0>;<java.lang.Long;1>>");
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeArrayOfPrimitives() throws Exception {
+        final long[] primitives = new long[] { 0l,1l };
+        final String serialized = serializer.asString(primitives);
+
+        final Object deserialized = serializer.asObject(serialized);
+        assertThat(deserialized).isEqualTo(new long[]{0l,1l});
+    }
+
+    @Test
+    public void shouldSerializeAndDeserializeList() throws Exception {
+        final String actual = serializer.asString(Arrays.asList("asdf", "asdf"));
+
+        assertThat(serializer.asObject(actual)).isEqualTo(Arrays.asList("asdf", "asdf"));
     }
 
     @Test

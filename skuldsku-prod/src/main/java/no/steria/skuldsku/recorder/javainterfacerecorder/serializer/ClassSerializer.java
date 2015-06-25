@@ -34,7 +34,6 @@ public class ClassSerializer {
     }
 
     public Object asObject(String serializedValue) {
-
         return new ClassSerializer().myAsObject(serializedValue);
     }
 
@@ -47,6 +46,14 @@ public class ClassSerializer {
 
         if ("list".equals(parts[0]) || "map".equals(parts[0])) {
             return objectValueFromString(serializedValue, null);
+        }
+
+        if ("array".equals(parts[0])) {
+            try {
+                return objectValueFromString(serializedValue, Class.forName("[L" + splitToParts(parts[1])[0] + ";"));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         if ("duplicate".equals(parts[0])) {
@@ -205,10 +212,11 @@ public class ClassSerializer {
             }
         }
         knownObjects.add(fieldValue);
-        if (fieldValue instanceof Object[]) {
-            Object[] arr = (Object[]) fieldValue;
+        if (fieldValue.getClass().isArray()) {
             StringBuilder res = new StringBuilder("<array");
-            for (Object objInArr : arr) {
+
+            for (int i = 0; i < Array.getLength(fieldValue); i++) {
+                Object objInArr = Array.get(fieldValue, i);
                 encode(res, objInArr);
             }
             res.append(">");
