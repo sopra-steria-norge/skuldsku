@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,7 +48,7 @@ public class TestRunnerCmdTest {
     @Mock
     private StreamInterfacePlayBack streamInterfacePlayBack;
 
-    private final String filename = System.getProperty("java.io.tmpdir") +  TestRunnerCmdTest.class.getCanonicalName() + ".txt";
+    private final String filename = Paths.get(System.getProperty("java.io.tmpdir"), TestRunnerCmdTest.class.getCanonicalName() + ".txt").toString();
 
     @Before
     public void setUp() {
