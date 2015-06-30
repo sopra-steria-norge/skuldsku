@@ -6,6 +6,7 @@ import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 /**
  * Main class for controlling recording and mocking.
@@ -31,7 +32,7 @@ public final class Skuldsku {
      */
     public static void initialize(SkuldskuConfig config) {
         if (Skuldsku.config != null) {
-            throw new IllegalStateException("Already initialized: This is the second time the initialize method gets called.");
+            RecorderLog.error("You are initializing Skuldsku twice, ignoring second attempt at initalizing.", new Throwable());
         }
         Skuldsku.config = new SkuldskuConfig(config);
         initializeDatabaseRecorders(config.getDatabaseRecorders());
@@ -108,8 +109,7 @@ public final class Skuldsku {
      *          <code>InstantiationCallback</code>.
      */
     public static <T> T wrap(Class<T> clazz, InstantiationCallback<T> ic) {
-        assertInitialized();
-        
+
         final T service;
         if (isInPlayBackMode()) {
             service = MockRegistration.getMock(clazz);

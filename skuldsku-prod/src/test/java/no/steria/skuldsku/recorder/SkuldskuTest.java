@@ -1,6 +1,7 @@
 package no.steria.skuldsku.recorder;
 
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,8 @@ public class SkuldskuTest {
     private HttpServletResponse response;
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
     private FilterChain chain;
+    @Mock
+    private RecorderLog.DefaultRecorderLogger logger;
 
     @Before
     public void setUp() {
@@ -47,10 +50,13 @@ public class SkuldskuTest {
         Skuldsku.initializeDatabaseRecorders(Arrays.asList(databaseRecorder1, databaseRecorder2));
     }
     
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void canOnlyCallInitializeOnce() {
+        RecorderLog.setRecorderLogger(logger);
         // Note: initialize already called in setUp.
         Skuldsku.initialize(new SkuldskuConfig());
+        verify(logger, atLeastOnce()).error(anyString(), any(Throwable.class));
+        RecorderLog.setRecorderLogger(new RecorderLog.DefaultRecorderLogger());
     }
 
     @Test
