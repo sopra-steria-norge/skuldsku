@@ -1,6 +1,7 @@
 package no.steria.skuldsku.recorder.recorders;
 
 import no.steria.skuldsku.DatabaseTableNames;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import javax.sql.DataSource;
 import java.io.StringReader;
@@ -13,7 +14,7 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     public DatabaseRecorderCommunicator(DataSource dataSource) {
         this.dataSource = dataSource;
         try (Connection conn = dataSource.getConnection()) {
-            System.out.println("Got connection");
+            RecorderLog.debug("Got connection.");
             if (!tableExists(conn)) {
                 createTable(conn);
             }
@@ -48,11 +49,10 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
                 statement.setCharacterStream(1,new StringReader(res));
                 statement.execute();
             }
-            System.out.println("commiting log");
+        RecorderLog.debug("committing recording");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } 
-
-        System.out.println("Logging" + res);
+        RecorderLog.debug("Recording " + res);
     }
 }

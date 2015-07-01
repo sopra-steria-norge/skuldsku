@@ -1,5 +1,6 @@
 package no.steria.skuldsku.recorder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
@@ -21,7 +22,7 @@ public final class Skuldsku {
 
     private static SkuldskuConfig config = null;
     private static boolean recordingOn = false;
-    private static List<DatabaseRecorder> databaseRecorders;
+    private static List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
 
     
     /**
@@ -45,7 +46,7 @@ public final class Skuldsku {
     static void reset() {
         config = null;
         recordingOn = false;
-        databaseRecorders = null;
+        databaseRecorders = new ArrayList<>();
     }
     
     /**
@@ -59,7 +60,9 @@ public final class Skuldsku {
     
     private static void assertInitialized() {
         if (config == null) {
-            throw new IllegalStateException("Skuldsku.initialize should be called before any other method.");
+            RecorderLog.error("You are must call initialize() before you can start using Skuldsku. No recording" +
+                    "will be done.", new Throwable());
+
         }
     }
     

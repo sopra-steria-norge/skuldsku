@@ -1,11 +1,5 @@
 package no.steria.skuldsku.recorder;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.sql.DataSource;
-
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
 import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
@@ -16,9 +10,14 @@ import no.steria.skuldsku.recorder.recorders.AbstractRecorderCommunicator;
 import no.steria.skuldsku.recorder.recorders.DatabaseRecorderCommunicator;
 import no.steria.skuldsku.recorder.recorders.FileRecorderCommunicator;
 
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public final class SkuldskuConfig {
 
-    private final List<DatabaseRecorder> databaseRecorders = new ArrayList<DatabaseRecorder>();
+    private final List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
     
     private JavaIntefaceCallPersister javaIntefaceCallPersister = null; // TODO: Default value
     private HttpCallPersister httpCallPersister = null;
