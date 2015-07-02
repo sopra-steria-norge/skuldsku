@@ -65,7 +65,6 @@ public class InterfaceRecorderWrapperTest {
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doWithPara");
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<null>");
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;This is it>");
-
     }
 
     @Test

@@ -21,18 +21,18 @@ public final class SkuldskuConfig {
     
     private JavaIntefaceCallPersister javaIntefaceCallPersister = null; // TODO: Default value
     private HttpCallPersister httpCallPersister = null;
-    
+
     public SkuldskuConfig() {
-        
+
     }
-    
+
     public SkuldskuConfig(String outputFile) {
         try {
             final FileRecorderCommunicator frc = new FileRecorderCommunicator(outputFile);
             javaIntefaceCallPersister = frc;
             httpCallPersister = frc;
         } catch (IOException e) {
-            throw new RuntimeException (e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -41,44 +41,44 @@ public final class SkuldskuConfig {
         javaIntefaceCallPersister = arc;
         httpCallPersister = arc;
     }
-    
+
     SkuldskuConfig(SkuldskuConfig config) {
         this.databaseRecorders.addAll(config.databaseRecorders);
         this.javaIntefaceCallPersister = config.javaIntefaceCallPersister;
         this.httpCallPersister = config.httpCallPersister;
     }
-    
-    
+
     public void setJavaIntefaceCallPersister(JavaIntefaceCallPersister javaIntefaceCallPersister) {
         this.javaIntefaceCallPersister = javaIntefaceCallPersister;
     }
-    
-    JavaIntefaceCallPersister getJavaIntefaceCallPersister() {
+
+    public JavaIntefaceCallPersister getJavaIntefaceCallPersister() {
         return javaIntefaceCallPersister;
     }
-    
+
     public void setHttpCallPersister(HttpCallPersister httpCallPersister) {
         this.httpCallPersister = httpCallPersister;
     }
-    
+
     public HttpCallPersister getHttpCallPersister() {
         return httpCallPersister;
     }
-    
-    
-    
-    InterfaceRecorderConfig getInterfaceRecorderConfig() {
+
+    public InterfaceRecorderConfig getInterfaceRecorderConfig() {
         return InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create(); // TODO.
     }
-    
-    List<DatabaseRecorder> getDatabaseRecorders() {
+
+    public List<DatabaseRecorder> getDatabaseRecorders() {
         return databaseRecorders;
     }
-    
+
+    public void addDatabaseRecorder(DatabaseRecorder databaseRecorder) {
+        databaseRecorders.add(databaseRecorder);
+    }
+
     public void addDataSourceForRecording(DataSource dataSource) {
         // TODO: Update with driver detection when we have other implementations:
         final OracleDatabaseRecorder dbr = new OracleDatabaseRecorder(dataSource);
         databaseRecorders.add(dbr);
     }
-
 }

@@ -36,7 +36,7 @@ public class LogRunner implements Runnable {
 
         try {
             ClassSerializer classSerializer = new ClassSerializer();
-            StringBuilder parameters=new StringBuilder();
+            StringBuilder parameters = new StringBuilder();
             if (args != null) {
                 boolean first = true;
                 for (Object para : args) {
@@ -50,11 +50,11 @@ public class LogRunner implements Runnable {
                     parameters.append(classSerializer.asString(toLog));
                 }
             }
-                logger.debug("LogRunner: writing result");
+            logger.debug("LogRunner: writing result");
             String resultStr = classSerializer.asString(result);
             logger.debug("LogRunner: Calling report callback");
 
-            javaIntefaceCallPersister.event(new JavaInterfaceCall(className,methodName,parameters.toString(),resultStr));
+            javaIntefaceCallPersister.event(new JavaInterfaceCall(className, methodName, parameters.toString(), resultStr));
         } catch (Throwable e) {
             logger.debug("LogRunner: exeption logging " + e);
         } finally {
@@ -63,7 +63,7 @@ public class LogRunner implements Runnable {
     }
 
     private Object logObject(Object para) {
-        if (interfaceRecorderConfig.isIgnored(className,methodName,para)) {
+        if (interfaceRecorderConfig.isIgnored(className, methodName, para)) {
             return null;
         }
         return para;
