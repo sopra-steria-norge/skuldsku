@@ -1,9 +1,8 @@
-package no.steria.skuldsku.testrunner.dbrunner.verifiers;
+package no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers.BestFitDatabaseChangeVerifier;
 import org.junit.Test;
 
 import java.util.Collections;

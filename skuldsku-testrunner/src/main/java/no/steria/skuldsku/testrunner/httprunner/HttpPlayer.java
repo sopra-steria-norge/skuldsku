@@ -1,22 +1,16 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.Reader;
+import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
+import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
-import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
 public class HttpPlayer {
     private final String baseUrl;
@@ -29,7 +23,7 @@ public class HttpPlayer {
 
     
     public void play(String filename) {
-        final List<HttpCall> httpCalls = new FileRecorderReader("data.txt").getRecordedHttp();
+        final List<HttpCall> httpCalls = new FileRecorderReader(filename).getRecordedHttp();
         play(httpCalls);
     }
 
@@ -59,7 +53,7 @@ public class HttpPlayer {
 
         HttpCall httpCall = playStep.getReportObject();
 
-        System.out.println(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
+        RecorderLog.debug(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
 
         URL url = new URL(baseUrl + httpCall.getPath());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -87,7 +81,7 @@ public class HttpPlayer {
                 for (String propval : entry.getValue()) {
                     String val = propval;
                     if ("Content-Length".equals(key) && "POST".equals(method) && readInputStream != null) {
-                        val = "" + readInputStream.length();
+                        val = "" + readInputStream.getBytes().length;
                     }
                     conn.addRequestProperty(key, val);
                 }
@@ -118,18 +112,20 @@ public class HttpPlayer {
 
         //recording response from server
         final StringBuilder result = new StringBuilder();
-        try (InputStream is = conn.getInputStream()) {
-            try (Reader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+        try (InputStream is = getResponseStream(conn);
+             Reader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 int c;
                 while ((c = reader.read()) != -1) {
                     result.append((char) c);
                 }
-            }
-
         }
 
         playStep.setRecorded(result.toString());
 
         manipulators.forEach(m -> m.reportResult(result.toString()));
+    }
+
+    private InputStream getResponseStream(HttpURLConnection conn) throws IOException {
+        return (conn.getResponseCode() >= 400) ? conn.getErrorStream() : conn.getInputStream();
     }
 }

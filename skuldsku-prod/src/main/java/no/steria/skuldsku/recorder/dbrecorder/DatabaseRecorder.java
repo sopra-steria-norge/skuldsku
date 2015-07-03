@@ -31,6 +31,14 @@ public interface DatabaseRecorder {
      *          be written.
      */
     public void exportTo(final PrintWriter out);
+
+    /**
+     * Exports recorded database changes and wipes the data from the database
+     *
+     * @param out The output stream to which the database changes will
+     *          be written.
+     */
+    public void exportAndRemove(final PrintWriter out);
     
     /**
      * Removes the recorder for the database by removing any recording tables,

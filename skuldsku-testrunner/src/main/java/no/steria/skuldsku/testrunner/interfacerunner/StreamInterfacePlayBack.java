@@ -7,6 +7,8 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import java.io.*;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.WatchService;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -104,14 +106,8 @@ public class StreamInterfacePlayBack {
     private String getOrCreateFileDestination() throws IOException {
         String recordingsDirectoryPath = System.getenv("no.steria.skuldsku.recordedInterfaceData");
         if (recordingsDirectoryPath == null) {
-            recordingsDirectoryPath = System.getenv("java.io.tmpdir") + "RecordedInterfaceData";
-            File recordingsDir = new File(recordingsDirectoryPath);
-            boolean success = recordingsDir.mkdir();
-            if (!success && !recordingsDir.exists()) {
-                throw new IOException("Could not create temporary directory " + recordingsDirectoryPath +
-                " will not be able to play back interface recordings.");
-            }
-
+            Path recordedInterfaceData = Files.createTempDirectory("RecordedInterfaceData");
+            recordingsDirectoryPath = recordedInterfaceData.toString();
             System.setProperty("no.steria.skuldsku.recordedInterfaceData", recordingsDirectoryPath);
         }
         return recordingsDirectoryPath;

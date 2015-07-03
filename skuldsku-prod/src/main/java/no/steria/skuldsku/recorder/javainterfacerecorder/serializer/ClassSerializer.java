@@ -256,7 +256,10 @@ public class ClassSerializer {
                     .replaceAll(">", "&gt")
                     .replaceAll("=", "&eq")
                     .replaceAll("%","&percent")
-                    .replaceAll("\n","&newline");
+                    .replaceAll("\r\n", "&newline")
+                    .replaceAll("\n\r", "&newline")
+                    .replaceAll("\r", "&newline")
+                    .replaceAll("\n", "&newline");
         }
         String classname = fieldValue.getClass().getName();
         String fieldsCode = computeFields(fieldValue);
