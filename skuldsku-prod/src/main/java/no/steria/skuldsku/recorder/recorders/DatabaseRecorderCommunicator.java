@@ -4,11 +4,13 @@ import no.steria.skuldsku.DatabaseTableNames;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import javax.sql.DataSource;
-import java.io.StringReader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
-    private DataSource dataSource;
+    private final DataSource dataSource;
     private static final String TABLENAME = DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX + "RECORD";
 
     public DatabaseRecorderCommunicator(DataSource dataSource) {
@@ -46,13 +48,12 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     protected void saveRecord(String res) {
         try (Connection conn = dataSource.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement("insert into " + TABLENAME + "(data) values (?)")) {
-                statement.setCharacterStream(1,new StringReader(res));
+                statement.setString(1, res);
                 statement.execute();
             }
         RecorderLog.debug("committing recording");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } 
-        RecorderLog.debug("Recording " + res);
     }
 }
