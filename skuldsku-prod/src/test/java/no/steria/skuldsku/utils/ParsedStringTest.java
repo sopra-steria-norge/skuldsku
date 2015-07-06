@@ -12,7 +12,7 @@ public class ParsedStringTest {
     
     @Test
     public void testJavaDocExample() {
-        final ParsedString pr = new ParsedString("foo bar test\\ well", Collections.singleton(' '), '\\', Collections.<Character, Character>emptyMap());;
+        final ParsedString pr = new ParsedString("foo bar test\\ well", Collections.singleton(' '), '\\', Collections.<Character, Character>emptyMap());
         final Iterator<String> it = pr.iterator();
         Assert.assertEquals("foo", it.next());
         Assert.assertEquals("bar", it.next());
@@ -165,6 +165,14 @@ public class ParsedStringTest {
         Assert.assertEquals("foo=bar", it.next());
         Assert.assertEquals("a", it.next());
         Assert.assertEquals(false, it.hasNext());
+    }
+
+    @Test
+    public void shouldHandleNullAsLastValue() {
+        final ParsedString pr = new ParsedString("OLDROW.VILKAAR_NR=\\0");
+        Iterator<String> iterator = pr.iterator();
+        Assert.assertEquals("OLDROW.VILKAAR_NR", iterator.next());
+        Assert.assertEquals(null, iterator.next());
     }
     
     @Test(expected=IllegalStateException.class)

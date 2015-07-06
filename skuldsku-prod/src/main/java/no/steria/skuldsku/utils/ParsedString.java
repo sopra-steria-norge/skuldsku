@@ -54,7 +54,7 @@ public class ParsedString implements Iterable<String> {
         this.record = record;
         this.delimiterChars = delimiters;
         this.escapeChar = escape;
-        this.escapes = new HashMap<Character, Character>(escapes);
+        this.escapes = new HashMap<>(escapes);
         
         for (Character c : delimiterChars) {
             this.escapes.put(c, c);
@@ -64,13 +64,13 @@ public class ParsedString implements Iterable<String> {
     
     
     private static Map<Character, Character> getDefaultEscapes() {
-        final Map<Character, Character> escapes =new HashMap<Character, Character>();
+        final Map<Character, Character> escapes =new HashMap<>();
         escapes.put('0', null);
         return escapes;
     }
     
     private static Set<Character> getDefaultDelimiters() {
-        final Set<Character> delimiters = new HashSet<Character>();
+        final Set<Character> delimiters = new HashSet<>();
         delimiters.add(';');
         delimiters.add('=');
         return delimiters;
@@ -109,7 +109,7 @@ public class ParsedString implements Iterable<String> {
                         } else {
                             final Character escapeValue = escapes.get(c);
                             if (escapeValue == null) {
-                                if (nextToken.length() != 0 || !delimiterChars.contains(record.charAt(index))) {
+                                if (fieldConsistsOfMoreValues()) {
                                     throw new IllegalStateException("Null can only be returned when there is no other data in the same field. Index=" + index + " String: " + record);
                                 }
                                 index++;
@@ -136,6 +136,11 @@ public class ParsedString implements Iterable<String> {
                 }
                 index++;
                 return nextToken.toString();
+            }
+
+            private boolean fieldConsistsOfMoreValues() {
+                return nextToken.length() != 0 ||
+                        (record.length() > index && !delimiterChars.contains(record.charAt(index)));
             }
 
             @Override
