@@ -1,5 +1,6 @@
 package no.steria.skuldsku.testrunner.dbrunner.dbchange;
 
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.utils.ParsedString;
 
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Represents a single database INSERT, UPDATE or DELETE operation.
@@ -43,7 +45,7 @@ public class DatabaseChange {
 
 
     static Map<String, String> extractData(String row) {
-        final Map<String, String> data = new LinkedHashMap<String, String>();
+        final Map<String, String> data = new LinkedHashMap<>();
         
         final Iterator<String> it = new ParsedString(row).iterator();
         while (it.hasNext()) {
@@ -66,10 +68,6 @@ public class DatabaseChange {
         return data.get(key);
     }
     
-    public int getFieldNumber() {
-        return data.size();
-    }
-    
     public String getTableName() {
         return data.get(TABLE_NAME);
     }
@@ -79,13 +77,7 @@ public class DatabaseChange {
     }
     
     List<Entry<String, String>> getFields(String start) {
-        final List<Entry<String, String>> result = new ArrayList<Entry<String, String>>();
-        for (Entry<String, String> entry : data.entrySet()) {
-            if (entry.getKey().startsWith(start)) {
-                result.add(entry);
-            }
-        }
-        return result;
+        return data.entrySet().stream().filter(entry -> entry.getKey().startsWith(start)).collect(Collectors.toList());
     }
     
     public int fieldsMatched(DatabaseChange databaseChange, Set<String> skipFields) {
@@ -96,7 +88,7 @@ public class DatabaseChange {
             }
             final String v1 = data.get(key);
             final String v2 = databaseChange.data.get(key);
-            if (v1.equals(v2)) {
+            if ((v1 != null && v2!= null && v1.equals(v2)) || (v1 == null && v2 == null)) {
                 result++;
             }
         }
@@ -119,7 +111,7 @@ public class DatabaseChange {
         }
         return true;
     }
-    
+
     public static List<DatabaseChange> readDatabaseChanges(File f) {
         BufferedReader in = null;
         try {
@@ -131,15 +123,17 @@ public class DatabaseChange {
             if (in != null) {
                 try {
                     in.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    RecorderLog.error("Could not close stream.", e);
+                }
             }
         }
     }
-    
+
     public static List<DatabaseChange> readDatabaseChanges(BufferedReader in) {
         try {
-            final List<DatabaseChange> result = new ArrayList<DatabaseChange>();
-            String line = null;
+            final List<DatabaseChange> result = new ArrayList<>();
+            String line;
             int lineNumber = 1;
             while ((line = in.readLine()) != null) {
                 result.add(new DatabaseChange(line, lineNumber));
@@ -152,7 +146,7 @@ public class DatabaseChange {
     }
     
     public static List<DatabaseChange> toDatabaseChangeList(String[] rowArray) {
-        final List<DatabaseChange> result = new ArrayList<DatabaseChange>(rowArray.length);
+        final List<DatabaseChange> result = new ArrayList<>(rowArray.length);
         for (int index = 0; index<rowArray.length; index++) {
             result.add(new DatabaseChange(rowArray[index], index + 1));
         }
