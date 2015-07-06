@@ -105,7 +105,7 @@ public class DatabaseChange {
             }
             final String v1 = data.get(key);
             final String v2 = databaseChange.data.get(key);
-            if (!v1.equals(v2)) {
+            if ((v1 != null && v2!= null && v1.equals(v2)) || (v1 == null && v2 == null)) {
                 return false;
             }
         }
