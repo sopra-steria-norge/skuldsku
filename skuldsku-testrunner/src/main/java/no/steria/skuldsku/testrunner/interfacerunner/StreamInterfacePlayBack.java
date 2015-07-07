@@ -1,11 +1,13 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
-import au.com.bytecode.opencsv.CSVReader;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordObject;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedDataMock;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static no.steria.skuldsku.testrunner.DbToFileExporter.*;
 
 /**
  * This class reads interface interaction recordings from file, and creates RecordedDataMocks, which it serializes and
@@ -29,16 +30,12 @@ public class StreamInterfacePlayBack {
 
     private String fileDestination;
 
-    public void prepareMocks(CSVReader reader) throws IOException, ClassNotFoundException {
-        String[] next = reader.readNext();
-        while (!next[0].equals(JAVA_INTERFACE_RECORDINGS_HEADER)) {
-            next = reader.readNext();
-        }
-
-        Map<String, List<RecordObject>> recordingByService = getRecordingsByService(reader);
+    public List<RecordedDataMock> prepareMocks(List<JavaInterfaceCall> javaInterfaceCalls) throws IOException, ClassNotFoundException {
+        Map<String, List<JavaInterfaceCall>> recordingByService = setupMocksWithCallbacks(javaInterfaceCalls);
         List<RecordedDataMock> recordedDataMocks = createRecordedDataMocks(recordingByService);
         fileDestination = getOrCreateFileDestination();
         writeMocksToFile(recordedDataMocks);
+        return recordedDataMocks;
     }
 
     /**
@@ -58,27 +55,23 @@ public class StreamInterfacePlayBack {
         watcher.close();
     }
 
-    private Map<String, List<RecordObject>> getRecordingsByService(CSVReader reader) throws IOException, ClassNotFoundException {
-        String[] nextLine;
-        Map<String, List<RecordObject>> recordings = new HashMap<>();
-        while ((nextLine = reader.readNext()) != null && !nextLine[0].equals(HTTP_RECORDINGS_HEADER)) {
-            if (nextLine.length == ANT_COLUMNS_JAVA_INTERFACE_RECORDINGS) {
-                RecordObject recordObject = new RecordObject(nextLine[0], nextLine[1], nextLine[2], nextLine[3]);
-                String serviceClass = nextLine[0];
-                List<RecordObject> recordObjects = recordings.get(serviceClass);
-                if (recordObjects == null) {
-                    List<RecordObject> mockSpecificRecordObjects = new ArrayList<>();
-                    mockSpecificRecordObjects.add(recordObject);
-                    recordings.put(serviceClass, mockSpecificRecordObjects);
-                } else {
-                    recordObjects.add(recordObject);
-                }
+    private Map<String, List<JavaInterfaceCall>> setupMocksWithCallbacks(List<JavaInterfaceCall> callbacks) throws IOException, ClassNotFoundException {
+        Map<String, List<JavaInterfaceCall>> recordings = new HashMap<>();
+        for (JavaInterfaceCall callback: callbacks) {
+            List<JavaInterfaceCall> recordObjects = recordings.get(callback.getClassName());
+            if (recordObjects == null) {
+                List<JavaInterfaceCall> mockSpecificRecordObjects = new ArrayList<>();
+                mockSpecificRecordObjects.add(callback);
+                recordings.put(callback.getClassName(), mockSpecificRecordObjects);
+            } else {
+                recordObjects.add(callback);
             }
         }
+
         return recordings;
     }
 
-    List<RecordedDataMock> createRecordedDataMocks(Map<String, List<RecordObject>> recordingByService) {
+    List<RecordedDataMock> createRecordedDataMocks(Map<String, List<JavaInterfaceCall>> recordingByService) {
         List<RecordedDataMock> recordedDataMocks = new ArrayList<>();
         Set<String> classes = recordingByService.keySet();
         for (String serviceClass : classes) {

@@ -3,11 +3,9 @@
  */
 package no.steria.skuldsku.testrunner;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.jolbox.bonecp.BoneCPDataSource;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
-import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.StreamHttpPlayBack;
 import no.steria.skuldsku.testrunner.interfacerunner.StreamInterfacePlayBack;
 
@@ -86,7 +84,7 @@ public class TestRunnerCmd {
             System.out.println("Please provide the name of the file with the recordings to be played, and the URL to play against!");
             return currentIndex;
         }
-        runTest(args[++currentIndex], args[++currentIndex]);
+
         System.out.println("Done running tests.");
         return currentIndex;
     }
@@ -146,19 +144,6 @@ public class TestRunnerCmd {
             Class.forName(DATABASE_DRIVER);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
-        }
-    }
-
-    private static void runTest(String recordingsPath, String url) {
-        try (FileInputStream recordings = new FileInputStream(recordingsPath);
-             InputStreamReader in = new InputStreamReader(recordings)) {
-            HttpPlayer httpPlayer = new HttpPlayer(url);
-            CSVReader reader = new CSVReader(in, ',', '"');
-            streamInterfacePlayBack.prepareMocks(reader);
-            streamInterfacePlayBack.waitForFileToBePickedUp(secondsTimeoutSerializedInterfaceRecordings);
-            streamHttpPlayBack.play(reader, httpPlayer);
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
         }
     }
 

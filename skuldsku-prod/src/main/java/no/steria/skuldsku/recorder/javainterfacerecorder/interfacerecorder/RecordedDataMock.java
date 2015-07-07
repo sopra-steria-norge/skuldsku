@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecordedDataMock implements MockInterface, Serializable {
-    private final List<RecordObject> recorded;
+    private final List<JavaInterfaceCall> recorded;
     private String serviceClass;
 
     // Receives a list of recordings to be played back
-    public RecordedDataMock(List<RecordObject> recorded) {
-        this.recorded = recorded != null ? recorded : new ArrayList<RecordObject>();
+    public RecordedDataMock(List<JavaInterfaceCall> recorded) {
+        this.recorded = recorded != null ? recorded : new ArrayList<JavaInterfaceCall>();
 
     }
 
@@ -30,9 +30,9 @@ public class RecordedDataMock implements MockInterface, Serializable {
             argsAsString.delete(argsAsString.length() - 1, argsAsString.length());
         }
 
-        for (RecordObject recordObject : recorded) {
-            if (serviceObjectName.equals(recordObject.getServiceName())
-                    && method.getName().equals(recordObject.getMethod())
+        for (JavaInterfaceCall recordObject : recorded) {
+            if (serviceObjectName.equals(recordObject.getClassName())
+                    && method.getName().equals(recordObject.getMethodname())
                     && argsAsString.toString().equals(recordObject.getParameters())
                     ) {
                 return serializer.asObject(recordObject.getResult());

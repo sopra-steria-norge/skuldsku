@@ -1,10 +1,11 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-import java.util.List;
-
 import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
-public class JavaInterfaceCall {
+import java.io.Serializable;
+import java.util.List;
+
+public class JavaInterfaceCall implements Serializable {
     private String className;
     private String methodname;
     private String parameters;
@@ -60,7 +61,7 @@ public class JavaInterfaceCall {
         result1 = 31 * result1 + result.hashCode();
         return result1;
     }
-    
+
     public static List<JavaInterfaceCall> readJavaInterfaceCalls(String filename) {
         return new FileRecorderReader(filename).getJavaInterfaceCalls();
     }

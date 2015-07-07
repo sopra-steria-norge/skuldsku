@@ -1,8 +1,6 @@
 package no.steria.skuldsku.testrunner;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.jolbox.bonecp.BoneCPDataSource;
-import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.httprunner.StreamHttpPlayBack;
 import no.steria.skuldsku.testrunner.interfacerunner.StreamInterfacePlayBack;
 import org.junit.After;
@@ -149,21 +147,6 @@ public class TestRunnerCmdTest {
                 "userId",
                 "password",
                 "import"}, dataSource, new Scanner(new ByteArrayInputStream(commands.getBytes())), null, null);
-    }
-
-    @Test
-    public void shouldRunTestsFromProvidedFile() throws IOException, SQLException, ClassNotFoundException {
-        File file = new File(filename);
-        assertTrue("Could not create file test resource.", file.createNewFile());
-        String url = "http://localhost/wimpel";
-        TestRunnerCmd.testMain(new String[]{
-                "dbc:oracle:thin:@slfutvdb1.master.no:1521:slfutvdb",
-                "userId",
-                "password",
-                "runtests", filename, url,
-                "exit"}, dataSource, new Scanner(new ByteArrayInputStream(new byte[]{})), streamHttpPlayBack, streamInterfacePlayBack);
-        verify(streamInterfacePlayBack).prepareMocks(any(CSVReader.class));
-        verify(streamHttpPlayBack).play(any(CSVReader.class), any(HttpPlayer.class));
     }
 
     private void verifyExpectedSqlWasExecuted() throws SQLException {
