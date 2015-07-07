@@ -4,6 +4,7 @@ import no.steria.skuldsku.DatabaseTableNames;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import javax.sql.DataSource;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,6 +25,17 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static void exportTo(final PrintWriter out, DataSource dataSource) throws SQLException {
+        String sql = "SELECT DATA FROM " + TABLENAME;
+        try(PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                out.println(resultSet.getString(1));
+            }
+            out.flush();
+        }
     }
 
     private void createTable(Connection conn) throws SQLException {
