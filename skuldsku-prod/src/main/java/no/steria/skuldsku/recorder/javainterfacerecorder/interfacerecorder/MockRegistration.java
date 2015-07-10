@@ -1,5 +1,8 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -8,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import no.steria.skuldsku.recorder.Skuldsku;
 
 /**
  * Each Java API that should be mocked when playing back tests, has a corresponding proxy (created by
@@ -46,12 +47,17 @@ public class MockRegistration {
 
     @Deprecated
     public static MockInterface getMockInterface(Class<?> givenInterface) {
-        return Skuldsku.isInPlayBackMode() ? mocks.get(givenInterface) : null;
+        final MockInterface mockInterface = mocks.get(givenInterface);
+
+        if (Skuldsku.isInPlayBackMode() && mockInterface == null) {
+            RecorderLog.warn(String.format("Mock <%s> interface not registered during playback mode.", givenInterface.getSimpleName()));
+        }
+        return Skuldsku.isInPlayBackMode() ? mockInterface : null;
     }
-    
+
     public static <T> T getMock(final Class<T> interfaceClass) {
-        final MockInterface mi = getMockInterface(interfaceClass);
-        
+        final MockInterface mi = getMockInterfaceSafely(interfaceClass);
+
         @SuppressWarnings("unchecked")
         T service = (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] {interfaceClass},
                 new InvocationHandler() {
@@ -61,6 +67,22 @@ public class MockRegistration {
                     }
                 });
         return service;
+    }
+
+    private static <T> MockInterface getMockInterfaceSafely(Class<T> interfaceClass) {
+        MockInterface mi = getMockInterface(interfaceClass);
+
+        if (mi == null && Skuldsku.isInPlayBackMode()) {
+            mi = new MockInterface() {
+                @Override
+                public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
+                    RecorderLog.warn(String.format("Method %s called on mock interface %s during playbackmode, but mock interface was not registered", method.getName(), interfaceClass.getName()));
+                    return null;
+                }
+            };
+        }
+
+        return mi;
     }
 
     public static void reset() {
