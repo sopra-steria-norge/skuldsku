@@ -93,6 +93,11 @@ public class RecorderLogTest {
         }
 
         @Override
+        public void warn(String message) {
+            printStream.print("good golly!");
+        }
+
+        @Override
         public void debug(String message) {
             printStream.print("Watch out! " + message);
         }
