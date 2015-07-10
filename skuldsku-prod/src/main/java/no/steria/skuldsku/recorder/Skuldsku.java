@@ -11,7 +11,7 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 /**
  * Main class for controlling recording and mocking.
- * 
+ *
  * @see Skuldsku#initialize(SkuldskuConfig)
  */
 public final class Skuldsku {
@@ -24,11 +24,11 @@ public final class Skuldsku {
     private static boolean recordingOn = false;
     private static List<DatabaseRecorder> databaseRecorders = new ArrayList<>();
 
-    
+
     /**
      * Initializes <code>Skuldsku</code>. This method should be called before
      * any other method on this class, and can only be called once.
-     * 
+     *
      * @param config The configuration.
      */
     public static void initialize(SkuldskuConfig config) {
@@ -38,7 +38,7 @@ public final class Skuldsku {
         Skuldsku.config = new SkuldskuConfig(config);
         initializeDatabaseRecorders(config.getDatabaseRecorders());
     }
-    
+
     /**
      * Only used for testing: Resets Skuldsku to its initial state.
      * @see SkuldskuAccessor#reset()
@@ -48,27 +48,27 @@ public final class Skuldsku {
         recordingOn = false;
         databaseRecorders = new ArrayList<>();
     }
-    
+
     /**
      * Returns the <code>SkuldskuConfig</code>.
      * @return A copy of the <code>SkuldskuConfig</code> that was passed
-     *          into {@link #initialize(SkuldskuConfig)}. 
+     *          into {@link #initialize(SkuldskuConfig)}.
      */
     public static SkuldskuConfig getSkuldskuConfig() {
         return new SkuldskuConfig(config);
     }
-    
+
     private static void assertInitialized() {
         if (config == null) {
-            RecorderLog.error("You are must call initialize() before you can start using Skuldsku. No recording" +
+            RecorderLog.error("You must call initialize() before you can start using Skuldsku. No recording" +
                     "will be done.", new Throwable());
 
         }
     }
-    
+
     /**
      * Checks if Skuldsku is in "playback mode".
-     * 
+     *
      * @return <code>true</code> if the JVM property <code>no.steria.skuldsku.doMock</code>
      *          is set to "true", and <code>false</code> otherwise.
      */
@@ -76,7 +76,7 @@ public final class Skuldsku {
         assertInitialized();
         return "true".equals(System.getProperty("no.steria.skuldsku.doMock"));
     }
-    
+
     /**
      * Checks if recording is enabled.
      * @return <code>true</code> if {@link #start()} has been called
@@ -100,14 +100,14 @@ public final class Skuldsku {
      * Wraps the object given by the {@link InstantiationCallback#create() callback}
      * in order to support both recording and mocking. The latter is only activated
      * if {@link #isInPlayBackMode() in playback mode}.
-     * 
+     *
      * This method should be used for decorating every interface you want
      * to mock out in playback mode.
-     * 
+     *
      * @param clazz The java interface.
      * @param ic A callback for instantiating the implementation. The callback
      *          is used in order to avoid instantiating the object when it
-     *          should be mocked out in playback. 
+     *          should be mocked out in playback.
      * @return A decorated version of the object given through the
      *          <code>InstantiationCallback</code>.
      */
@@ -131,7 +131,7 @@ public final class Skuldsku {
 
     /**
      * Starts recording data.
-     * 
+     *
      * @see #isRecordingOn()
      * @see #stop()
      */
@@ -147,7 +147,7 @@ public final class Skuldsku {
 
     /**
      * Stops recording data.
-     * 
+     *
      * @see #isRecordingOn()
      * @see #start()
      */
