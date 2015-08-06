@@ -284,6 +284,9 @@ public class ClassSerializer {
         List<Field> declaredFields = getAllFields(new ArrayList<Field>(),object.getClass());
         StringBuilder result = new StringBuilder();
         for (Field field : declaredFields) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
             result.append(";");
             result.append(field.getName());
             result.append("=");

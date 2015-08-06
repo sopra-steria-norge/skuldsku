@@ -31,8 +31,12 @@ public class RecordedDataMock implements MockInterface, Serializable {
         }
 
         for (JavaInterfaceCall recordObject : recorded) {
-            if (serviceObjectName.equals(recordObject.getClassName())
-                    && method.getName().equals(recordObject.getMethodname())
+            if (
+                    /* TODO: FIX (choose correct subclass+method combination):
+                    serviceObjectName.equals(recordObject.getClassName())
+                    &&
+                     */
+                    method.getName().equals(recordObject.getMethodname())
                     && argsAsString.toString().equals(recordObject.getParameters())
                     ) {
                 return serializer.asObject(recordObject.getResult());
