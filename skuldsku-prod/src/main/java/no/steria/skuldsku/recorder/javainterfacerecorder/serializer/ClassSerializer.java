@@ -173,13 +173,13 @@ public class ClassSerializer {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
             value = fieldValue
-                    .replaceAll("&amp", "&")
                     .replaceAll("&semi", ";")
                     .replaceAll("&eq", "=")
                     .replaceAll("&lt", "<")
                     .replaceAll("&gt", ">")
                     .replaceAll("&percent","%")
-                    .replaceAll("&newline", "\n");
+                    .replaceAll("&newline", "\n")
+                    .replaceAll("&amp", "&"); //This really must happen last, or we end up double-deserializing.
         }
         return value;
     }

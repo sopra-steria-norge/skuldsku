@@ -42,11 +42,10 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
         } finally {
             if (Skuldsku.isRecordingOn()) {
                 try {
-                    RecorderLog.debug("IRW: Logging..");
                     String className = obj.getClass().getName();
                     String methodName = method.getName();
-                    RecorderLog.debug("IRW: Logging for " + className + "," + methodName);
                     LogRunner.log(javaIntefaceCallPersister, className, methodName, args, result, interfaceRecorderConfig);
+                    RecorderLog.debug("IRW: Logged for " + className + "," + methodName);
                 } catch (Exception e) {
                     RecorderLog.debug("IRW: Exception loggin result : " + e);
                 }

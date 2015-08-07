@@ -1,11 +1,22 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.*;
+import no.steria.skuldsku.recorder.recorders.StreamRecorderCommunicator;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.LogRunner.log;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 // Apparently you cannot use internal classes for testing this. I don't know why, it just doesn't work.
@@ -244,6 +255,27 @@ public class ClassSerializerTest {
         ClassWithSimpleFields dupl = (ClassWithSimpleFields) serializer.asObject(asString);
 
         assertThat(dupl.getStringval()).isEqualTo("Noe\nMer");
+    }
+
+    @Test
+    public void shouldHandleDataWithSemicolon() throws IOException {
+        Skuldsku.initialize(new SkuldskuConfig());
+        Skuldsku.start();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        JavaIntefaceCallPersister persister = new StreamRecorderCommunicator(os);
+        InterfaceRecorderConfig config = InterfaceRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create();
+
+        ClassWithSimpleFields classWithSimpleFields = new ClassWithSimpleFields();
+        classWithSimpleFields.setStringval("Noe;Mer");
+        log(persister, "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, config);
+
+        os.flush();
+        String serialized = os.toString();
+        System.out.println(serialized);
+
+        JavaInterfaceCall call = (JavaInterfaceCall) serializer.asObject(serialized.substring(7));
+
+        assertEquals("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=Noe&semiMer;intval=0;anotherVar=false>", call.getResult());
     }
 
     @Test
