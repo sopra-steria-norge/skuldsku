@@ -24,13 +24,16 @@ public class ClassSerializer {
     }
 
     public String asString(Object object) {
-        return new ClassSerializer().myAsString(object);
+        return new ClassSerializer().myAsString(object).toString();
     }
 
-    private String myAsString(Object object) {
-        String encodedValue = encodeValue(object);
-        if (object != null && !encodedValue.startsWith("<")) {
-            return "<" + object.getClass().getName() + ";" + encodedValue + ">";
+    private StringBuilder myAsString(Object object) {
+        StringBuilder encodedValue = encodeValue(object);
+        if (object != null && encodedValue.indexOf("<") != 0) {
+            encodedValue.append(">");
+            encodedValue.insert(0, ";");
+            encodedValue.insert(0, object.getClass().getName());
+            encodedValue.insert(0, "<");
         }
         return encodedValue;
     }
@@ -186,21 +189,24 @@ public class ClassSerializer {
         return value;
     }
 
-    private String encodeValue(Object fieldValue) {
+    private StringBuilder encodeValue(Object fieldValue) {
+        StringBuilder stringBuffer = new StringBuilder();
         if (fieldValue == null) {
-            return "<null>";
+            stringBuffer.append("<null>");
+            return stringBuffer;
         }
 
         if (fieldValue instanceof Enum) {
             Enum en = (Enum) fieldValue;
-
-            return String.format("<%s;%s>", en.getClass().getName(), en.name());
+            stringBuffer.append(String.format("<%s;%s>", en.getClass().getName(), en.name()));
+            return stringBuffer;
         }
         if ("org.joda.time.DateTime".equals(fieldValue.getClass().getName())) {
             try {
                 Method toDate = fieldValue.getClass().getMethod("toDate");
                 Date asDate = (Date) toDate.invoke(fieldValue);
-                return dateFormat.format(asDate);
+                stringBuffer.append(dateFormat.format(asDate));
+                return stringBuffer;
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -210,7 +216,7 @@ public class ClassSerializer {
         if (!isValueClass(packageName)) {
             int ind = isKnown(fieldValue);
             if (ind != -1) {
-                return "<duplicate;" + ind + ">";
+                return stringBuffer.append("<duplicate;").append(ind).append(">");
             }
         }
         knownObjects.add(fieldValue);
@@ -222,7 +228,7 @@ public class ClassSerializer {
                 encode(res, objInArr);
             }
             res.append(">");
-            return res.toString();
+            return res;
         }
         if (fieldValue instanceof List) {
             List<Object> listValues = (List<Object>) fieldValue;
@@ -231,7 +237,7 @@ public class ClassSerializer {
                 encode(res, objectInList);
             }
             res.append(">");
-            return res.toString();
+            return res;
         }
         if (fieldValue instanceof Map) {
             Map<Object, Object> mapValue = (Map<Object, Object>) fieldValue;
@@ -248,14 +254,14 @@ public class ClassSerializer {
                 RecorderLog.error("Could not serialize map that does not support entrySet(). Skipping value.");
             }
             res.append(">");
-            return res.toString();
+            return res;
         }
         if (Date.class.equals(fieldValue.getClass())) {
-            return dateFormat.format(fieldValue);
+            return new StringBuilder(dateFormat.format(fieldValue));
         }
 
         if (isValueClass(packageName)) {
-            return fieldValue.toString()
+            return new StringBuilder(fieldValue.toString()
                     .replaceAll("&", "&amp")
                     .replaceAll(";", "&semi")
                     .replaceAll("<", "&lt")
@@ -265,11 +271,11 @@ public class ClassSerializer {
                     .replaceAll("\r\n", "&newline")
                     .replaceAll("\n\r", "&newline")
                     .replaceAll("\r", "&newline")
-                    .replaceAll("\n", "&newline");
+                    .replaceAll("\n", "&newline"));
         }
         String classname = fieldValue.getClass().getName();
-        String fieldsCode = computeFields(fieldValue);
-        return "<" + classname + fieldsCode + ">";
+        StringBuilder fieldsCode = computeFields(fieldValue);
+        return new StringBuilder("<").append(classname).append(fieldsCode).append(">");
     }
 
     private boolean isValueClass(String packageName) {
@@ -286,7 +292,7 @@ public class ClassSerializer {
         return fields;
     }
 
-    private String computeFields(Object object) {
+    private StringBuilder computeFields(Object object) {
         List<Field> declaredFields = getAllFields(new ArrayList<Field>(),object.getClass());
         StringBuilder result = new StringBuilder();
         for (Field field : declaredFields) {
@@ -302,7 +308,7 @@ public class ClassSerializer {
                     field.setAccessible(true);
                 }
                 Object fieldValue = field.get(object);
-                String encodedValue = encodeValue(fieldValue);
+                StringBuilder encodedValue = encodeValue(fieldValue);
                 result.append(encodedValue);
                 if (!access) {
                     field.setAccessible(false);
@@ -311,7 +317,7 @@ public class ClassSerializer {
                 throw new RuntimeException(e);
             }
         }
-        return result.toString();
+        return result;
     }
 
     private void setFieldValue(Object object, String fieldValue, Field field) {
