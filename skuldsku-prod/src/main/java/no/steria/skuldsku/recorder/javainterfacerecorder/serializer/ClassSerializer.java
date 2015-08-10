@@ -1,5 +1,7 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
+import no.steria.skuldsku.recorder.logging.RecorderLog;
+
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.security.AccessController;
@@ -234,12 +236,16 @@ public class ClassSerializer {
         if (fieldValue instanceof Map) {
             Map<Object, Object> mapValue = (Map<Object, Object>) fieldValue;
             StringBuilder res = new StringBuilder("<map");
-            for (Map.Entry<Object, Object> entry : mapValue.entrySet()) {
-                Object val = entry.getKey();
-                encode(res, val);
-                val = entry.getValue();
-                encode(res, val);
+            try {
+                for (Map.Entry<Object, Object> entry : mapValue.entrySet()) {
+                    Object val = entry.getKey();
+                    encode(res, val);
+                    val = entry.getValue();
+                    encode(res, val);
 
+                }
+            } catch (UnsupportedOperationException uoe) {
+                RecorderLog.error("Could not serialize map that does not support entrySet(). Skipping value.");
             }
             res.append(">");
             return res.toString();

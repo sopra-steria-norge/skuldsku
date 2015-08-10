@@ -3,6 +3,7 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,8 +32,7 @@ public class LogRunner implements Runnable {
     }
 
     private void logEvent() {
-        RecorderDebugLogger logger = interfaceRecorderConfig.debugLogger();
-        logger.debug("LogRunner: log event " + className + "," + methodName);
+        RecorderLog.debug("LogRunner: log event " + className + "," + methodName);
 
         try {
             ClassSerializer classSerializer = new ClassSerializer();
@@ -41,7 +41,7 @@ public class LogRunner implements Runnable {
                 boolean first = true;
                 for (Object para : args) {
                     String parStr = para != null ? para.getClass().getName() : null;
-                    logger.debug("LogRunner: writing para " + parStr);
+                    RecorderLog.debug("LogRunner: writing para " + parStr);
                     Object toLog = logObject(para);
                     if (!first) {
                         parameters.append(";");
@@ -50,15 +50,13 @@ public class LogRunner implements Runnable {
                     parameters.append(classSerializer.asString(toLog));
                 }
             }
-            logger.debug("LogRunner: writing result");
+            RecorderLog.debug("LogRunner: writing result");
             String resultStr = classSerializer.asString(result);
-            logger.debug("LogRunner: Calling report callback");
+            RecorderLog.debug("LogRunner: Calling report callback");
 
             javaIntefaceCallPersister.event(new JavaInterfaceCall(className, methodName, parameters.toString(), resultStr));
         } catch (Throwable e) {
-            logger.debug("LogRunner: exeption logging " + e);
-        } finally {
-            logger.debug("LogRunner: Leaving");
+            RecorderLog.debug("LogRunner: exeption logging " + e);
         }
     }
 
