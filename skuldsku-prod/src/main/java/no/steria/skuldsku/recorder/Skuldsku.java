@@ -34,9 +34,10 @@ public final class Skuldsku {
     public static void initialize(SkuldskuConfig config) {
         if (Skuldsku.config != null) {
             RecorderLog.error("You are initializing Skuldsku twice, ignoring second attempt at initalizing.", new Throwable());
+        } else {
+            Skuldsku.config = new SkuldskuConfig(config);
+            initializeDatabaseRecorders(config.getDatabaseRecorders());
         }
-        Skuldsku.config = new SkuldskuConfig(config);
-        initializeDatabaseRecorders(config.getDatabaseRecorders());
     }
 
     /**
