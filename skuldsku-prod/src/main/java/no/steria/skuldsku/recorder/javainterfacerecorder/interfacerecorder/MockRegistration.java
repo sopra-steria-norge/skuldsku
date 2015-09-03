@@ -3,7 +3,6 @@ package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
@@ -60,12 +59,7 @@ public class MockRegistration {
 
         @SuppressWarnings("unchecked")
         T service = (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class<?>[] {interfaceClass},
-                new InvocationHandler() {
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        return mi.invoke(interfaceClass, interfaceClass.getName(), method, args); // interfaceClass.getName() ?
-                    }
-                });
+                new MockInvocationHandler(mi, interfaceClass));
         return service;
     }
 

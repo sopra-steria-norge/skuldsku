@@ -37,17 +37,22 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
         try {
            result = method.invoke(obj, args);
            return result;
-        } catch (InvocationTargetException e) { //TODO ikh: is this necessary?
+        } catch (InvocationTargetException e) {
             throw e.getTargetException();
         } finally {
             if (Skuldsku.isRecordingOn()) {
+                String className;
                 try {
-                    String className = obj.getClass().getName();
+                    if (obj.getClass().equals(Proxy.class)) {
+                        className = ((MockInvocationHandler) Proxy.getInvocationHandler(obj)).getImplementationClass();
+                    } else {
+                        className = obj.getClass().getName();
+                    }
                     String methodName = method.getName();
                     LogRunner.log(javaIntefaceCallPersister, className, methodName, args, result, interfaceRecorderConfig);
                     RecorderLog.debug("IRW: Logged for " + className + "," + methodName);
                 } catch (Exception e) {
-                    RecorderLog.debug("IRW: Exception loggin result : " + e);
+                    RecorderLog.debug("IRW: Exception logging result : " + e);
                 }
             }
 

@@ -17,6 +17,10 @@ public class RecordedDataMock implements MockInterface, Serializable {
 
     }
 
+    public String getImplementation() {
+        return recorded.get(0).getClassName();
+    }
+
     @Override
     public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
         ClassSerializer serializer = new ClassSerializer();

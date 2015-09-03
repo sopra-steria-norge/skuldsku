@@ -56,7 +56,7 @@ public class LogRunner implements Runnable {
 
             javaIntefaceCallPersister.event(new JavaInterfaceCall(className, methodName, parameters.toString(), resultStr));
         } catch (Throwable e) {
-            RecorderLog.debug("LogRunner: exeption logging " + e);
+            RecorderLog.debug("LogRunner: exception logging " + e);
         }
     }
 
