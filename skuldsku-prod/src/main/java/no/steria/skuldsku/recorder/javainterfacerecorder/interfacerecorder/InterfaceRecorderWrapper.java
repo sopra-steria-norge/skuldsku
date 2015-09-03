@@ -43,7 +43,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
             if (Skuldsku.isRecordingOn()) {
                 String className;
                 try {
-                    if (obj.getClass().equals(Proxy.class)) {
+                    if (obj instanceof Proxy) {
                         className = ((MockInvocationHandler) Proxy.getInvocationHandler(obj)).getImplementationClass();
                     } else {
                         className = obj.getClass().getName();
