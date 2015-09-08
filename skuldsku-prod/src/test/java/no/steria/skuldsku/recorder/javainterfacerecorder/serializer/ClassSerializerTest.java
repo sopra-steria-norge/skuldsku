@@ -470,7 +470,11 @@ public class ClassSerializerTest {
     }
     
     
-    public final static class TestIgnore {
+    public static class TestIgnoreSuper {
+        protected String c;
+    }
+    
+    public final static class TestIgnore extends TestIgnoreSuper {
         private String a;
         private String b;
     }
@@ -480,8 +484,10 @@ public class ClassSerializerTest {
         final TestIgnore ti = new TestIgnore();
         ti.a = "foo";
         ti.b = "bar";
+        ti.c = "42";
         
         ClassSerializer.addIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore.b");
+        ClassSerializer.addIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnoreSuper.c");
         final ClassSerializer cs = new ClassSerializer();
         final String serializedValue = cs.asString(ti);
         assertThat(serializedValue).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore;a=foo>");
