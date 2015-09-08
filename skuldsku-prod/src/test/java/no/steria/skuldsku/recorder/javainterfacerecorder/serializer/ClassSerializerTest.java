@@ -282,23 +282,151 @@ public class ClassSerializerTest {
 
         assertEquals("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassWithSimpleFields;stringval=Noe&semiMer;intval=0;anotherVar=false>", call.getResult());
     }
+    
+    public static class SuperClass {
+        private String superValue;
 
+        public String getSupervalue() {
+            return superValue;
+        }
+
+        public void setSupervalue(String superValue) {
+            this.superValue = superValue;
+        }
+    }
+    
+    public static class SubClass extends SuperClass {
+        private String subValue;
+
+        public String getSubvalue() {
+            return subValue;
+        }
+
+        public void setSubvalue(String subValue) {
+            this.subValue = subValue;
+        }
+    }
+    
     @Test
-    public void shouldHandleSubclasses() throws Exception {
+    public void shouldHandleSubClasses() throws Exception {
         SubClass subClass = new SubClass();
 
         subClass.setSupervalue("a");
         subClass.setSubvalue("b");
 
         String asString = serializer.asString(subClass);
-
+        System.out.println(asString);
+        assertThat(subClass.getSubvalue()).isNotEqualTo(subClass.getSupervalue());
         assertThat(asString)
-                .startsWith("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.SubClass")
-                .contains("supervalue=a")
-                .contains("subvalue=b");
+                .startsWith("<" + SubClass.class.getName())
+                .contains("superValue=a")
+                .contains("subValue=b");
 
         SubClass duplicate = (SubClass) serializer.asObject(asString);
 
+        assertThat(duplicate.getSubvalue()).isNotEqualTo(duplicate.getSupervalue());
+        assertThat(duplicate.getSubvalue()).isNotNull();
+        assertThat(duplicate.getSupervalue()).isNotNull();
+        assertThat(duplicate.getSupervalue()).isEqualTo("a");
+        assertThat(duplicate.getSubvalue()).isEqualTo("b");
+
+    }
+
+    public static class SuperClass2 {
+        private String value;
+
+        public String getSupervalue() {
+            return value;
+        }
+
+        public void setSupervalue(String value) {
+            this.value = value;
+        }
+    }
+    
+    public static final class SubClass2 extends SuperClass2 {
+        private String value;
+
+        public String getSubvalue() {
+            return value;
+        }
+
+        public void setSubvalue(String value) {
+            this.value = value;
+        }
+    }
+    
+    @Test
+    @Ignore("TODO: Implement support for fields having the same name in super and sub classes.")
+    public void shouldHandleSubclassesShadowing() throws Exception {
+        SubClass2 subClass = new SubClass2();
+
+        subClass.setSupervalue("a");
+        subClass.setSubvalue("b");
+
+        String asString = serializer.asString(subClass);
+
+        assertThat(subClass.getSubvalue()).isNotEqualTo(subClass.getSupervalue());
+        assertThat(asString)
+                .startsWith("<" + SubClass2.class.getName())
+                .contains(SuperClass2.class.getName() + ".value=a")
+                .contains("value=b");
+
+        SubClass2 duplicate = (SubClass2) serializer.asObject(asString);
+
+        assertThat(duplicate.getSubvalue()).isNotEqualTo(duplicate.getSupervalue());
+        assertThat(duplicate.getSubvalue()).isNotNull();
+        assertThat(duplicate.getSupervalue()).isNotNull();
+        assertThat(duplicate.getSupervalue()).isEqualTo("a");
+        assertThat(duplicate.getSubvalue()).isEqualTo("b");
+
+    }
+    
+    @Test
+    @Ignore("TODO: Add support for classes with a reference to the outer object (instance classes etc)")
+    public void shouldHandleInnerClasses() throws Exception {
+        class SuperClass3 {
+            private String superValue;
+
+            public String getSupervalue() {
+                return superValue;
+            }
+
+            public void setSupervalue(String superValue) {
+                this.superValue = superValue;
+            }
+        }
+        
+        class SubClass3 extends SuperClass3 {
+            private String subValue;
+
+            public String getSubvalue() {
+                return subValue;
+            }
+
+            public void setSubvalue(String subValue) {
+                this.subValue = subValue;
+            }
+        }
+
+        SubClass3 subClass = new SubClass3();
+
+        subClass.setSupervalue("a");
+        subClass.setSubvalue("b");
+
+        String asString = serializer.asString(subClass);
+
+        assertThat(subClass.getSubvalue()).isNotEqualTo(subClass.getSupervalue());
+        assertThat(asString)
+                .startsWith("<" + SubClass3.class.getName())
+                .contains("superValue=a")
+                .contains("subValue=b");
+
+        SubClass3 duplicate = (SubClass3) serializer.asObject(asString);
+
+        assertThat(duplicate.getSubvalue()).isNotEqualTo(duplicate.getSupervalue());
+        assertThat(duplicate.getSubvalue()).isNotNull();
+        assertThat(duplicate.getSupervalue()).isNotNull();
         assertThat(duplicate.getSupervalue()).isEqualTo("a");
         assertThat(duplicate.getSubvalue()).isEqualTo("b");
 
