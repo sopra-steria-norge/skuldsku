@@ -468,4 +468,26 @@ public class ClassSerializerTest {
         private Test2(int x, int y) {
         }
     }
+    
+    
+    public final static class TestIgnore {
+        private String a;
+        private String b;
+    }
+    
+    @Test
+    public void shouldIgnoreGivenFields() {
+        final TestIgnore ti = new TestIgnore();
+        ti.a = "foo";
+        ti.b = "bar";
+        
+        ClassSerializer.addIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore.b");
+        final ClassSerializer cs = new ClassSerializer();
+        final String serializedValue = cs.asString(ti);
+        assertThat(serializedValue).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore;a=foo>");
+        
+        final TestIgnore tiDuplicate = (TestIgnore) cs.asObject(serializedValue);
+        assertThat(tiDuplicate.a).isEqualTo(ti.a);
+        assertThat(tiDuplicate.b).isEqualTo(null);
+    }
 }

@@ -11,9 +11,21 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ClassSerializer {
+    private static final Set<String> ignoreFields = new HashSet<String>();
+    
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
     private List<Object> knownObjects = new ArrayList<>();
 
+    /**
+     * Adds a field to be ignored (skipped) when serializing.
+     * 
+     * @param ignoreField The field on the format: package.class.field.
+     *                    Example: <code>"com.example.MyClass.myField"</code>
+     */
+    public static void addIgnoreField(String ignoreField) {
+        ignoreFields.add(ignoreField);
+    }
+    
     private int isKnown(Object obj) {
         for (int i=0;i<knownObjects.size();i++) {
             if (knownObjects.get(i) == obj) {
@@ -296,6 +308,11 @@ public class ClassSerializer {
         List<Field> declaredFields = getAllFields(new ArrayList<Field>(),object.getClass());
         StringBuilder result = new StringBuilder();
         for (Field field : declaredFields) {
+            final String fieldName = field.getDeclaringClass().getName() + "." + field.getName();
+            if (ignoreFields.contains(fieldName)) {
+                continue;
+            }
+            
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
