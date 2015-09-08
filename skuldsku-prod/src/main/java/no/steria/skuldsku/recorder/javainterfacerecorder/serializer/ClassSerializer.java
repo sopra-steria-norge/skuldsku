@@ -342,18 +342,38 @@ public class ClassSerializer {
         return AccessController.doPrivileged(new PrivilegedAction<Object>() {
             @Override
             public Object run() {
+                final Class<?> clazz;
                 try {
-                    Class<?> clazz = Class.forName(className);
+                    clazz = Class.forName(className);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+                
+                try {
                     Constructor<?> c = clazz.getDeclaredConstructor();
                     c.setAccessible(true);
                     return c.newInstance();
-                } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    return createObjectUsingFallback(clazz);
                 }
             }
         });
     }
 
+    @SuppressWarnings("unchecked")
+    private <T> T createObjectUsingFallback(final Class<T> clazz) {
+        /* XXX: Use a proper solution like the Objenesis library */
+        try {
+            Class<?> unsafeClazz = Class.forName("sun.misc.Unsafe");
+            Field declaredField = unsafeClazz.getDeclaredField("theUnsafe");
+            declaredField.setAccessible(true);
+            Object unsafe = declaredField.get(null);
+            final Method allocateInstance = unsafeClazz.getMethod("allocateInstance", new Class[] { Class.class });
+            return (T) allocateInstance.invoke(unsafe, clazz);
+        } catch (NoSuchMethodException | SecurityException | ClassNotFoundException | InvocationTargetException | IllegalAccessException | NoSuchFieldException e2) {
+            throw new RuntimeException(e2);
+        }
+    }
 
     private Object complexValueFromString(String fieldValue, Class<?> type) {
         String[] parts = splitToParts(fieldValue);

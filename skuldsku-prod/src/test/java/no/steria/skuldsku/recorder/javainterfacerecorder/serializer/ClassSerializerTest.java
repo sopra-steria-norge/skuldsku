@@ -1,11 +1,10 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
-import no.steria.skuldsku.recorder.Skuldsku;
-import no.steria.skuldsku.recorder.SkuldskuConfig;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.*;
-import no.steria.skuldsku.recorder.recorders.StreamRecorderCommunicator;
-import org.junit.Ignore;
-import org.junit.Test;
+import static no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.LogRunner.log;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,10 +13,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.LogRunner.log;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.SkuldskuConfig;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.AsyncMode;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderConfig;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
+import no.steria.skuldsku.recorder.recorders.StreamRecorderCommunicator;
+
+import org.junit.Ignore;
+import org.junit.Test;
 
 // Apparently you cannot use internal classes for testing this. I don't know why, it just doesn't work.
 public class ClassSerializerTest {
@@ -295,6 +300,44 @@ public class ClassSerializerTest {
         SubClass duplicate = (SubClass) serializer.asObject(asString);
 
         assertThat(duplicate.getSupervalue()).isEqualTo("a");
+        assertThat(duplicate.getSubvalue()).isEqualTo("b");
 
+    }
+    
+    @Test
+    public void shouldHandleClassesWithNoEmptyConstructor() {
+        final ClassSerializer cs = new ClassSerializer();
+
+        Test1 test1 = new Test1(1, 2);
+        test1.testField = "bar";
+        
+        Test2 test2 = new Test2(1, 2);
+        test2.testField = "foo";
+        test2.testRef = test1;
+        
+        final String serializedObject = cs.asString(test2);
+        final Object deserializedObject = cs.asObject(serializedObject);
+        
+        assertThat(deserializedObject.getClass()).isEqualTo(Test2.class);
+        final Test2 test2NewObject = (Test2) deserializedObject;
+        assertTrue(test2NewObject != test2);
+        assertThat(test2NewObject.testField).isEqualTo(test2.testField);
+        assertTrue(test2NewObject.testRef != test1);
+        assertThat(test2NewObject.testRef.testField).isEqualTo(test1.testField);
+    }
+    
+    public final static class Test1 {
+        private String testField;
+        
+        private Test1(int x, int y) {
+        }
+    }
+    
+    public final static class Test2 {
+        private String testField;
+        private Test1 testRef;
+        
+        private Test2(int x, int y) {
+        }
     }
 }
