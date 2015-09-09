@@ -1,6 +1,10 @@
 package no.steria.skuldsku;
 
-public class DatabaseTableNames {
+public final class DatabaseTableNames {
+    
+    private DatabaseTableNames() {
+        
+    }
 
     public static final String SKULDSKU_DATABASE_TABLE_PREFIX = "SKS_";
     public static final String DATABASE_RECORDINGS_TABLE = SKULDSKU_DATABASE_TABLE_PREFIX + "DATABASE_RECORDINGS";
