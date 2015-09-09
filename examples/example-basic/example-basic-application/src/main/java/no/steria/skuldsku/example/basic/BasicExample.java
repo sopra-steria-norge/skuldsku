@@ -1,9 +1,17 @@
 package no.steria.skuldsku.example.basic;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
+import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedDataMock;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;
@@ -18,12 +26,16 @@ public class BasicExample {
         setUpSkuldsku();
         startApplication();
     }
-    
+       
     
     private static void setUpSkuldsku() {
         Skuldsku.initialize(new SkuldskuConfig("data.txt"));
+        if (Skuldsku.isInPlayBackMode()) {
+            MockRegistration.registerMocksFrom("expected.txt");
+        }
         Skuldsku.start();
     }
+    
 
     private static void startApplication() throws Exception {
         final Server server = createServer();
