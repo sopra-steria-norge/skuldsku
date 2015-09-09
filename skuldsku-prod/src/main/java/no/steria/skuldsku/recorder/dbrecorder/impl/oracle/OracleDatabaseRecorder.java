@@ -28,8 +28,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
     }
 
     public OracleDatabaseRecorder(DataSource dataSource, List<String> ignoredTables) {
-        this(new SimpleTransactionManager(dataSource), new ArrayList<String>(0));
-        this.ignoredTables = ignoredTables;
+        this(new SimpleTransactionManager(dataSource), ignoredTables);
     }
 
     OracleDatabaseRecorder(TransactionManager transactionManager, List<String> ignoredTables) {
