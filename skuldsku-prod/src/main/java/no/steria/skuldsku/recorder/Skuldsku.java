@@ -88,8 +88,7 @@ public final class Skuldsku {
         return recordingOn;
     }
 
-    @Deprecated
-    public static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
+    static void initializeDatabaseRecorders(List<DatabaseRecorder> databaseRecorders) {
         assertInitialized();
         Skuldsku.databaseRecorders = databaseRecorders;
         for (DatabaseRecorder databaseRecorder : databaseRecorders) {
