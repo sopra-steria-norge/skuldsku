@@ -4,6 +4,7 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.utils.*;
 
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map.Entry;
@@ -108,7 +109,15 @@ public class DatabaseChangeRollback {
             if (append) {
                 values.append(", ");
             }
-            values.append(entry.getKey()).append("='").append(entry.getValue()).append("'");
+            final String name = stripQualifier(entry.getKey());
+            
+            String value = entry.getValue();
+            if (value == null) {
+                value = "null";
+            } else {
+                value = "'" + value + "'";
+            }
+            values.append(name).append("=").append(value).append("");
             append = true;
         }
         return values.toString();
@@ -128,7 +137,13 @@ public class DatabaseChangeRollback {
             if (append) {
                 where.append(" AND ");
             }
-            where.append(stripQualifier(entry.getKey())).append("='").append(entry.getValue()).append("'");
+            final String name = stripQualifier(entry.getKey());
+            final String value = entry.getValue();
+            if (value != null) {
+                where.append("TO_CHAR(").append(name).append(")='").append(value).append("'");
+            } else {
+                where.append(name).append(" IS NULL");
+            }
             append = true;
         }
         return where.toString();
