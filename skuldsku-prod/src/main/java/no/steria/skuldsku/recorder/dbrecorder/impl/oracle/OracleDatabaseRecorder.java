@@ -71,7 +71,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             public Object callback(Jdbc jdbc) {
                 jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='|" +
                         "|SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
-                        DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
+                        DATABASE_RECORDINGS_TABLE + "ORDER BY SKS_ID", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -95,7 +95,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             public Object callback(Jdbc jdbc) {
                 jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||'" +
                         ";TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
-                        DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
+                        DATABASE_RECORDINGS_TABLE + "ORDER BY SKS_ID", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -113,7 +113,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                jdbc.query("SELECT " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + DATABASE_RECORDINGS_TABLE, new ResultSetCallback() {
+                jdbc.query("SELECT " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + DATABASE_RECORDINGS_TABLE + "ORDER BY SKS_ID", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
