@@ -35,7 +35,7 @@ public class RecorderCommunicatorTest {
                 ;
 
         inMemoryRecorderCommunicator.reportCall(httpCall);
-        inMemoryRecorderCommunicator.event(new JavaInterfaceCall("class","method","para","result"));
+        inMemoryRecorderCommunicator.event(new JavaInterfaceCall("", "class","method","para","result"));
 
         List<HttpCall> recordedHttpObjects = inMemoryRecorderCommunicator.getRecordedHttp();
 

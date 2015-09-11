@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpCall implements Serializable {
+    private String clientIdentifier = "";
     private String readInputStream;
     private Map<String,String> parameters = new HashMap<>();
     private String method;
@@ -18,6 +19,14 @@ public class HttpCall implements Serializable {
     public HttpCall setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
         return this;
+    }
+    
+    public String getClientIdentifier() {
+        return clientIdentifier;
+    }
+    
+    public void setClientIdentifier(String clientIdentifier) {
+        this.clientIdentifier = (clientIdentifier != null) ? clientIdentifier : "";
     }
 
     public String getReadInputStream() {

@@ -6,12 +6,14 @@ import java.io.Serializable;
 import java.util.List;
 
 public class JavaInterfaceCall implements Serializable {
+    private String clientIdentifier = "";
     private String className;
     private String methodname;
     private String parameters;
     private String result;
 
-    public JavaInterfaceCall(String className, String methodname, String parameters, String result) {
+    public JavaInterfaceCall(String clientIdentifier, String className, String methodname, String parameters, String result) {
+        this.clientIdentifier = clientIdentifier;
         this.className = className;
         this.methodname = methodname;
         this.parameters = parameters;
@@ -22,6 +24,14 @@ public class JavaInterfaceCall implements Serializable {
 
     }
 
+    public String getClientIdentifier() {
+        return clientIdentifier;
+    }
+    
+    public void setClientIdentifier(String clientIdentifier) {
+        this.clientIdentifier = (clientIdentifier != null) ? clientIdentifier : "";
+    }
+    
     public String getClassName() {
         return className;
     }

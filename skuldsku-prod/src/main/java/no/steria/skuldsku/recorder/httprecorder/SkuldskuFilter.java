@@ -6,6 +6,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.Filter;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.common.ClientIdentifierHolder;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 /**
@@ -58,9 +60,15 @@ public class SkuldskuFilter implements Filter{
 
         logHeaders(req, httpCall);
 
+        final String requestId = UUID.randomUUID().toString();
+        ClientIdentifierHolder.setClientIdentifier(requestId);
+        httpCall.setClientIdentifier(requestId);
+        
         chain.doFilter(requestSpy,responseSpy);
 
         httpCall.setOutput(responseSpy.getWritten());
+        
+        ClientIdentifierHolder.removeClientIdentifier();
 
         HttpCallPersister reporter = getReporter();
         if (reporter != null) {

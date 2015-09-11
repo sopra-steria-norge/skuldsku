@@ -1,6 +1,7 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
 import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.common.ClientIdentifierHolder;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import java.lang.reflect.InvocationTargetException;
@@ -49,7 +50,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
                         className = obj.getClass().getName();
                     }
                     String methodName = method.getName();
-                    LogRunner.log(javaIntefaceCallPersister, className, methodName, args, result, interfaceRecorderConfig);
+                    LogRunner.log(javaIntefaceCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, interfaceRecorderConfig);
                     RecorderLog.debug("IRW: Logged for " + className + "," + methodName);
                 } catch (Exception e) {
                     RecorderLog.debug("IRW: Exception logging result : " + e);

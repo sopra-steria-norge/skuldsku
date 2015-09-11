@@ -35,8 +35,8 @@ public class InterfaceRecordingCheckerTest {
         simple.value = "result";
         ClassSerializer classSerializer = new ClassSerializer();
         String para = classSerializer.asString("para");
-        JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
-        JavaInterfaceCall b = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall a = new JavaInterfaceCall("", "Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall b = new JavaInterfaceCall("", "Service", "doIt", para, classSerializer.asString(simple));
 
         final JavaInterfaceVerifierResult verifierResult = verifier.assertEquals(Arrays.asList(a), Arrays.asList(b), new JavaInterfaceCallVerifierOptions());
         assertThat(verifierResult.getNotEquals()).isEmpty();
@@ -47,8 +47,8 @@ public class InterfaceRecordingCheckerTest {
         Simple simple = new Simple();
         simple.value = "result";
         ClassSerializer classSerializer = new ClassSerializer();
-        JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", classSerializer.asString("parax"), classSerializer.asString(simple));
-        JavaInterfaceCall b = new JavaInterfaceCall("Service", "doIt", classSerializer.asString("para"), classSerializer.asString(simple));
+        JavaInterfaceCall a = new JavaInterfaceCall("", "Service", "doIt", classSerializer.asString("parax"), classSerializer.asString(simple));
+        JavaInterfaceCall b = new JavaInterfaceCall("", "Service", "doIt", classSerializer.asString("para"), classSerializer.asString(simple));
 
         final JavaInterfaceVerifierResult verifierResult = verifier.assertEquals(Arrays.asList(a), Arrays.asList(b), new JavaInterfaceCallVerifierOptions());
 
@@ -63,12 +63,12 @@ public class InterfaceRecordingCheckerTest {
         simple.value = "result";
         ClassSerializer classSerializer = new ClassSerializer();
         String para = classSerializer.asString("para");
-        JavaInterfaceCall a = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
-        JavaInterfaceCall b = new JavaInterfaceCall("Service", "reverseIt", classSerializer.asString(simple),para);
-        JavaInterfaceCall c = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall a = new JavaInterfaceCall("", "Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall b = new JavaInterfaceCall("", "Service", "reverseIt", classSerializer.asString(simple),para);
+        JavaInterfaceCall c = new JavaInterfaceCall("", "Service", "doIt", para, classSerializer.asString(simple));
 
-        JavaInterfaceCall d = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
-        JavaInterfaceCall e = new JavaInterfaceCall("Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall d = new JavaInterfaceCall("", "Service", "doIt", para, classSerializer.asString(simple));
+        JavaInterfaceCall e = new JavaInterfaceCall("", "Service", "doIt", para, classSerializer.asString(simple));
 
         final JavaInterfaceVerifierResult verifierResult = verifier.assertEquals(Arrays.asList(a, b, c), Arrays.asList(d, e), new JavaInterfaceCallVerifierOptions());
 

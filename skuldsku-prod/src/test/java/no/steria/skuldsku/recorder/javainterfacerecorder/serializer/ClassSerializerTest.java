@@ -272,7 +272,7 @@ public class ClassSerializerTest {
 
         ClassWithSimpleFields classWithSimpleFields = new ClassWithSimpleFields();
         classWithSimpleFields.setStringval("Noe;Mer");
-        log(persister, "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, config);
+        log(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, config);
 
         os.flush();
         String serialized = os.toString();
