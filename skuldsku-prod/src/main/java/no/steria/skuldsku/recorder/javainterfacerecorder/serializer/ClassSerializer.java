@@ -308,12 +308,12 @@ public class ClassSerializer {
         List<Field> declaredFields = getAllFields(new ArrayList<Field>(),object.getClass());
         StringBuilder result = new StringBuilder();
         for (Field field : declaredFields) {
-            final String fieldName = field.getDeclaringClass().getName() + "." + field.getName();
-            if (ignoreFields.contains(fieldName)) {
+            if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
             
-            if (Modifier.isStatic(field.getModifiers())) {
+            final String fieldName = field.getDeclaringClass().getName() + "." + field.getName();
+            if (ignoreFields.contains(fieldName)) {
                 continue;
             }
             result.append(";");
