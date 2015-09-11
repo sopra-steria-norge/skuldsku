@@ -182,7 +182,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private void createRecorderTableIfNotExists(Jdbc jdbc) {
         List<String> recorderTable = jdbc.queryForList(
-                "select table_name from all_tables where table_name='" + DATABASE_RECORDINGS_TABLE + "'", String.class);
+                "select table_name from user_tables where table_name='" + DATABASE_RECORDINGS_TABLE + "'", String.class);
         if (recorderTable.isEmpty()) {
             jdbc.execute("CREATE TABLE " + DATABASE_RECORDINGS_TABLE + " (\n" +
                     "    " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID             NUMBER,\n" +
