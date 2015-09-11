@@ -24,14 +24,9 @@ public class RecordedDataMock implements MockInterface, Serializable {
     @Override
     public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
         ClassSerializer serializer = new ClassSerializer();
-        StringBuilder argsAsString = new StringBuilder();
-
+        String argsAsString = "";
         if (args != null) {
-            for (Object obj : args) {
-                argsAsString.append(serializer.asString(obj));
-                argsAsString.append(";");
-            }
-            argsAsString.delete(argsAsString.length() - 1, argsAsString.length());
+            argsAsString = arrayToString(args, serializer);
         }
 
         for (JavaInterfaceCall recordObject : recorded) {
@@ -41,12 +36,31 @@ public class RecordedDataMock implements MockInterface, Serializable {
                     &&
                      */
                     method.getName().equals(recordObject.getMethodname())
-                    && argsAsString.toString().equals(recordObject.getParameters())
+                    && argsAsString.equals(recordObject.getParameters())
                     ) {
                 return serializer.asObject(recordObject.getResult());
             }
         }
         return null;
+    }
+
+    private String arrayToString(Object[] args, ClassSerializer serializer) {
+        final StringBuilder argsAsString = new StringBuilder();
+        for (Object obj : args) {
+            argsAsString.append(serializer.asString(obj));
+            argsAsString.append(";");
+        }
+        argsAsString.delete(argsAsString.length() - 1, argsAsString.length());
+        return argsAsString.toString();
+    }
+    
+    public Object[] stringToParameterArray(String parameters, ClassSerializer serializer) {
+        final String[] a = parameters.split(";");
+        final Object[] result = new Object[a.length];
+        for (int i=0; i<a.length; i++) {
+            result[i] = serializer.asObject(a[i]);
+        }
+        return result;
     }
 
     public String getServiceClass() {
