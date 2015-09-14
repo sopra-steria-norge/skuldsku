@@ -1,13 +1,13 @@
 package no.steria.skuldsku.recorder;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
 import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
 import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main class for controlling recording and mocking.
@@ -42,7 +42,6 @@ public final class Skuldsku {
 
     /**
      * Only used for testing: Resets Skuldsku to its initial state.
-     * @see SkuldskuAccessor#reset()
      */
     static void reset() {
         config = null;
@@ -61,7 +60,7 @@ public final class Skuldsku {
 
     private static void assertInitialized() {
         if (config == null) {
-            RecorderLog.error("You must call initialize() before you can start using Skuldsku. No recording" +
+            RecorderLog.error("You must call initialize() before you can start using Skuldsku. No recording " +
                     "will be done.", new Throwable());
 
         }
@@ -74,7 +73,6 @@ public final class Skuldsku {
      *          is set to "true", and <code>false</code> otherwise.
      */
     public static boolean isInPlayBackMode() {
-        assertInitialized();
         return "true".equals(System.getProperty("no.steria.skuldsku.doMock"));
     }
 
@@ -84,7 +82,6 @@ public final class Skuldsku {
      *          without a subsequent call to {@link #stop()}.
      */
     public static boolean isRecordingOn() {
-        assertInitialized();
         return recordingOn;
     }
 
