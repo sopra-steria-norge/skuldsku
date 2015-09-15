@@ -56,58 +56,61 @@ public class ClassSerializer {
 
 
     private Object myAsObject(String serializedValue) {
-        if ("<null>".equals(serializedValue)) {
-            return null;
-        }
-        String[] parts = splitToParts(serializedValue);
-
-        if ("list".equals(parts[0]) || "map".equals(parts[0])) {
-            return objectValueFromString(serializedValue, null);
-        }
-
-        if ("array".equals(parts[0])) {
-            try {
-                return objectValueFromString(serializedValue, Class.forName("[L" + splitToParts(parts[1])[0] + ";"));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+        try {
+            if ("<null>".equals(serializedValue)) {
+                return null;
             }
-        }
+            String[] parts = splitToParts(serializedValue);
 
-        if ("duplicate".equals(parts[0])) {
-            int index = Integer.parseInt(parts[1]);
-            return knownObjects.get(index);
-        }
-
-        if (!serializedValue.contains("=")) {
-            try {
-
-                return objectValueFromString(parts[1], Class.forName(parts[0]));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            if ("list".equals(parts[0]) || "map".equals(parts[0])) {
+                return objectValueFromString(serializedValue, null);
             }
-        }
 
-        Object object = initObject(parts[0]);
-
-        knownObjects.add(object);
-
-        for (int i = 1; i < parts.length; i++) {
-            //String[] fieldParts = parts[i].split("=");
-            int eqPos = parts[i].indexOf("=");
-            String fieldName = parts[i].substring(0, eqPos);
-            String encFieldValue = parts[i].substring(eqPos + 1);
-
-            try {
-                Field field = findField(object.getClass(),fieldName);
-
-                setFieldValue(object, encFieldValue, field);
-
-            } catch (IllegalAccessError e) {
-                throw new RuntimeException(e);
+            if ("array".equals(parts[0])) {
+                try {
+                    return objectValueFromString(serializedValue, Class.forName("[L" + splitToParts(parts[1])[0] + ";"));
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
 
-        return object;
+            if ("duplicate".equals(parts[0])) {
+                int index = Integer.parseInt(parts[1]);
+                return knownObjects.get(index);
+            }
+
+            if (!serializedValue.contains("=") && parts.length > 1) {
+                try {
+                    return objectValueFromString(parts[1], Class.forName(parts[0]));
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            Object object = initObject(parts[0]);
+
+            knownObjects.add(object);
+
+            for (int i = 1; i < parts.length; i++) {
+                //String[] fieldParts = parts[i].split("=");
+                int eqPos = parts[i].indexOf("=");
+                String fieldName = parts[i].substring(0, eqPos);
+                String encFieldValue = parts[i].substring(eqPos + 1);
+
+                try {
+                    Field field = findField(object.getClass(),fieldName);
+
+                    setFieldValue(object, encFieldValue, field);
+
+                } catch (IllegalAccessError e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return object;
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Could not deserialize:\n" + serializedValue, e);
+        }
     }
 
     private Field findField(Class<?> clazz, String fieldName)  {

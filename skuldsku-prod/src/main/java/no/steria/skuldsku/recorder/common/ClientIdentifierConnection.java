@@ -176,6 +176,7 @@ public class ClientIdentifierConnection implements Connection {
     }
 
     public String nativeSQL(String sql) throws SQLException {
+        ensureCorrectClientIdentifier();
         return connection.nativeSQL(sql);
     }
 

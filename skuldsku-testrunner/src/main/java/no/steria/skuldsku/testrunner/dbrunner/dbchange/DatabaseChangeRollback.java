@@ -31,6 +31,15 @@ public class DatabaseChangeRollback {
         rollback(databaseChanges);
     }
     
+    public static String generateRollbackScript(final List<DatabaseChange> databaseChanges) {
+        final StringBuilder sb = new StringBuilder();
+        for (int i=databaseChanges.size()-1; i>=0; i--) {
+            final String rollbackSql = DatabaseChangeRollback.generateRollbackSql(databaseChanges.get(i));
+            sb.append(rollbackSql + ";\n");
+        }
+        return sb.toString();
+    }
+    
     public void rollback(final List<DatabaseChange> databaseChanges) {
         transactionManager.doInTransaction(jdbc -> {
             // TODO: Test at disable + reenable virker

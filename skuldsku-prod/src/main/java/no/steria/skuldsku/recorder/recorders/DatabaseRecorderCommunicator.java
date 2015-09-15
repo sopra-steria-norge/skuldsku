@@ -1,18 +1,23 @@
 package no.steria.skuldsku.recorder.recorders;
 
+import static no.steria.skuldsku.DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX;
 import no.steria.skuldsku.DatabaseTableNames;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
+import no.steria.skuldsku.utils.Jdbc;
 
 import javax.sql.DataSource;
+
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     private final DataSource dataSource;
     private static final String TABLENAME = DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX + "RECORD";
+    private static final String SEQUENCENAME = DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX + "RECORD_ID_SEQ";
 
     public DatabaseRecorderCommunicator(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -28,7 +33,7 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     }
 
     public static void exportTo(final PrintWriter out, DataSource dataSource) throws SQLException {
-        String sql = "SELECT DATA FROM " + TABLENAME;
+        String sql = "SELECT DATA FROM " + TABLENAME + " ORDER BY " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID";
         try(PreparedStatement statement = dataSource.getConnection().prepareStatement(sql)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -40,10 +45,14 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
 
     private void createTable(Connection conn) throws SQLException {
         System.out.println("Creating table");
-        String sql = "CREATE TABLE " + TABLENAME +
-                "   (DATA CLOB null,  " +
+        String sql = "CREATE TABLE " + TABLENAME + "( " +
+                SKULDSKU_DATABASE_TABLE_PREFIX + "ID NUMBER, " +
+                "DATA CLOB null,  " +
                 "CREATED TIMESTAMP (6) DEFAULT sysdate)";
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.execute();
+        }
+        try (PreparedStatement statement = conn.prepareStatement("CREATE SEQUENCE " + SEQUENCENAME)) {
             statement.execute();
         }
     }
@@ -59,7 +68,7 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     @Override
     protected void saveRecord(String res) {
         try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement statement = conn.prepareStatement("insert into " + TABLENAME + "(data) values (?)")) {
+            try (PreparedStatement statement = conn.prepareStatement("insert into " + TABLENAME + "(" + SKULDSKU_DATABASE_TABLE_PREFIX + "ID" + ", data) values (" + SEQUENCENAME + ".nextval, ?)")) {
                 statement.setString(1, res);
                 statement.execute();
             }

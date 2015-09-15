@@ -1,18 +1,25 @@
 package no.steria.skuldsku.recorder.dbrecorder.impl.oracle;
 
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
-import no.steria.skuldsku.recorder.logging.RecorderLog;
-import no.steria.skuldsku.utils.*;
+import static no.steria.skuldsku.DatabaseTableNames.DATABASE_RECORDINGS_TABLE;
+import static no.steria.skuldsku.DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX;
+import static no.steria.skuldsku.DatabaseTableNames.DATABASE_RECORDINGS_SEQUENCE;
 
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.steria.skuldsku.DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX;
-import static no.steria.skuldsku.DatabaseTableNames.DATABASE_RECORDINGS_TABLE;
+import javax.sql.DataSource;
+
+import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
+import no.steria.skuldsku.utils.Jdbc;
+import no.steria.skuldsku.utils.JdbcException;
+import no.steria.skuldsku.utils.ResultSetCallback;
+import no.steria.skuldsku.utils.SimpleTransactionManager;
+import no.steria.skuldsku.utils.TransactionCallback;
+import no.steria.skuldsku.utils.TransactionManager;
 
 public class OracleDatabaseRecorder implements DatabaseRecorder {
 
@@ -153,9 +160,9 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                     RecorderLog.error("Could not drop table " + DATABASE_RECORDINGS_TABLE, e);
                 }
                 try {
-                    jdbc.execute("DROP SEQUENCE " + SKULDSKU_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
+                    jdbc.execute("DROP SEQUENCE " + DATABASE_RECORDINGS_SEQUENCE);
                 } catch (JdbcException e) {
-                    RecorderLog.error("Could not drop sequence " + SKULDSKU_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ", e);
+                    RecorderLog.error("Could not drop sequence " + DATABASE_RECORDINGS_SEQUENCE, e);
                 }
                 return null;
             }
@@ -198,10 +205,10 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
 
     private void createDbSequenceIfNotExists(Jdbc jdbc) {
         List<String> recorderTrigger = jdbc.queryForList(
-                "select sequence_name from all_sequences where sequence_name='" + SKULDSKU_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ'", String.class);
+                "select sequence_name from all_sequences where sequence_name='" + DATABASE_RECORDINGS_SEQUENCE + "'", String.class);
 
         if (recorderTrigger.isEmpty()) {
-            jdbc.execute("CREATE SEQUENCE " + SKULDSKU_DATABASE_TABLE_PREFIX + "RECORDER_ID_SEQ");
+            jdbc.execute("CREATE SEQUENCE " + DATABASE_RECORDINGS_SEQUENCE);
         }
     }
 

@@ -45,9 +45,9 @@ public class ClassSerializerTest {
     }
 
     @Test
-    @Ignore // TODO Fix this
     public void shouldReturnClass() throws Exception {
-        EmptyClass emptyClass = (EmptyClass) serializer.asObject(serializer.asString(new EmptyClass()));
+        final String serializedEmptyClass = serializer.asString(new EmptyClass());
+        final EmptyClass emptyClass = (EmptyClass) serializer.asObject(serializedEmptyClass);
         assertThat(emptyClass.getClass()).isEqualTo(EmptyClass.class);
     }
 

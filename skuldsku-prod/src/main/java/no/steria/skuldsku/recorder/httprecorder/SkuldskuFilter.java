@@ -27,24 +27,12 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
  */
 public class SkuldskuFilter implements Filter{
 
-    public static long getRequestId() {
-        Long id = requestId.get();
-        return id != null ? id : 0L;
-    }
-
-    private static final ThreadLocal<Long> requestId = new ThreadLocal<>();
-
-    private static final AtomicLong nextId = new AtomicLong(0);
-
-
     @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if(!Skuldsku.isRecordingOn()){
             chain.doFilter(request, response);
             return;
         }
-        long id = nextId.addAndGet(1);
-        requestId.set(id);
 
         HttpServletRequest req = (HttpServletRequest) request;
 
@@ -68,14 +56,14 @@ public class SkuldskuFilter implements Filter{
 
         httpCall.setOutput(responseSpy.getWritten());
         
-        ClientIdentifierHolder.removeClientIdentifier();
-
         HttpCallPersister reporter = getReporter();
         if (reporter != null) {
             reporter.reportCall(httpCall);
         } else {
             RecorderLog.error("There is no CallReporter associated with the current HTTP filter. HTTP interactions will not be recorded.");
         }
+        
+        ClientIdentifierHolder.removeClientIdentifier();
     }
 
     private void logHeaders(HttpServletRequest req, HttpCall httpCall) {

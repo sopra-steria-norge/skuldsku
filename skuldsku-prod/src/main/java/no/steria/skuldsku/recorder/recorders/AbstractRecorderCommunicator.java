@@ -20,7 +20,7 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
     public void reportCall(HttpCall httpCall) {
         StringBuilder res = new StringBuilder();
         res.append("http%");
-        res.append(SkuldskuFilter.getRequestId());
+        res.append("0"); // Unused
         res.append("%");
         ClassSerializer classSerializer = new ClassSerializer();
         res.append(classSerializer.asString(httpCall));
@@ -67,7 +67,7 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
     public void event(JavaInterfaceCall javaInterfaceCall) {
         StringBuilder res = new StringBuilder();
         res.append("inter%");
-        res.append(SkuldskuFilter.getRequestId());
+        res.append("0"); // Unused
         res.append("%");
         String asString = new ClassSerializer().asString(javaInterfaceCall);
         res.append(asString);
