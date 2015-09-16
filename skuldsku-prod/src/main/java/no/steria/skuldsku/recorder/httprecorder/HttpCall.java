@@ -14,6 +14,7 @@ public class HttpCall implements Serializable {
     private String method;
     private String path;
     private String output;
+    private int status = 0;
     private Map<String, List<String>> headers;
 
     public HttpCall setReadInputStream(String readInputStream) {
@@ -23,6 +24,14 @@ public class HttpCall implements Serializable {
     
     public String getClientIdentifier() {
         return clientIdentifier;
+    }
+    
+    public int getStatus() {
+        return status;
+    }
+    
+    public void setStatus(int status) {
+        this.status = status;
     }
     
     public void setClientIdentifier(String clientIdentifier) {

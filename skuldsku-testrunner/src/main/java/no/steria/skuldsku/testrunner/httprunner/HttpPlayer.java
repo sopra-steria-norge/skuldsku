@@ -15,6 +15,7 @@ import java.util.Set;
 public class HttpPlayer {
     private final String baseUrl;
     private final List<PlaybackManipulator> manipulators = new ArrayList<>();
+    private boolean abortOnFailingRequest = false;
 
     public HttpPlayer(String baseUrl) {
         this.baseUrl = baseUrl;
@@ -47,6 +48,10 @@ public class HttpPlayer {
 
     public void addManipulator(PlaybackManipulator manipulator) {
         manipulators.add(manipulator);
+    }
+    
+    public void setAbortOnFailingRequest(boolean abortOnFailingRequest) {
+        this.abortOnFailingRequest = abortOnFailingRequest;
     }
 
     public void playStep(PlayStep playStep) throws IOException {
@@ -120,11 +125,20 @@ public class HttpPlayer {
                 }
         }
 
-        playStep.setRecorded(result.toString());
+        final String recorded = result.toString();
+        playStep.setRecorded(recorded);
+
+        if (abortOnFailingRequest) {
+            final int resultStatus = conn.getResponseCode();
+            if (httpCall.getStatus() != 0
+                    && resultStatus != httpCall.getStatus()) {
+                throw new FailingRequestException(httpCall.getMethod() + " " + httpCall.getPath() + " expected: " + httpCall.getStatus() + " got: " + resultStatus);
+            }
+        }
 
         manipulators.forEach(m -> m.reportResult(result.toString()));
     }
-
+    
     private InputStream getResponseStream(HttpURLConnection conn) throws IOException {
         return (conn.getResponseCode() >= 400) ? conn.getErrorStream() : conn.getInputStream();
     }

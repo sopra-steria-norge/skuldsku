@@ -53,8 +53,8 @@ public class SkuldskuFilter implements Filter{
         httpCall.setClientIdentifier(requestId);
         
         chain.doFilter(requestSpy,responseSpy);
-
         httpCall.setOutput(responseSpy.getWritten());
+        httpCall.setStatus(resp.getStatus());
         
         HttpCallPersister reporter = getReporter();
         if (reporter != null) {
