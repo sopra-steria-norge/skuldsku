@@ -6,6 +6,8 @@ public interface RecorderLogger {
 
     void error(String message);
 
+    void info(String message);
+
     void error(String message, Throwable throwable);
 
     void warn(String message);

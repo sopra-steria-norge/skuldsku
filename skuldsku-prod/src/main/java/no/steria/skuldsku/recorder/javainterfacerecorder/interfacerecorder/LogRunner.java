@@ -52,7 +52,7 @@ public class LogRunner implements Runnable {
                     parameters.append(classSerializer.asString(toLog));
                 }
             }
-            RecorderLog.debug("LogRunner: writing result");
+            RecorderLog.debug("LogRunner: recording result");
             String resultStr = classSerializer.asString(result);
             RecorderLog.debug("LogRunner: Calling report callback");
 

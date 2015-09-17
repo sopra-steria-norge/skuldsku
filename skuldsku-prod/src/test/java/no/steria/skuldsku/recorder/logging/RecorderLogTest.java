@@ -55,8 +55,10 @@ public class RecorderLogTest {
     public void shouldWriteExpectedPrefix() {
         RecorderLog.DefaultRecorderLogger.setPrefix("Eplekake: ");
         RecorderLog.debug("Watch out, I'm doing stuff!");
+        RecorderLog.info("This just for information!");
         RecorderLog.error("Houston we have a problem!");
         assertEquals("DEBUG: Eplekake: Watch out, I'm doing stuff!" + lineSeparator +
+                "INFO: Eplekake: This just for information!" + lineSeparator +
                 "ERROR: Eplekake: Houston we have a problem!" + lineSeparator, standardOut.toString());
         RecorderLog.DefaultRecorderLogger.setPrefix("SKULDSKU: ");
     }
@@ -85,6 +87,11 @@ public class RecorderLogTest {
         @Override
         public void error(String message) {
             printStream.print("Houston we have a problem! " + message);
+        }
+
+        @Override
+        public void info(String message) {
+            printStream.print(message);
         }
 
         @Override

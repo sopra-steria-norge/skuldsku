@@ -58,7 +58,7 @@ public class HttpPlayer {
 
         HttpCall httpCall = playStep.getReportObject();
 
-        RecorderLog.debug(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
+        RecorderLog.info(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
 
         URL url = new URL(baseUrl + httpCall.getPath());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -140,6 +140,6 @@ public class HttpPlayer {
     }
     
     private InputStream getResponseStream(HttpURLConnection conn) throws IOException {
-        return (conn.getResponseCode() >= 400) ? conn.getErrorStream() : conn.getInputStream();
+        return (conn.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) ? conn.getErrorStream() : conn.getInputStream();
     }
 }
