@@ -1,20 +1,40 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
-import no.steria.skuldsku.recorder.logging.RecorderLog;
-
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 public class ClassSerializer {
-    private static final Set<String> ignoreFields = new HashSet<String>();
+    private static final Set<String> globalIgnoreFields = new HashSet<String>();
+    private final Set<String> ignoreFields;
     
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
     private List<Object> knownObjects = new ArrayList<>();
+    
+    public ClassSerializer() {
+        ignoreFields = new HashSet<String>();
+    }
+    
+    private ClassSerializer(Set<String> ignoreFields) {
+        this.ignoreFields = ignoreFields;
+    }
 
     /**
      * Adds a field to be ignored (skipped) when serializing.
@@ -22,8 +42,22 @@ public class ClassSerializer {
      * @param ignoreField The field on the format: package.class.field.
      *                    Example: <code>"com.example.MyClass.myField"</code>
      */
-    public static void addIgnoreField(String ignoreField) {
+    public static void addGlobalIgnoreField(String ignoreField) {
+        globalIgnoreFields.add(ignoreField);
+    }
+
+    /**
+     * Adds a field to be ignored (skipped) when serializing.
+     * 
+     * @param ignoreField The field on the format: package.class.field.
+     *                    Example: <code>"com.example.MyClass.myField"</code>
+     */
+    public void addIgnoreField(String ignoreField) {
         ignoreFields.add(ignoreField);
+    }
+    
+    public void addAllIgnoreField(Set<String> ignoreFields) {
+        this.ignoreFields.addAll(ignoreFields);
     }
     
     private int isKnown(Object obj) {
@@ -36,7 +70,7 @@ public class ClassSerializer {
     }
 
     public String asString(Object object) {
-        return new ClassSerializer().myAsString(object).toString();
+        return new ClassSerializer(ignoreFields).myAsString(object).toString();
     }
 
     private StringBuilder myAsString(Object object) {
@@ -51,7 +85,7 @@ public class ClassSerializer {
     }
 
     public Object asObject(String serializedValue) {
-        return new ClassSerializer().myAsObject(serializedValue);
+        return new ClassSerializer(ignoreFields).myAsObject(serializedValue);
     }
 
 
@@ -316,7 +350,8 @@ public class ClassSerializer {
             }
             
             final String fieldName = field.getDeclaringClass().getName() + "." + field.getName();
-            if (ignoreFields.contains(fieldName)) {
+            if (ignoreFields.contains(fieldName)
+                    || globalIgnoreFields.contains(fieldName)) {
                 continue;
             }
             result.append(";");

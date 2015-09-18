@@ -6,6 +6,7 @@ import java.util.List;
 
 public class InterfaceRecorderConfig {
     private AsyncMode asyncMode;
+    @Deprecated
     private List<IgnorePara> ignores = new ArrayList<>();
     private RecorderDebugLogger recorderDebugLogger;
 
@@ -16,6 +17,7 @@ public class InterfaceRecorderConfig {
         }
     }
 
+    @Deprecated
     public boolean isIgnored(String className, String methodName, Object para) {
         if (para == null) {
             return false;
@@ -51,6 +53,7 @@ public class InterfaceRecorderConfig {
             return interfaceRecorderConfig;
         }
 
+        @Deprecated
         public Factory ignore(Class<?> serviceClass, Method serviceMethod, Class<?> ignore) {
             interfaceRecorderConfig.ignores.add(new IgnorePara(serviceClass,serviceMethod,ignore));
             return this;

@@ -68,6 +68,11 @@ public class ClassSerializerTest {
     }
 
     @Test
+    public void shouldHandleEmptyList() {
+        assertThat(serializer.asString(new Object[0])).isEqualTo("<array>");
+    }
+    
+    @Test
     public void shouldSerializeAndDeserializeArray() throws Exception {
         final String actual = serializer.asString(new String[]{"asdf", "asdf "});
 
@@ -486,8 +491,8 @@ public class ClassSerializerTest {
         ti.b = "bar";
         ti.c = "42";
         
-        ClassSerializer.addIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore.b");
-        ClassSerializer.addIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnoreSuper.c");
+        ClassSerializer.addGlobalIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore.b");
+        ClassSerializer.addGlobalIgnoreField("no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnoreSuper.c");
         final ClassSerializer cs = new ClassSerializer();
         final String serializedValue = cs.asString(ti);
         assertThat(serializedValue).isEqualTo("<no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializerTest$TestIgnore;a=foo>");

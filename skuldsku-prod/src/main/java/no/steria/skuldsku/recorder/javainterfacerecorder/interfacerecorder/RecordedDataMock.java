@@ -1,13 +1,16 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder;
 
-import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
-
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class RecordedDataMock implements MockInterface, Serializable {
+import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
+
+public class RecordedDataMock implements MockInterface {
+    private static final Set<String> globalIgnoreFields = new HashSet<String>();
+    
     private final List<JavaInterfaceCall> recorded;
     private String serviceClass;
 
@@ -20,47 +23,38 @@ public class RecordedDataMock implements MockInterface, Serializable {
     public String getImplementation() {
         return recorded.get(0).getClassName();
     }
+    
+    /**
+     * Adds a field to be ignored when matching JavaInterfaceCall.
+     * 
+     * @param ignoreField The field on the format: package.class.field.
+     *                    Example: <code>"com.example.MyClass.myField"</code>
+     */
+    public static void addGlobalIgnoreField(String ignoreField) {
+        globalIgnoreFields.add(ignoreField);
+    }
 
     @Override
     public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
-        ClassSerializer serializer = new ClassSerializer();
-        String argsAsString = "";
-        if (args != null) {
-            argsAsString = arrayToString(args, serializer);
-        }
+        final ClassSerializer standardSerializer = new ClassSerializer();
+        
+        final ClassSerializer fieldIgnorerSerializer = new ClassSerializer();
+        fieldIgnorerSerializer.addAllIgnoreField(globalIgnoreFields);
+        
+        String currentArgsAsString = fieldIgnorerSerializer.asString(args);
 
         for (JavaInterfaceCall recordObject : recorded) {
-            if (
-                    /* TODO: FIX (choose correct subclass+method combination):
-                    serviceObjectName.equals(recordObject.getClassName())
-                    &&
-                     */
-                    method.getName().equals(recordObject.getMethodname())
-                    && argsAsString.equals(recordObject.getParameters())
-                    ) {
-                return serializer.asObject(recordObject.getResult());
+            // TODO: FIX (choose correct subclass+method combination): serviceObjectName.equals(recordObject.getClassName())
+            if (method.getName().equals(recordObject.getMethodname())) {
+                final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));;
+                if (currentArgsAsString.equals(recordedArgsAsString)) {
+                    return standardSerializer.asObject(recordObject.getResult());
+                }
             }
         }
+        
+        // TODO: Log a WARNING.
         return null;
-    }
-
-    private String arrayToString(Object[] args, ClassSerializer serializer) {
-        final StringBuilder argsAsString = new StringBuilder();
-        for (Object obj : args) {
-            argsAsString.append(serializer.asString(obj));
-            argsAsString.append(";");
-        }
-        argsAsString.delete(argsAsString.length() - 1, argsAsString.length());
-        return argsAsString.toString();
-    }
-    
-    public Object[] stringToParameterArray(String parameters, ClassSerializer serializer) {
-        final String[] a = parameters.split(";");
-        final Object[] result = new Object[a.length];
-        for (int i=0; i<a.length; i++) {
-            result[i] = serializer.asObject(a[i]);
-        }
-        return result;
     }
 
     public String getServiceClass() {

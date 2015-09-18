@@ -37,31 +37,19 @@ public class LogRunner implements Runnable {
         RecorderLog.debug("LogRunner: log event " + className + "," + methodName);
 
         try {
-            ClassSerializer classSerializer = new ClassSerializer();
-            StringBuilder parameters = new StringBuilder();
-            if (args != null) {
-                boolean first = true;
-                for (Object para : args) {
-                    String parStr = para != null ? para.getClass().getName() : null;
-                    RecorderLog.debug("LogRunner: writing para " + parStr);
-                    Object toLog = logObject(para);
-                    if (!first) {
-                        parameters.append(";");
-                    }
-                    first = false;
-                    parameters.append(classSerializer.asString(toLog));
-                }
-            }
-            RecorderLog.debug("LogRunner: recording result");
+            final ClassSerializer classSerializer = new ClassSerializer();
+            final String parameters = classSerializer.asString(args);
+
             String resultStr = classSerializer.asString(result);
             RecorderLog.debug("LogRunner: Calling report callback");
 
-            javaIntefaceCallPersister.event(new JavaInterfaceCall(clientIdentifier, className, methodName, parameters.toString(), resultStr));
+            javaIntefaceCallPersister.event(new JavaInterfaceCall(clientIdentifier, className, methodName, parameters, resultStr));
         } catch (Throwable e) {
             RecorderLog.debug("LogRunner: exception logging " + e);
         }
     }
 
+    @Deprecated
     private Object logObject(Object para) {
         if (interfaceRecorderConfig.isIgnored(className, methodName, para)) {
             return null;
