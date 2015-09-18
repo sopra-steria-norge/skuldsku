@@ -1,18 +1,16 @@
 package no.steria.skuldsku.recorder.recorders;
 
-import static no.steria.skuldsku.DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX;
 import no.steria.skuldsku.DatabaseTableNames;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
-import no.steria.skuldsku.utils.Jdbc;
 
 import javax.sql.DataSource;
-
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+
+import static no.steria.skuldsku.DatabaseTableNames.SKULDSKU_DATABASE_TABLE_PREFIX;
 
 public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
     private final DataSource dataSource;
@@ -72,9 +70,8 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
                 statement.setString(1, res);
                 statement.execute();
             }
-        RecorderLog.debug("committing recording");
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } 
+        }
     }
 }

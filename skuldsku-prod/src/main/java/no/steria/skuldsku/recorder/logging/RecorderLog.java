@@ -10,6 +10,10 @@ public class RecorderLog {
         recorderLogger.debug(message);
     }
 
+    public static void info(String message) {
+        recorderLogger.info(message);
+    }
+
     public static void warn(String message) {
         recorderLogger.warn(message);
     }
@@ -36,6 +40,11 @@ public class RecorderLog {
         @Override
         public void error(String message) {
             System.out.println("ERROR: " + prefix + message);
+        }
+
+        @Override
+        public void info(String message) {
+            System.out.println("INFO: " + prefix + message);
         }
 
         @Override

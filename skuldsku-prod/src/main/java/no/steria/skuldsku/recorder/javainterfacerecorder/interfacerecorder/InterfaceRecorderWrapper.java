@@ -19,7 +19,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
 
     @SuppressWarnings("unchecked")
     public static <T> T newInstance(Object obj, Class<T> givenInterface, JavaIntefaceCallPersister javaIntefaceCallPersister, InterfaceRecorderConfig interfaceRecorderConfig) {
-        RecorderLog.debug("IRW: Setup with " + givenInterface);
+        RecorderLog.info("IRW: Setup with " + givenInterface);
         InterfaceRecorderWrapper.interfaceRecorderConfig = interfaceRecorderConfig;
         InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj, javaIntefaceCallPersister);
         Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, invocationHandler);
@@ -51,9 +51,9 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
                     }
                     String methodName = method.getName();
                     LogRunner.log(javaIntefaceCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, interfaceRecorderConfig);
-                    RecorderLog.debug("IRW: Logged for " + className + "," + methodName);
+                    RecorderLog.info("IRW: Recorded for " + className + "," + methodName);
                 } catch (Exception e) {
-                    RecorderLog.debug("IRW: Exception logging result : " + e);
+                    RecorderLog.warn("IRW: Exception recording result : " + e);
                 }
             }
 
