@@ -1,20 +1,23 @@
 package no.steria.skuldsku.recorder.logging;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+
+import no.steria.skuldsku.recorder.logging.RecorderLog.DefaultRecorderLogger;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.sql.SQLException;
-
-import static org.junit.Assert.assertEquals;
-
 public class RecorderLogTest {
 
-    private final static ByteArrayOutputStream standardOut = new ByteArrayOutputStream();
+    private final static ByteArrayOutputStream standardOutAndErr = new ByteArrayOutputStream();
     private final static ByteArrayOutputStream otherLogger = new ByteArrayOutputStream();
     private static PrintStream originalStdOut;
     private static PrintStream originalStdErr;
@@ -26,7 +29,7 @@ public class RecorderLogTest {
         lineSeparator = System.lineSeparator();
         originalStdOut = System.out;
         originalStdErr = System.err;
-        PrintStream out = new PrintStream(standardOut);
+        PrintStream out = new PrintStream(standardOutAndErr);
         System.setOut(out);
         System.setErr(out);
     }
@@ -40,15 +43,16 @@ public class RecorderLogTest {
 
     @Before
     public void setUp() {
-        standardOut.reset();
+        standardOutAndErr.reset();
     }
 
     @Test
     public void shouldWriteExpectedDebugMessage() {
         RecorderLog.debug("Watch out, I'm doing stuff!");
         RecorderLog.error("Houston we have a problem!");
+        
         assertEquals("DEBUG: SKULDSKU: Watch out, I'm doing stuff!" + lineSeparator +
-                "ERROR: SKULDSKU: Houston we have a problem!" + lineSeparator, standardOut.toString());
+                "ERROR: SKULDSKU: Houston we have a problem!" + lineSeparator, standardOutAndErr.toString());
     }
 
     @Test
@@ -59,7 +63,7 @@ public class RecorderLogTest {
         RecorderLog.error("Houston we have a problem!");
         assertEquals("DEBUG: Eplekake: Watch out, I'm doing stuff!" + lineSeparator +
                 "INFO: Eplekake: This just for information!" + lineSeparator +
-                "ERROR: Eplekake: Houston we have a problem!" + lineSeparator, standardOut.toString());
+                "ERROR: Eplekake: Houston we have a problem!" + lineSeparator, standardOutAndErr.toString());
         RecorderLog.DefaultRecorderLogger.setPrefix("SKULDSKU: ");
     }
 
@@ -70,7 +74,7 @@ public class RecorderLogTest {
         sqlException.printStackTrace(pw);
         pw.flush();
         RecorderLog.error("Houston!", sqlException);
-        assertEquals("ERROR: SKULDSKU: Houston!" + lineSeparator + baos.toString(), standardOut.toString());
+        assertEquals("ERROR: SKULDSKU: Houston!" + lineSeparator + baos.toString(), standardOutAndErr.toString());
     }
 
     @Test
@@ -80,6 +84,7 @@ public class RecorderLogTest {
         RecorderLog.error("that");
         RecorderLog.error("such", new RuntimeException("deliberate!"));
         assertEquals(otherLogger.toString(), "Watch out! thisHouston we have a problem! thatthis is a stack trace!");
+        RecorderLog.setRecorderLogger(new DefaultRecorderLogger());
     }
 
     private class DummyRecorderLogger implements RecorderLogger {

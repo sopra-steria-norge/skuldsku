@@ -34,26 +34,33 @@ public class RecorderLog {
 
         @Override
         public void debug(String message) {
-            System.out.println("DEBUG: " + prefix + message);
+            System.err.println("DEBUG: " + prefix + message);
+            System.err.flush();
         }
 
         @Override
         public void error(String message) {
-            System.out.println("ERROR: " + prefix + message);
+            System.err.println("ERROR: " + prefix + message);
+            System.err.flush();
         }
 
         @Override
         public void info(String message) {
-            System.out.println("INFO: " + prefix + message);
+            System.err.println("INFO: " + prefix + message);
+            System.err.flush();
         }
 
         @Override
-        public void warn(String message) { System.out.println("WARN: " + prefix + message); }
+        public void warn(String message) {
+            System.err.println("WARN: " + prefix + message);
+            System.err.flush();
+        }
 
         @Override
         public void error(String message, Throwable throwable) {
-            System.out.println("ERROR: " + prefix + message);
+            System.err.println("ERROR: " + prefix + message);
             throwable.printStackTrace();
+            System.err.flush();
         }
 
         public static void setPrefix(String newPrefix) {
