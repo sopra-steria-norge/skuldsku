@@ -24,6 +24,7 @@ import no.steria.skuldsku.utils.ParsedString;
 public class DatabaseChange {
     private static final String TABLE_NAME = "TABLE_NAME";
     private static final String ACTION = "ACTION";
+    private static final String CLIENT_IDENTIFIER = "CLIENT_IDENTIFIER";
     
     private final String row;
     private final Map<String, String> data;
@@ -81,6 +82,10 @@ public class DatabaseChange {
     
     public String getAction() {
         return data.get(ACTION);
+    }
+    
+    public String getClientIdentifier() {
+        return data.get(CLIENT_IDENTIFIER);
     }
     
     List<Entry<String, String>> getFields(String start) {
