@@ -109,7 +109,6 @@ public final class Skuldsku {
      *          <code>InstantiationCallback</code>.
      */
     public static <T> T wrap(Class<T> clazz, InstantiationCallback<T> ic) {
-
         final T service;
         if (isInPlayBackMode()) {
             service = MockRegistration.getMock(clazz);
@@ -117,13 +116,16 @@ public final class Skuldsku {
             service = ic.create();
         }
 
-        /*
-         * TODO: Ved sammenlikning vil vi helt sikkert ønske å sjekke implementasjonsklasse. Ved opptak
-         * mot mock vil vi ha en annen type enn ved normal kjøring. Implementasjonsklasse bør derfor hentes ut
-         * av mocken og sendes med som parameter til InterfaceRecorderWrapper fremfor å bruke getClass(). Bør
-         * skrive en test her for å sikre at mock-output og vanlig impl-output blir likt :-)
-         */
-        return InterfaceRecorderWrapper.newInstance(service, clazz, config.getJavaIntefaceCallPersister(), config.getInterfaceRecorderConfig());
+        try {
+            return InterfaceRecorderWrapper.newInstance(service, clazz, config.getJavaIntefaceCallPersister(), config.getInterfaceRecorderConfig());
+        } catch (Exception e) {
+            if (isInPlayBackMode()) {
+                throw new RuntimeException("Wrapper initialization failed", e);
+            } else {
+                RecorderLog.error("Wrapper initialization failed: Returning service without wrapper", e);
+                return ic.create();
+            }
+        }
     }
 
     /**

@@ -8,7 +8,7 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LogRunner implements Runnable {
+public class MethodCallStorageRunner implements Runnable {
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final JavaIntefaceCallPersister javaIntefaceCallPersister;
@@ -19,7 +19,7 @@ public class LogRunner implements Runnable {
     private final Object result;
     private final InterfaceRecorderConfig interfaceRecorderConfig;
 
-    private LogRunner(JavaIntefaceCallPersister javaIntefaceCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
+    private MethodCallStorageRunner(JavaIntefaceCallPersister javaIntefaceCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
         this.clientIdentifier = clientIdentifier;
         this.javaIntefaceCallPersister = javaIntefaceCallPersister;
         this.className = className;
@@ -49,31 +49,6 @@ public class LogRunner implements Runnable {
         }
     }
 
-    @Deprecated
-    private Object logObject(Object para) {
-        if (interfaceRecorderConfig.isIgnored(className, methodName, para)) {
-            return null;
-        }
-        return para;
-    }
-
-
-    public static void log(JavaIntefaceCallPersister javaIntefaceCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
-        LogRunner logRunner = new LogRunner(javaIntefaceCallPersister, clientIdentifier, className, methodName, args, result, interfaceRecorderConfig);
-        AsyncMode asyncMode = interfaceRecorderConfig.getAsyncMode();
-        if (asyncMode == AsyncMode.ALL_ASYNC) {
-            executorService.submit(logRunner);
-            return;
-        }
-        if (logRunner.doLog()) {
-            if (asyncMode == AsyncMode.ALL_SYNC) {
-                logRunner.logEvent();
-            } else {
-                executorService.submit(logRunner);
-            }
-        }
-    }
-
     @Override
     public void run() {
         if (interfaceRecorderConfig.getAsyncMode() == AsyncMode.ALL_ASYNC && !doLog()) {
@@ -81,4 +56,21 @@ public class LogRunner implements Runnable {
         }
         logEvent();
     }
+
+    public static void store(JavaIntefaceCallPersister javaIntefaceCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, InterfaceRecorderConfig interfaceRecorderConfig) {
+        MethodCallStorageRunner methodCallStorageRunner = new MethodCallStorageRunner(javaIntefaceCallPersister, clientIdentifier, className, methodName, args, result, interfaceRecorderConfig);
+        AsyncMode asyncMode = interfaceRecorderConfig.getAsyncMode();
+        if (asyncMode == AsyncMode.ALL_ASYNC) {
+            executorService.submit(methodCallStorageRunner);
+            return;
+        }
+        if (methodCallStorageRunner.doLog()) {
+            if (asyncMode == AsyncMode.ALL_SYNC) {
+                methodCallStorageRunner.logEvent();
+            } else {
+                executorService.submit(methodCallStorageRunner);
+            }
+        }
+    }
+
 }

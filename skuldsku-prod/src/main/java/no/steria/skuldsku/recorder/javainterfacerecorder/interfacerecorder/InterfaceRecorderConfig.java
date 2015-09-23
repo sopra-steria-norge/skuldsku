@@ -17,22 +17,6 @@ public class InterfaceRecorderConfig {
         }
     }
 
-    @Deprecated
-    public boolean isIgnored(String className, String methodName, Object para) {
-        if (para == null) {
-            return false;
-        }
-        for (IgnorePara ignorePara : ignores) {
-            if ((ignorePara.getServiceClass() == null || ignorePara.getServiceClass().getName().equals(className)) &&
-                    (ignorePara.getServiceMethod() == null || ignorePara.getServiceMethod().getName().equals(methodName)) &&
-                    para.getClass().isAssignableFrom(ignorePara.getIgnore())
-                    ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static class Factory {
         private InterfaceRecorderConfig interfaceRecorderConfig = new InterfaceRecorderConfig();
 

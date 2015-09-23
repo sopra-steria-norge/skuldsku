@@ -13,23 +13,17 @@ import java.lang.reflect.Proxy;
  * invocation handler for all method calls.
  */
 public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHandler {
-    private static InterfaceRecorderConfig interfaceRecorderConfig;
     private final Object obj;
     private final JavaIntefaceCallPersister javaIntefaceCallPersister;
+    private final InterfaceRecorderConfig interfaceRecorderConfig;
 
-    @SuppressWarnings("unchecked")
-    public static <T> T newInstance(Object obj, Class<T> givenInterface, JavaIntefaceCallPersister javaIntefaceCallPersister, InterfaceRecorderConfig interfaceRecorderConfig) {
-        RecorderLog.info("IRW: Setup with " + givenInterface);
-        InterfaceRecorderWrapper.interfaceRecorderConfig = interfaceRecorderConfig;
-        InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj, javaIntefaceCallPersister);
-        Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, invocationHandler);
-        return (T) o;
-    }
-
-    private InterfaceRecorderWrapper(Object obj, JavaIntefaceCallPersister javaIntefaceCallPersister) {
+    
+    private InterfaceRecorderWrapper(Object obj, JavaIntefaceCallPersister javaIntefaceCallPersister, InterfaceRecorderConfig interfaceRecorderConfig) {
         this.obj = obj;
         this.javaIntefaceCallPersister = javaIntefaceCallPersister;
+        this.interfaceRecorderConfig = interfaceRecorderConfig;
     }
+    
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -42,21 +36,40 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
             throw e.getTargetException();
         } finally {
             if (Skuldsku.isRecordingOn()) {
-                String className;
-                try {
-                    if (obj instanceof Proxy) {
-                        className = ((MockInvocationHandler) Proxy.getInvocationHandler(obj)).getImplementationClass();
-                    } else {
-                        className = obj.getClass().getName();
-                    }
-                    String methodName = method.getName();
-                    LogRunner.log(javaIntefaceCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, interfaceRecorderConfig);
-                    RecorderLog.info("IRW: Recorded for " + className + "," + methodName);
-                } catch (Exception e) {
-                    RecorderLog.warn("IRW: Exception recording result : " + e);
-                }
+                storeMethodCall(method, args, result);
             }
 
         }
+    }
+
+    private void storeMethodCall(Method method, Object[] args, Object result) {
+        try {
+            final String className = determineClassName(obj);
+            final String methodName = method.getName();
+            
+            MethodCallStorageRunner.store(javaIntefaceCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, interfaceRecorderConfig);
+            RecorderLog.info("IRW: Recorded for " + className + "," + methodName);
+        } catch (Exception e) {
+            RecorderLog.warn("IRW: Exception recording result : " + e);
+        }
+    }
+
+    private static String determineClassName(Object obj) {
+        final String className;
+        if (obj instanceof Proxy) {
+            className = ((MockInvocationHandler) Proxy.getInvocationHandler(obj)).getImplementationClass();
+        } else {
+            className = obj.getClass().getName();
+        }
+        return className;
+    }
+    
+    
+    @SuppressWarnings("unchecked")
+    public static <T> T newInstance(Object obj, Class<T> givenInterface, JavaIntefaceCallPersister javaIntefaceCallPersister, InterfaceRecorderConfig interfaceRecorderConfig) {
+        RecorderLog.info("IRW: Setup with " + givenInterface);
+        InterfaceRecorderWrapper invocationHandler = new InterfaceRecorderWrapper(obj, javaIntefaceCallPersister, interfaceRecorderConfig);
+        Object o = Proxy.newProxyInstance(obj.getClass().getClassLoader(), new Class<?>[]{givenInterface}, invocationHandler);
+        return (T) o;
     }
 }

@@ -1,6 +1,6 @@
 package no.steria.skuldsku.recorder.javainterfacerecorder.serializer;
 
-import static no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.LogRunner.log;
+import static no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MethodCallStorageRunner.store;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -277,7 +277,7 @@ public class ClassSerializerTest {
 
         ClassWithSimpleFields classWithSimpleFields = new ClassWithSimpleFields();
         classWithSimpleFields.setStringval("Noe;Mer");
-        log(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, config);
+        store(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, config);
 
         os.flush();
         String serialized = os.toString();
