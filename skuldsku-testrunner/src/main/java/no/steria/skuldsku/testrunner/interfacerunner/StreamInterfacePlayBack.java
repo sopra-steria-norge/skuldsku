@@ -1,7 +1,7 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedDataMock;
+import no.steria.skuldsku.recorder.java.JavaCall;
+import no.steria.skuldsku.recorder.java.mock.RecordedDataMock;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import java.io.File;
@@ -30,8 +30,8 @@ public class StreamInterfacePlayBack {
 
     private String fileDestination;
 
-    public List<RecordedDataMock> prepareMocks(List<JavaInterfaceCall> javaInterfaceCalls) throws IOException, ClassNotFoundException {
-        Map<String, List<JavaInterfaceCall>> recordingByService = setupMocksWithCallbacks(javaInterfaceCalls);
+    public List<RecordedDataMock> prepareMocks(List<JavaCall> javaCalls) throws IOException, ClassNotFoundException {
+        Map<String, List<JavaCall>> recordingByService = setupMocksWithCallbacks(javaCalls);
         List<RecordedDataMock> recordedDataMocks = createRecordedDataMocks(recordingByService);
         fileDestination = getOrCreateFileDestination();
         writeMocksToFile(recordedDataMocks);
@@ -55,12 +55,12 @@ public class StreamInterfacePlayBack {
         watcher.close();
     }
 
-    private Map<String, List<JavaInterfaceCall>> setupMocksWithCallbacks(List<JavaInterfaceCall> callbacks) throws IOException, ClassNotFoundException {
-        Map<String, List<JavaInterfaceCall>> recordings = new HashMap<>();
-        for (JavaInterfaceCall callback: callbacks) {
-            List<JavaInterfaceCall> recordObjects = recordings.get(callback.getClassName());
+    private Map<String, List<JavaCall>> setupMocksWithCallbacks(List<JavaCall> callbacks) throws IOException, ClassNotFoundException {
+        Map<String, List<JavaCall>> recordings = new HashMap<>();
+        for (JavaCall callback: callbacks) {
+            List<JavaCall> recordObjects = recordings.get(callback.getClassName());
             if (recordObjects == null) {
-                List<JavaInterfaceCall> mockSpecificRecordObjects = new ArrayList<>();
+                List<JavaCall> mockSpecificRecordObjects = new ArrayList<>();
                 mockSpecificRecordObjects.add(callback);
                 recordings.put(callback.getClassName(), mockSpecificRecordObjects);
             } else {
@@ -71,7 +71,7 @@ public class StreamInterfacePlayBack {
         return recordings;
     }
 
-    List<RecordedDataMock> createRecordedDataMocks(Map<String, List<JavaInterfaceCall>> recordingByService) {
+    List<RecordedDataMock> createRecordedDataMocks(Map<String, List<JavaCall>> recordingByService) {
         List<RecordedDataMock> recordedDataMocks = new ArrayList<>();
         Set<String> classes = recordingByService.keySet();
         for (String serviceClass : classes) {

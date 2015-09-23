@@ -9,9 +9,9 @@ import java.util.Map;
 
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.RecordedDataMock;
+import no.steria.skuldsku.recorder.java.JavaCall;
+import no.steria.skuldsku.recorder.java.mock.MockRegistration;
+import no.steria.skuldsku.recorder.java.mock.RecordedDataMock;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.resource.Resource;

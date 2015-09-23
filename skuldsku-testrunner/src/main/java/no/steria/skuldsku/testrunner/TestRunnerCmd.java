@@ -25,7 +25,7 @@ import static no.steria.skuldsku.DatabaseTableNames.*;
 /**
  * Support for running the <code>DatbaseRecorder</code> from the command-line.
  *
- * @see no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder
+ * @see no.steria.skuldsku.recorder.db.DatabaseRecorder
  */
 public class TestRunnerCmd {
 

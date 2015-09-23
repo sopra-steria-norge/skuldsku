@@ -1,7 +1,7 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
 import au.com.bytecode.opencsv.CSVReader;
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.http.HttpCall;
 
 import java.io.IOException;
 

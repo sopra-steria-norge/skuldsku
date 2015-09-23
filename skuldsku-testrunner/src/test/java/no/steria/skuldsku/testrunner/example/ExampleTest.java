@@ -1,8 +1,9 @@
 package no.steria.skuldsku.testrunner.example;
 
 import com.jolbox.bonecp.BoneCPDataSource;
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
-import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+
+import no.steria.skuldsku.recorder.db.DatabaseRecorder;
+import no.steria.skuldsku.recorder.db.impl.oracle.OracleDatabaseRecorder;
 import no.steria.skuldsku.testrunner.dbrunner.testrunner.DatabaseRecorderCallback;
 import no.steria.skuldsku.testrunner.dbrunner.testrunner.DatabaseRecorderControl;
 import no.steria.skuldsku.testrunner.dbrunner.testrunner.DatabaseRecorderRunner;
@@ -11,11 +12,13 @@ import no.steria.skuldsku.utils.Jdbc;
 import no.steria.skuldsku.utils.SimpleTransactionManager;
 import no.steria.skuldsku.utils.TransactionCallback;
 import no.steria.skuldsku.utils.TransactionManager;
+
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.sql.DataSource;
+
 import java.io.PrintWriter;
 
 public class ExampleTest {

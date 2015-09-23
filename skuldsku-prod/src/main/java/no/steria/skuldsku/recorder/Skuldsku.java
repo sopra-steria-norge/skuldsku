@@ -1,9 +1,9 @@
 package no.steria.skuldsku.recorder;
 
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
-import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.InterfaceRecorderWrapper;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration;
+import no.steria.skuldsku.recorder.db.DatabaseRecorder;
+import no.steria.skuldsku.recorder.java.InstantiationCallback;
+import no.steria.skuldsku.recorder.java.mock.MockRegistration;
+import no.steria.skuldsku.recorder.java.recorder.InterfaceRecorderWrapper;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public final class Skuldsku {
         }
 
         try {
-            return InterfaceRecorderWrapper.newInstance(service, clazz, config.getJavaIntefaceCallPersister(), config.getInterfaceRecorderConfig());
+            return InterfaceRecorderWrapper.newInstance(service, clazz, config.getJavaIntefaceCallPersister(), config.getJavaCallRecorderConfig());
         } catch (Exception e) {
             if (isInPlayBackMode()) {
                 throw new RuntimeException("Wrapper initialization failed", e);

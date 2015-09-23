@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import no.steria.skuldsku.example.basic.impl.InMemoryPlaceDao;
 import no.steria.skuldsku.recorder.Skuldsku;
-import no.steria.skuldsku.recorder.javainterfacerecorder.InstantiationCallback;
+import no.steria.skuldsku.recorder.java.InstantiationCallback;
 
 public class PlaceServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;

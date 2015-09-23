@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.http.HttpCall;
 import no.steria.skuldsku.testrunner.httprunner.HiddenFieldManipulator;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 

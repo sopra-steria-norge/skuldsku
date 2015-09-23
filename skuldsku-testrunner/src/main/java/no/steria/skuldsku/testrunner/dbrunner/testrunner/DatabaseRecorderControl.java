@@ -1,6 +1,6 @@
 package no.steria.skuldsku.testrunner.dbrunner.testrunner;
 
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.skuldsku.recorder.db.DatabaseRecorder;
 
 public final class DatabaseRecorderControl {
     

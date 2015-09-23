@@ -3,8 +3,8 @@ package no.steria.skuldsku.testrunner.httprunner;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
-import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
+import no.steria.skuldsku.recorder.http.HttpCallPersister;
+import no.steria.skuldsku.recorder.http.SkuldskuFilter;
 
 public class TestFilter extends SkuldskuFilter {
     private static HttpCallPersister myReporter;

@@ -2,8 +2,8 @@ package no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,7 +21,7 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
     
     
     @Override
-    public DatabaseVerifierResult assertEquals(final List<DatabaseChange> expected, final List<DatabaseChange> actual, final DatabaseVerifierOptions databaseVerifierOptions) {
+    public DatabaseChangeVerifierResult assertEquals(final List<DatabaseChange> expected, final List<DatabaseChange> actual, final DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
         final Comparator<DatabaseChange> identifierSort = new Comparator<DatabaseChange>() {
             @Override
             public int compare(DatabaseChange change1, DatabaseChange change2) {
@@ -42,7 +42,7 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
                     }
                 }
                 for (String key : change1.getData().keySet()) {
-                    if (databaseVerifierOptions.getSkipFields().contains(key)) {
+                    if (databaseChangeVerifierOptions.getSkipFields().contains(key)) {
                         continue;
                     }
                     final int ret = change1.getValue(key).compareTo(change2.getValue(key));
@@ -56,6 +56,6 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
         Collections.sort(expected, identifierSort);
         Collections.sort(actual, identifierSort);
         
-        return strictOrderDatabaseChangeVerifier.assertEquals(expected, actual, databaseVerifierOptions);
+        return strictOrderDatabaseChangeVerifier.assertEquals(expected, actual, databaseChangeVerifierOptions);
     }
 }

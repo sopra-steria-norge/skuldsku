@@ -2,8 +2,8 @@ package no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
 
 import java.util.*;
 
@@ -20,14 +20,14 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
     //     if this.next one's actual value is larger: make n
     
     @Override
-    public DatabaseVerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseVerifierOptions databaseVerifierOptions) {
-        final DatabaseVerifierResult databaseVerifierResult = new DatabaseVerifierResult();
+    public DatabaseChangeVerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
+        final DatabaseChangeVerifierResult databaseChangeVerifierResult = new DatabaseChangeVerifierResult();
         
         /*
          * Sort list so that expected data with best fit (ie the most number of fields match a given
          * actual data row) gets treated first.
          */
-        List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, databaseVerifierOptions.getSkipFields());
+        List<DatabaseChange> expectedSorted = createSortedListOnBestFit(expected, actual, databaseChangeVerifierOptions.getSkipFields());
         
         /*
          * Connect each expected data row to the actual data rows with the best fit. Note that already
@@ -36,24 +36,24 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
         final Set<DatabaseChange> candidates = new HashSet<DatabaseChange>(actual);
         while (!expectedSorted.isEmpty()) {
             final DatabaseChange expectedDatabaseChange = expectedSorted.remove(0);
-            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, databaseVerifierOptions.getSkipFields());
+            final DatabaseChange actualDatabaseChange = determineBestFitFor(expectedDatabaseChange, candidates, databaseChangeVerifierOptions.getSkipFields());
             if (actualDatabaseChange == null) {
-                databaseVerifierResult.addMissingFromActual(expectedDatabaseChange);
+                databaseChangeVerifierResult.addMissingFromActual(expectedDatabaseChange);
             } else {
                 candidates.remove(actualDatabaseChange);
-                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, databaseVerifierOptions.getSkipFields());
+                final boolean match = expectedDatabaseChange.equals(actualDatabaseChange, databaseChangeVerifierOptions.getSkipFields());
                 if (!match) {
-                    databaseVerifierResult.addNotEquals(expectedDatabaseChange, actualDatabaseChange);
+                    databaseChangeVerifierResult.addNotEquals(expectedDatabaseChange, actualDatabaseChange);
                 }
             }
             
-            expectedSorted = createSortedListOnBestFit(expectedSorted, candidates, databaseVerifierOptions.getSkipFields());
+            expectedSorted = createSortedListOnBestFit(expectedSorted, candidates, databaseChangeVerifierOptions.getSkipFields());
         }
         for (DatabaseChange unmatchedCandidate : candidates) {
-            databaseVerifierResult.addAdditionalInActual(unmatchedCandidate);
+            databaseChangeVerifierResult.addAdditionalInActual(unmatchedCandidate);
         }
         
-        return databaseVerifierResult;
+        return databaseChangeVerifierResult;
     }
 
     private static List<DatabaseChange> createSortedListOnBestFit(final Collection<DatabaseChange> expected,

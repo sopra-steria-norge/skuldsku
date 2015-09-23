@@ -1,7 +1,8 @@
 package no.steria.skuldsku.recorder;
 
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
+import no.steria.skuldsku.recorder.db.DatabaseRecorder;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;

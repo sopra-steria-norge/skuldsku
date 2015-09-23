@@ -1,14 +1,15 @@
 package no.steria.skuldsku.testrunner.dbrunner.testrunner;
 
-import no.steria.skuldsku.recorder.dbrecorder.DatabaseRecorder;
-import no.steria.skuldsku.recorder.dbrecorder.impl.oracle.OracleDatabaseRecorder;
+import no.steria.skuldsku.recorder.db.DatabaseRecorder;
+import no.steria.skuldsku.recorder.db.impl.oracle.OracleDatabaseRecorder;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
 
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,7 +23,7 @@ public final class DatabaseRecorderRunner {
     private final DatabaseChangeRollback databaseChangeRollback;
     private final DatabaseChangeVerifier databaseChangeVerifier;
     private final File baseDirectory;
-    private final DatabaseVerifierOptions defaultVerifierOptions;
+    private final DatabaseChangeVerifierOptions defaultVerifierOptions;
     private final boolean rollbackEnabled;
     private final VerifierResultHandler verifierResultHandler;
     
@@ -49,7 +50,7 @@ public final class DatabaseRecorderRunner {
         this.databaseChangeRollback = databaseChangeRollback;
         this.databaseChangeVerifier = config.getDatabaseChangeVerifier();
         this.baseDirectory = config.getBaseDirectory();
-        this.defaultVerifierOptions = new DatabaseVerifierOptions(config.getDefaultVerifierOptions());
+        this.defaultVerifierOptions = new DatabaseChangeVerifierOptions(config.getDefaultVerifierOptions());
         this.rollbackEnabled = config.isRollbackEnabled();
         this.verifierResultHandler = config.getVerifierResultHandler();
     }
@@ -59,7 +60,7 @@ public final class DatabaseRecorderRunner {
         recordAndCompare(callback, filename, defaultVerifierOptions);
     }
     
-    public void recordAndCompare(DatabaseRecorderCallback callback, String filename, DatabaseVerifierOptions databaseVerifierOptions) {
+    public void recordAndCompare(DatabaseRecorderCallback callback, String filename, DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
         final File actualDirectory = createDirectoryIfNotExists(baseDirectory, ACTUAL_DIRECTORY_NAME);
         final File actualFile = new File(actualDirectory, filename);
         
@@ -74,18 +75,18 @@ public final class DatabaseRecorderRunner {
         final File expectedDirectory = createDirectoryIfNotExists(baseDirectory, EXPECTED_DIRECTORY_NAME);
         final File expectedFile = new File(expectedDirectory, filename);
         
-        assertEquals(actualFile, expectedFile, databaseVerifierOptions);
+        assertEquals(actualFile, expectedFile, databaseChangeVerifierOptions);
     }
 
-    private void assertEquals(final File actualFile, final File expectedFile, DatabaseVerifierOptions databaseVerifierOptions) {
-        final DatabaseVerifierResult result;
+    private void assertEquals(final File actualFile, final File expectedFile, DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
+        final DatabaseChangeVerifierResult result;
         if (expectedFile.exists()) {
             result = databaseChangeVerifier.assertEquals(
                     DatabaseChange.readDatabaseChanges(expectedFile),
                     DatabaseChange.readDatabaseChanges(actualFile),
-                    databaseVerifierOptions);
+                    databaseChangeVerifierOptions);
         } else {
-            result = new DatabaseVerifierResult();
+            result = new DatabaseChangeVerifierResult();
             result.addAssertionFailed("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
                     + "\nIf this is the first execution of the test, you can take a look at the actual data ("
                     + actualFile.getAbsolutePath()

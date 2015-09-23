@@ -3,14 +3,14 @@ package no.steria.skuldsku.recorder.recorders;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
-import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
-import no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaInterfaceCall;
-import no.steria.skuldsku.recorder.javainterfacerecorder.serializer.ClassSerializer;
+import no.steria.skuldsku.recorder.http.HttpCall;
+import no.steria.skuldsku.recorder.http.HttpCallPersister;
+import no.steria.skuldsku.recorder.http.SkuldskuFilter;
+import no.steria.skuldsku.recorder.java.JavaCall;
+import no.steria.skuldsku.recorder.java.recorder.JavaCallPersister;
+import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 
-public abstract class AbstractRecorderCommunicator implements HttpCallPersister, JavaIntefaceCallPersister {
+public abstract class AbstractRecorderCommunicator implements HttpCallPersister, JavaCallPersister {
     @Override
     public void initialize() {
 
@@ -48,28 +48,28 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
         return httpCalls;
     }
     
-    public List<JavaInterfaceCall> getJavaInterfaceCalls() {
+    public List<JavaCall> getJavaInterfaceCalls() {
         List<String> recordedRecords = getRecordedRecords();
-        List<JavaInterfaceCall> javaInterfaceCalls = new ArrayList<>();
+        List<JavaCall> javaCalls = new ArrayList<>();
         for (String record : recordedRecords) {
             if (!record.startsWith("inter%")) {
                 continue;
             }
             ClassSerializer classSerializer = new ClassSerializer();
             int stpos = record.indexOf("%", 6);
-            JavaInterfaceCall recordObject = (JavaInterfaceCall) classSerializer.asObject(record.substring(stpos));
-            javaInterfaceCalls.add(recordObject);
+            JavaCall recordObject = (JavaCall) classSerializer.asObject(record.substring(stpos));
+            javaCalls.add(recordObject);
         }
-        return javaInterfaceCalls;
+        return javaCalls;
     }
 
     @Override
-    public void event(JavaInterfaceCall javaInterfaceCall) {
+    public void event(JavaCall javaCall) {
         StringBuilder res = new StringBuilder();
         res.append("inter%");
         res.append("0"); // Unused
         res.append("%");
-        String asString = new ClassSerializer().asString(javaInterfaceCall);
+        String asString = new ClassSerializer().asString(javaCall);
         res.append(asString);
 
         saveRecord(res.toString());

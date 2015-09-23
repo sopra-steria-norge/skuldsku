@@ -1,12 +1,12 @@
 package no.steria.skuldsku.recorder.recorders;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
-import no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.JavaIntefaceCallPersister;
+import no.steria.skuldsku.recorder.http.HttpCallPersister;
+import no.steria.skuldsku.recorder.java.recorder.JavaCallPersister;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-public class StreamRecorderCommunicator extends AbstractRecorderCommunicator implements HttpCallPersister, JavaIntefaceCallPersister {
+public class StreamRecorderCommunicator extends AbstractRecorderCommunicator implements HttpCallPersister, JavaCallPersister {
     private PrintStream out;
 
     public StreamRecorderCommunicator(OutputStream os) {

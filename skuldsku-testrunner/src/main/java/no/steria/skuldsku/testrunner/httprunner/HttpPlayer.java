@@ -1,6 +1,6 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
+import no.steria.skuldsku.recorder.http.HttpCall;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 

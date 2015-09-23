@@ -18,7 +18,7 @@
 
     <filter>
         <filter-name>skuldskuFilter</filter-name>
-        <filter-class>no.steria.skuldsku.recorder.httprecorder.SkuldskuFilter</filter-class>
+        <filter-class>no.steria.skuldsku.recorder.http.SkuldskuFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>skuldskuFilter</filter-name>

@@ -2,8 +2,8 @@ package no.steria.skuldsku.testrunner.httprunner.fileplayback;
 
 import java.util.List;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
-import no.steria.skuldsku.recorder.httprecorder.reporter.FileHttpCallPersister;
+import no.steria.skuldsku.recorder.http.HttpCall;
+import no.steria.skuldsku.recorder.http.reporter.FileHttpCallPersister;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 
 public class RunPlayback {

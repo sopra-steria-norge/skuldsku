@@ -1,7 +1,7 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.httprecorder.HttpCall;
-import no.steria.skuldsku.recorder.httprecorder.HttpCallPersister;
+import no.steria.skuldsku.recorder.http.HttpCall;
+import no.steria.skuldsku.recorder.http.HttpCallPersister;
 
 import java.util.ArrayList;
 import java.util.List;

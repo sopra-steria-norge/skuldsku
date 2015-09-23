@@ -2,8 +2,8 @@ package no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers;
 
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseVerifierResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +18,12 @@ public class
     }
     
     @Override
-    public DatabaseVerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseVerifierOptions databaseVerifierOptions) {
-        final List<DatabaseVerifierResult> result = new ArrayList<DatabaseVerifierResult>();
+    public DatabaseChangeVerifierResult assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
+        final List<DatabaseChangeVerifierResult> result = new ArrayList<DatabaseChangeVerifierResult>();
         for (DatabaseChangeVerifier verifier : verifiers) {
-            result.add(verifier.assertEquals(expected, actual, databaseVerifierOptions));
+            result.add(verifier.assertEquals(expected, actual, databaseChangeVerifierOptions));
         }
-        return new DatabaseVerifierResult(result);
+        return new DatabaseChangeVerifierResult(result);
     }
 
 }
