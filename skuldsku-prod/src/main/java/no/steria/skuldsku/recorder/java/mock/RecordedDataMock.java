@@ -44,18 +44,26 @@ public class RecordedDataMock implements MockInterface {
         
         String currentArgsAsString = fieldIgnorerSerializer.asString(args);
 
+        JavaCall sameMethodCall = null;
         for (JavaCall recordObject : recorded) {
             // TODO: FIX (choose correct subclass+method combination): serviceObjectName.equals(recordObject.getClassName())
             if (method.getName().equals(recordObject.getMethodname())) {
-                final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));;
+                final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));
                 if (currentArgsAsString.equals(recordedArgsAsString)) {
                     return standardSerializer.asObject(recordObject.getResult());
                 }
+                sameMethodCall = recordObject;
             }
         }
         
-        // TODO: Log a WARNING.
-        return null;
+        final String closestMatch;
+        if (sameMethodCall != null) {
+            final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(sameMethodCall.getParameters()));
+            closestMatch = "\nDid not match recorded-args:\n" + recordedArgsAsString;
+        } else {
+            closestMatch = "";
+        }
+        throw new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + fieldIgnorerSerializer.asString(args) + closestMatch);
     }
 
     public String getServiceClass() {
