@@ -1,11 +1,5 @@
 package no.steria.skuldsku.recorder.java.mock;
 
-import no.steria.skuldsku.recorder.Skuldsku;
-import no.steria.skuldsku.recorder.java.JavaCall;
-import no.steria.skuldsku.recorder.java.recorder.InterfaceRecorderWrapper;
-import no.steria.skuldsku.recorder.logging.RecorderLog;
-
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -15,6 +9,11 @@ import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.java.JavaCall;
+import no.steria.skuldsku.recorder.java.recorder.InterfaceRecorderWrapper;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 /**
  * Each Java API that should be mocked when playing back tests, has a corresponding proxy (created by
@@ -73,8 +72,9 @@ public class MockRegistration {
             mi = new MockInterface() {
                 @Override
                 public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
-                    RecorderLog.warn(String.format("Method %s called on mock interface %s during playbackmode, but mock interface was not registered", method.getName(), interfaceClass.getName()));
-                    return null;
+                    final String message = String.format("Method %s called on mock interface %s during playbackmode, but mock interface was not registered", method.getName(), interfaceClass.getName());
+                    RecorderLog.warn(message);
+                    throw new IllegalStateException(message);
                 }
             };
         }
@@ -116,8 +116,10 @@ public class MockRegistration {
             for (RecordedDataMock recordedDataMock: recordedDataMocks){
                 final Class<?> mockClass = Class.forName(recordedDataMock.getServiceClass());
                 for (Class<?> interfaceClass : mockClass.getInterfaces()) {
+                    RecorderLog.debug("Registering mock on: " + interfaceClass.getName());
                     MockRegistration.registerMock(interfaceClass, recordedDataMock);
                 }
+                RecorderLog.debug("Registering mock on: " + mockClass.getName());
                 MockRegistration.registerMock(mockClass, recordedDataMock);
             }
         } catch (ClassNotFoundException e) {
