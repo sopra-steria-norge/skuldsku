@@ -51,11 +51,12 @@ public class SkuldskuFilter implements Filter{
         final String requestId = UUID.randomUUID().toString();
         ClientIdentifierHolder.setClientIdentifier(requestId);
         httpCall.setClientIdentifier(requestId);
-        
         chain.doFilter(requestSpy,responseSpy);
+        //resp.flushBuffer();
         httpCall.setOutput(responseSpy.getWritten());
         httpCall.setStatus(resp.getStatus());
-        
+        httpCall.setResponseHeaders(getResponseHeaders(resp));
+
         HttpCallPersister reporter = getReporter();
         if (reporter != null) {
             reporter.reportCall(httpCall);
@@ -67,6 +68,11 @@ public class SkuldskuFilter implements Filter{
     }
 
     private void logHeaders(HttpServletRequest req, HttpCall httpCall) {
+        Map<String, List<String>> headers = getRequestHeaders(req);
+        httpCall.setHeaders(headers);
+    }
+
+    private Map<String, List<String>> getRequestHeaders(HttpServletRequest req) {
         Map<String,List<String>> headers = new HashMap<>();
 
         Enumeration<String> headerNames = req.getHeaderNames();
@@ -79,7 +85,17 @@ public class SkuldskuFilter implements Filter{
             }
             headers.put(headerName,values);
         }
-        httpCall.setHeaders(headers);
+        return headers;
+    }
+    
+    private Map<String, List<String>> getResponseHeaders(HttpServletResponse response) {
+        Map<String,List<String>> headers = new HashMap<>();
+
+        for (String headerName : response.getHeaderNames()) {
+            List<String> values = new ArrayList<>(response.getHeaders(headerName));
+            headers.put(headerName,values);
+        }
+        return headers;
     }
 
     private void recordPath(HttpServletRequest req, HttpCall httpCall) {

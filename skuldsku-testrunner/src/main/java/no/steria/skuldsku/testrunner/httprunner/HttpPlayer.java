@@ -1,10 +1,13 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
-import no.steria.skuldsku.recorder.http.HttpCall;
-import no.steria.skuldsku.recorder.logging.RecorderLog;
-import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,14 +15,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.steria.skuldsku.recorder.http.HttpCall;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
+import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
+
 public class HttpPlayer {
     private final String baseUrl;
     private final List<PlaybackManipulator> manipulators = new ArrayList<>();
+    private final List<SessionPlaybackManipulator> sessionManipulators = new ArrayList<>();
+    
+    private final SessionManager sessionManager = new SessionManager();
+    
+
     private boolean abortOnFailingRequest = false;
+    private SessionIdDecider sessionIdDecider = new CookieSessionIdDecider();
 
     public HttpPlayer(String baseUrl) {
         this.baseUrl = baseUrl;
-        manipulators.add(new CookieHandler());
+        sessionManipulators.add(new CookieHandler());
     }
 
     
@@ -50,14 +63,23 @@ public class HttpPlayer {
         manipulators.add(manipulator);
     }
     
+    public void addManipulator(SessionPlaybackManipulator manipulator) {
+        sessionManipulators.add(manipulator);
+    }
+    
     public void setAbortOnFailingRequest(boolean abortOnFailingRequest) {
         this.abortOnFailingRequest = abortOnFailingRequest;
     }
+    
+    public void setSessionIdDecider(SessionIdDecider sessionIdDecider) {
+        this.sessionIdDecider = sessionIdDecider;
+    }
 
     public void playStep(PlayStep playStep) throws IOException {
-
-        HttpCall httpCall = playStep.getReportObject();
-
+        final HttpCall httpCall = playStep.getReportObject();
+        final String sessionId = sessionIdDecider.determineSessionId(httpCall);
+        final List<PlaybackManipulator> sessionInstancePlaybackManipulators = sessionManager.getSessionPlaybackManipulators(sessionId, sessionManipulators);
+        
         RecorderLog.info(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
 
         URL url = new URL(baseUrl + httpCall.getPath());
@@ -69,6 +91,9 @@ public class HttpPlayer {
         for (PlaybackManipulator manipulator : manipulators) {
             readInputStream = manipulator.computePayload(readInputStream);
         }
+        for (PlaybackManipulator manipulator : sessionInstancePlaybackManipulators) {
+            readInputStream = manipulator.computePayload(readInputStream);
+        }
 
         Map<String, List<String>> headers = httpCall.getHeaders();
 
@@ -76,7 +101,10 @@ public class HttpPlayer {
         for (PlaybackManipulator manipulator : manipulators) {
             headers = manipulator.getHeaders(headers);
         }
-
+        for (PlaybackManipulator manipulator : sessionInstancePlaybackManipulators) {
+            headers = manipulator.getHeaders(headers);
+        }
+        
         // writing headers
         if (headers != null) {
             Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
@@ -103,7 +131,7 @@ public class HttpPlayer {
         final Map<String, List<String>> headerFields = conn.getHeaderFields();
 
         manipulators.forEach(m -> m.reportHeaderFields(headerFields));
-
+        sessionInstancePlaybackManipulators.forEach(m -> m.reportHeaderFields(headerFields));
 
         //writes the parameters of the request
         String parameters = httpCall.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
@@ -137,7 +165,12 @@ public class HttpPlayer {
         }
 
         manipulators.forEach(m -> m.reportResult(result.toString()));
+        sessionInstancePlaybackManipulators.forEach(m -> m.reportResult(result.toString()));
+        manipulators.forEach(m -> m.requestEnded());
+        sessionInstancePlaybackManipulators.forEach(m -> m.requestEnded());
     }
+
+    
     
     private InputStream getResponseStream(HttpURLConnection conn) throws IOException {
         return (conn.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) ? conn.getErrorStream() : conn.getInputStream();

@@ -15,4 +15,6 @@ public interface PlaybackManipulator {
     public default void reportHeaderFields(Map<String, List<String>> headerFields) {};
 
     public default void reportResult(String result) {};
+    
+    public default void requestEnded() {}
 }

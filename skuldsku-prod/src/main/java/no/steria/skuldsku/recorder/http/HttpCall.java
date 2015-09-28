@@ -8,18 +8,27 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpCall implements Serializable {
-    private String clientIdentifier = "";
-    private String readInputStream;
-    private Map<String,String> parameters = new HashMap<>();
-    private String method;
-    private String path;
-    private String output;
-    private int status = 0;
-    private Map<String, List<String>> headers;
+    private String clientIdentifier = ""; // requestId
+    private String readInputStream; // requestData
+    private Map<String,String> parameters = new HashMap<>();  // UNUSED?
+    private String method; // requestMethod
+    private String path; // requestPath
+    private String output; // responseData
+    private int status = 0; // responseStatus
+    private Map<String, List<String>> headers; // requestHeaders
+    private Map<String, List<String>> responseHeaders;
 
     public HttpCall setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
         return this;
+    }
+    
+    public Map<String, List<String>> getResponseHeaders() {
+        return responseHeaders;
+    }
+    
+    public void setResponseHeaders(Map<String, List<String>> responseHeaders) {
+        this.responseHeaders = responseHeaders;
     }
     
     public String getClientIdentifier() {
