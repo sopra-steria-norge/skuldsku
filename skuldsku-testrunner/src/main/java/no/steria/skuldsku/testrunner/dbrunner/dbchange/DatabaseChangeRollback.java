@@ -169,7 +169,14 @@ public class DatabaseChangeRollback {
                 values.append(", ");
             }
             names.append(stripQualifier(entry.getKey()));
-            values.append("'").append(entry.getValue()).append("'");
+            
+            final String value = entry.getValue();
+            if (value != null) {
+                values.append("'").append(value).append("'");
+            } else {
+                values.append("null");
+            }
+            
             append = true;
         }
         
