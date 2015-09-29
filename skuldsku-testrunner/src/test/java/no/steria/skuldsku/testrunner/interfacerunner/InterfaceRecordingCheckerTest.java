@@ -1,14 +1,14 @@
 package no.steria.skuldsku.testrunner.interfacerunner;
 
+import static org.fest.assertions.Assertions.assertThat;
+
+import java.util.Arrays;
+
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 import no.steria.skuldsku.testrunner.interfacerunner.verifiers.StrictJavaCallVerifier;
 
 import org.junit.Test;
-
-import java.util.Arrays;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 public class InterfaceRecordingCheckerTest {
 
@@ -18,6 +18,7 @@ public class InterfaceRecordingCheckerTest {
         private String value;
     }
 
+    @SuppressWarnings("unused")
     private static class Service {
         public Simple doIt(String val) {
             Simple simple = new Simple();

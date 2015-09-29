@@ -199,8 +199,9 @@ public class ClassSerializer {
         } else if (fieldValue.startsWith("<")) {
             value = complexValueFromString(fieldValue, type);
         } else if (type.isEnum()) {
-            Class<? extends Enum> enuClazz = (Class<? extends Enum>) type;
-            return Enum.valueOf(enuClazz, fieldValue);
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            final Object e = Enum.valueOf((Class) type, fieldValue);
+            return e;
         } else if (int.class.equals(type) || Integer.class.equals(type)) {
             value = Integer.parseInt(fieldValue);
         } else if (long.class.equals(type) || Long.class.equals(type)) {
@@ -251,7 +252,7 @@ public class ClassSerializer {
         }
 
         if (fieldValue instanceof Enum) {
-            Enum en = (Enum) fieldValue;
+            Enum<?> en = (Enum<?>) fieldValue;
             stringBuffer.append(String.format("<%s;%s>", en.getClass().getName(), en.name()));
             return stringBuffer;
         }
@@ -288,6 +289,7 @@ public class ClassSerializer {
             return res;
         }
         if (fieldValue instanceof List) {
+            @SuppressWarnings("unchecked")
             List<Object> listValues = (List<Object>) fieldValue;
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
@@ -297,6 +299,7 @@ public class ClassSerializer {
             return res;
         }
         if (fieldValue instanceof Map) {
+            @SuppressWarnings("unchecked")
             Map<Object, Object> mapValue = (Map<Object, Object>) fieldValue;
             StringBuilder res = new StringBuilder("<map");
             try {

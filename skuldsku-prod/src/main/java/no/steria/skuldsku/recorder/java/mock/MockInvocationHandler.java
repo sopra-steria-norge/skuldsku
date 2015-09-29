@@ -4,10 +4,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 public class MockInvocationHandler implements InvocationHandler {
-    private Class interfaceClass;
+    private Class<?> interfaceClass;
     private MockInterface mi;
 
-    public MockInvocationHandler(MockInterface mi, Class interfaceClass) {
+    public MockInvocationHandler(MockInterface mi, Class<?> interfaceClass) {
         this.interfaceClass = interfaceClass;
         this.mi = mi;
     }

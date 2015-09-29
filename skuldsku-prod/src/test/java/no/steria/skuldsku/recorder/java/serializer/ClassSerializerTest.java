@@ -71,8 +71,8 @@ public class ClassSerializerTest {
     public void shouldHandleArraysWithNull() throws Exception {
         final Object[] a = {"a", null, "b"};
         final String serialized = serializer.asString(a);
-        //assertThat(serialized).isEqualTo("<array;<java.lang.String;a>;&null;<java.lang.String;b>>");
-        Object[] cloned = (Object[]) serializer.asObject(serialized);
+        final Object[] cloned = (Object[]) serializer.asObject(serialized);
+        assertThat(cloned).isEqualTo(a);
     }
     
     @Test
@@ -92,7 +92,8 @@ public class ClassSerializerTest {
         final String[] a = {"a", null, "b"};
         final String serialized = serializer.asString(a);
         assertThat(serialized).isEqualTo("<array;[Ljava.lang.String&semi;<java.lang.String;a>;&null;<java.lang.String;b>>");
-        String[] cloned = (String[]) serializer.asObject(serialized);
+        final String[] cloned = (String[]) serializer.asObject(serialized);
+        assertThat(cloned).isEqualTo(a);
     }
     
     @Test
@@ -100,17 +101,17 @@ public class ClassSerializerTest {
         final String[] a = {null, "a", "b"};
         final String serialized = serializer.asString(a);
         assertThat(serialized).isEqualTo("<array;[Ljava.lang.String&semi;&null;<java.lang.String;a>;<java.lang.String;b>>");
-        Object[] cloned = (Object[]) serializer.asObject(serialized);
+        final Object[] cloned = (Object[]) serializer.asObject(serialized);
         assertThat(cloned).isEqualTo(a);
     }
     
     @Test
-    @Ignore("TODO")
     public void shouldHandleArraysBeginningWithNullAndCorrectType() throws Exception {
         final String[] a = {null, "a", "b"};
         final String serialized = serializer.asString(a);
-        assertThat(serialized).isEqualTo("<array;&null;<java.lang.String;a>;<java.lang.String;b>>");
-        String[] cloned = (String[]) serializer.asObject(serialized);
+        assertThat(serialized).isEqualTo("<array;[Ljava.lang.String&semi;&null;<java.lang.String;a>;<java.lang.String;b>>");
+        final String[] cloned = (String[]) serializer.asObject(serialized);
+        assertThat(cloned).isEqualTo(a);
     }
     
     @Test
@@ -133,11 +134,6 @@ public class ClassSerializerTest {
         final String actual = serializer.asString(new String[]{"asdf", "asdf "});
 
         assertThat(serializer.asObject(actual)).isEqualTo(new String[]{"asdf", "asdf "});
-    }
-
-    @Test
-    public void shouldDeserializeArray() {
-        Object[] a = (Object[]) serializer.asObject("<array;[Ljava.lang.Object&semi;<java.lang.String;837105382>>");
     }
     
     @Test

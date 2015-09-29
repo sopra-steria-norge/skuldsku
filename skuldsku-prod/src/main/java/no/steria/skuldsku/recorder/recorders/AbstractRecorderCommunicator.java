@@ -5,7 +5,6 @@ import java.util.List;
 
 import no.steria.skuldsku.recorder.http.HttpCall;
 import no.steria.skuldsku.recorder.http.HttpCallPersister;
-import no.steria.skuldsku.recorder.http.SkuldskuFilter;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.recorder.JavaCallPersister;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;

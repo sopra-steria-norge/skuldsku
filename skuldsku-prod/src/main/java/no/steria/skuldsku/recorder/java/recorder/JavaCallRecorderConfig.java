@@ -1,8 +1,5 @@
 package no.steria.skuldsku.recorder.java.recorder;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JavaCallRecorderConfig {
     private AsyncMode asyncMode;

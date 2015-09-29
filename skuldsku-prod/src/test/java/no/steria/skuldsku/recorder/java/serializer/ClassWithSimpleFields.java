@@ -3,6 +3,7 @@ package no.steria.skuldsku.recorder.java.serializer;
 public class ClassWithSimpleFields {
     private String stringval;
     private int intval;
+    @SuppressWarnings("unused")
     private Boolean anotherVar = false;
 
     public String getStringval() {

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpCall implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private String clientIdentifier = ""; // requestId
     private String readInputStream; // requestData
     private Map<String,String> parameters = new HashMap<>();  // UNUSED?

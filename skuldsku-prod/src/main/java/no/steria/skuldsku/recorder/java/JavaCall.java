@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class JavaCall implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private String clientIdentifier = "";
     private String className;
     private String methodname;

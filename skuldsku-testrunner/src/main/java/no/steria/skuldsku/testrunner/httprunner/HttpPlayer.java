@@ -16,9 +16,13 @@ import java.util.Map;
 import java.util.Set;
 
 import no.steria.skuldsku.recorder.http.HttpCall;
+import no.steria.skuldsku.recorder.http.SkuldskuFilter;
 import no.steria.skuldsku.recorder.logging.RecorderLog;
 import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
+/**
+ * A class for making HTTP-requests using a list of {@link HttpCall}s.
+ */
 public class HttpPlayer {
     private final String baseUrl;
     private final List<PlaybackManipulator> manipulators = new ArrayList<>();
@@ -30,17 +34,38 @@ public class HttpPlayer {
     private boolean abortOnFailingRequest = false;
     private SessionIdDecider sessionIdDecider = new CookieSessionIdDecider();
 
+    
+    /**
+     * Initializes this <code>HttpPlayer</code> to be making requests to the
+     * given URL.
+     *  
+     * @param baseUrl The base URL. This should include the context path of
+     *          the WAR if {@link SkuldskuFilter} was utilized to make the list of
+     *          recorded {@link HttpCall}s.
+     */
     public HttpPlayer(String baseUrl) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = removeTrailingSlash(baseUrl);
         sessionManipulators.add(new CookieHandler());
     }
 
     
+    private static String removeTrailingSlash(String s) {
+        return s.endsWith("/") ? s.substring(0, s.length() - 1) : s;
+    }
+    
+    /**
+     * Plays the HTTP-calls in the given file.
+     * @param filename The filename.
+     */
     public void play(String filename) {
         final List<HttpCall> httpCalls = new FileRecorderReader(filename).getRecordedHttp();
         play(httpCalls);
     }
 
+    /**
+     * Plays the HTTP-calls in the given list.
+     * @param httpCalls A list of HTTP calls to be made.
+     */
     public void play(List<HttpCall> httpCalls) {
         List<PlayStep> playBook = new ArrayList<>();
         for (HttpCall httpCall : httpCalls) {
@@ -75,7 +100,7 @@ public class HttpPlayer {
         this.sessionIdDecider = sessionIdDecider;
     }
 
-    public void playStep(PlayStep playStep) throws IOException {
+    void playStep(PlayStep playStep) throws IOException {
         final HttpCall httpCall = playStep.getReportObject();
         final String sessionId = sessionIdDecider.determineSessionId(httpCall);
         final List<PlaybackManipulator> sessionInstancePlaybackManipulators = sessionManager.getSessionPlaybackManipulators(sessionId, sessionManipulators);
