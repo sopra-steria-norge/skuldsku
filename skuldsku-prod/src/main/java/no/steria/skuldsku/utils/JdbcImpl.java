@@ -25,7 +25,7 @@ public final class JdbcImpl implements Jdbc {
             statement = connection.createStatement();
             statement.execute(sql);
         } catch (SQLException e) {
-            throw new JdbcWrappedException(e);
+            throw new JdbcWrappedException("Exception while executing SQL: " + sql, e);
         } finally {
             closeStatement(statement);
         }
@@ -77,7 +77,7 @@ public final class JdbcImpl implements Jdbc {
                 closeResultSet(resultSet);
             }
         } catch (SQLException e) {
-            throw new JdbcWrappedException(e);
+            throw new JdbcWrappedException("Exception while executing SQL: " + sql, e);
         } finally {
             closeStatement(statement);
         }
