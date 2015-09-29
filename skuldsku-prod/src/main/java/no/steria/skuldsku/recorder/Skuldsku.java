@@ -106,7 +106,8 @@ public final class Skuldsku {
      *          is used in order to avoid instantiating the object when it
      *          should be mocked out in playback.
      * @return A decorated version of the object given through the
-     *          <code>InstantiationCallback</code>.
+     *          <code>InstantiationCallback</code> when not in playback
+     *          or a {@link MockRegistration mock} if in playback mode.
      */
     public static <T> T wrap(Class<T> clazz, InstantiationCallback<T> ic) {
         final T service;
