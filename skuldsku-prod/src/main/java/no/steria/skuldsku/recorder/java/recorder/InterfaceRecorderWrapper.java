@@ -30,25 +30,26 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RecorderLog.debug("IRW: Invoke called for " + method.getName());
         Object result = null;
+        Throwable thrown = null;
         try {
            result = method.invoke(obj, args);
            return result;
         } catch (InvocationTargetException e) {
-            throw e.getTargetException();
+            thrown = e.getTargetException();
+            throw thrown;
         } finally {
             if (Skuldsku.isRecordingOn()) {
-                storeMethodCall(method, args, result);
+                storeMethodCall(method, args, result, thrown);
             }
-
         }
     }
 
-    private void storeMethodCall(Method method, Object[] args, Object result) {
+    private void storeMethodCall(Method method, Object[] args, Object result, Throwable thrown) {
         try {
             final String className = determineClassName(obj);
             final String methodName = method.getName();
             
-            JavaCallPersisterRunner.store(javaCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, javaCallRecorderConfig);
+            JavaCallPersisterRunner.store(javaCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, thrown, javaCallRecorderConfig);
             RecorderLog.info("IRW: Recorded for " + className + "," + methodName);
         } catch (Exception e) {
             RecorderLog.warn("IRW: Exception recording result : " + e);

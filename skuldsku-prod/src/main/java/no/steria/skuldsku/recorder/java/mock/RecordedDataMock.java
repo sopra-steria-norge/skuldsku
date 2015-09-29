@@ -36,7 +36,7 @@ public class RecordedDataMock implements MockInterface {
     }
 
     @Override
-    public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) {
+    public Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) throws Throwable {
         final ClassSerializer standardSerializer = new ClassSerializer();
         
         final ClassSerializer fieldIgnorerSerializer = new ClassSerializer();
@@ -49,6 +49,12 @@ public class RecordedDataMock implements MockInterface {
             if (method.getName().equals(recordObject.getMethodname())) {
                 final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));
                 if (currentArgsAsString.equals(recordedArgsAsString)) {
+                    if (recordObject.getThrown() != null) {
+                        final Throwable t = (Throwable) standardSerializer.asObject(recordObject.getThrown());
+                        if (t != null) {
+                            throw t;
+                        }
+                    }
                     return standardSerializer.asObject(recordObject.getResult());
                 }
             }
@@ -57,7 +63,7 @@ public class RecordedDataMock implements MockInterface {
         final String closestMatch = findClosestMatch(method, currentArgsAsString, standardSerializer, fieldIgnorerSerializer);
         final String extraString = (closestMatch == null) ? "" : "\nDid not match recorded-args:\n" + closestMatch;
 
-        throw new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + fieldIgnorerSerializer.asString(args) + extraString);
+        throw new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + currentArgsAsString + extraString);
     }
 
     private String findClosestMatch(final Method method, String currentArgsAsString, final ClassSerializer standardSerializer, final ClassSerializer fieldIgnorerSerializer) {

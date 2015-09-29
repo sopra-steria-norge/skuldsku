@@ -3,6 +3,7 @@ package no.steria.skuldsku.recorder.java.recorder;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,16 +11,12 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.List;
 
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuAccessor;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
-import no.steria.skuldsku.recorder.java.recorder.AsyncMode;
-import no.steria.skuldsku.recorder.java.recorder.InterfaceRecorderWrapper;
-import no.steria.skuldsku.recorder.java.recorder.JavaCallRecorderConfig;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 import no.steria.skuldsku.recorder.java.serializer.ClassWithSimpleFields;
 
@@ -50,6 +47,27 @@ public class InterfaceRecorderWrapperTest {
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<array;[Ljava.lang.Object&semi;<java.lang.String;MyName>>");
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;Hello MyName>");
     }
+    
+    @Test
+    public void shouldHandleExceptions() throws Exception {
+        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, JavaCallRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        String result = null;
+        try {
+            result = serviceClass.doSimpleService("exception");
+            fail("expected exception before this line");
+        } catch (RuntimeException e) {
+            // Ignore
+        }
+
+        assertThat(result).isEqualTo(null);
+
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.java.recorder.ServiceClass");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doSimpleService");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<array;[Ljava.lang.Object&semi;<java.lang.String;exception>>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<null>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getThrown()).isEqualTo("<java.lang.IllegalStateException;detailMessage=exception;cause=<duplicate;0>;stackTrace=<array;[Ljava.lang.StackTraceElement&semi>;suppressedExceptions=<list>>");
+    }
+
 
     @Test
     public void shouldHandleListsAsResults() throws Exception {

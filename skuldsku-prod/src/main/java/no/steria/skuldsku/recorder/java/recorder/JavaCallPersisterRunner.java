@@ -18,15 +18,17 @@ public class JavaCallPersisterRunner implements Runnable {
     private final String methodName;
     private final Object[] args;
     private final Object result;
+    private final Throwable thrown;
     private final JavaCallRecorderConfig javaCallRecorderConfig;
 
-    private JavaCallPersisterRunner(JavaCallPersister javaCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, JavaCallRecorderConfig javaCallRecorderConfig) {
+    private JavaCallPersisterRunner(JavaCallPersister javaCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, Throwable thrown, JavaCallRecorderConfig javaCallRecorderConfig) {
         this.clientIdentifier = clientIdentifier;
         this.javaCallPersister = javaCallPersister;
         this.className = className;
         this.methodName = methodName;
         this.args = args;
         this.result = result;
+        this.thrown = thrown;
         this.javaCallRecorderConfig = javaCallRecorderConfig;
     }
 
@@ -42,9 +44,10 @@ public class JavaCallPersisterRunner implements Runnable {
             final String parameters = classSerializer.asString(args);
 
             String resultStr = classSerializer.asString(result);
+            String thrownStr = classSerializer.asString(thrown);
+            
             RecorderLog.debug("LogRunner: Calling report callback");
-
-            javaCallPersister.event(new JavaCall(clientIdentifier, className, methodName, parameters, resultStr));
+            javaCallPersister.event(new JavaCall(clientIdentifier, className, methodName, parameters, resultStr, thrownStr));
         } catch (Throwable e) {
             RecorderLog.debug("LogRunner: exception logging " + e);
         }
@@ -58,8 +61,8 @@ public class JavaCallPersisterRunner implements Runnable {
         logEvent();
     }
 
-    public static void store(JavaCallPersister javaCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, JavaCallRecorderConfig javaCallRecorderConfig) {
-        JavaCallPersisterRunner javaCallPersisterRunner = new JavaCallPersisterRunner(javaCallPersister, clientIdentifier, className, methodName, args, result, javaCallRecorderConfig);
+    public static void store(JavaCallPersister javaCallPersister, String clientIdentifier, String className, String methodName, Object[] args, Object result, Throwable thrown, JavaCallRecorderConfig javaCallRecorderConfig) {
+        JavaCallPersisterRunner javaCallPersisterRunner = new JavaCallPersisterRunner(javaCallPersister, clientIdentifier, className, methodName, args, result, thrown, javaCallRecorderConfig);
         AsyncMode asyncMode = javaCallRecorderConfig.getAsyncMode();
         if (asyncMode == AsyncMode.ALL_ASYNC) {
             executorService.submit(javaCallPersisterRunner);

@@ -11,13 +11,15 @@ public class JavaCall implements Serializable {
     private String methodname;
     private String parameters;
     private String result;
+    private String thrown;
 
-    public JavaCall(String clientIdentifier, String className, String methodname, String parameters, String result) {
+    public JavaCall(String clientIdentifier, String className, String methodname, String parameters, String result, String thrown) {
         this.clientIdentifier = clientIdentifier;
         this.className = className;
         this.methodname = methodname;
         this.parameters = parameters;
         this.result = result;
+        this.thrown = thrown;
     }
 
     public JavaCall() {
@@ -46,6 +48,14 @@ public class JavaCall implements Serializable {
 
     public String getResult() {
         return result;
+    }
+    
+    public String getThrown() {
+        return thrown;
+    }
+    
+    public void setThrown(String thrown) {
+        this.thrown = thrown;
     }
 
     @Override

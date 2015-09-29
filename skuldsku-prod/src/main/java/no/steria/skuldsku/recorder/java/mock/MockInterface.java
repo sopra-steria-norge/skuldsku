@@ -7,5 +7,5 @@ import java.lang.reflect.Method;
  * @see (no.steria.skuldsku.recorder.javainterfacerecorder.interfacerecorder.MockRegistration).
  */
 public interface MockInterface {
-    Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args);
+    Object invoke(Class<?> interfaceClass, String serviceObjectName, Method method, Object[] args) throws Throwable;
 }

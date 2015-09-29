@@ -7,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.ParseException;
@@ -263,9 +265,12 @@ public class ClassSerializer {
                 throw new RuntimeException(e);
             }
         }
-        Package aPackage = fieldValue.getClass().getPackage();
-        String packageName = aPackage != null ? aPackage.getName() : null;
-        if (!isValueClass(packageName)) {
+        
+        final String className = fieldValue.getClass().getName();
+        if (!isValueClass(className)
+                && !fieldValue.getClass().isArray()
+                && !(fieldValue instanceof List)
+                && !(fieldValue instanceof Map)) {
             int ind = isKnown(fieldValue);
             if (ind != -1) {
                 return stringBuffer.append("<duplicate;").append(ind).append(">");
@@ -312,7 +317,7 @@ public class ClassSerializer {
             return new StringBuilder(dateFormat.format(fieldValue));
         }
 
-        if (isValueClass(packageName)) {
+        if (isValueClass(className)) {
             return new StringBuilder(escapeSpecialCharacters(fieldValue.toString()));
         }
         String classname = fieldValue.getClass().getName();
@@ -333,8 +338,25 @@ public class ClassSerializer {
                 .replaceAll("\n", "&newline");
     }
 
-    private boolean isValueClass(String packageName) {
-        return "java.lang".equals(packageName) || "java.util".equals(packageName) || "java.math".equals(packageName);
+    private boolean isValueClass(String className) {
+        return Boolean.class.getName().equals(className)
+                || Byte.class.getName().equals(className)
+                || Character.class.getName().equals(className)
+                || Class.class.getName().equals(className) // TODO
+                || Double.class.getName().equals(className)
+                || Enum.class.getName().equals(className) // TODO?
+                || Float.class.getName().equals(className)
+                || Integer.class.getName().equals(className)
+                || Long.class.getName().equals(className)
+                || Number.class.getName().equals(className)
+                || Short.class.getName().equals(className)
+                || String.class.getName().equals(className)
+                || StringBuffer.class.getName().equals(className)
+                || StringBuilder.class.getName().equals(className)
+                || Date.class.getName().equals(className) // TODO
+                || BigDecimal.class.getName().equals(className)
+                || BigInteger.class.getName().equals(className)
+                || MathContext.class.getName().equals(className);
     }
 
     public static List<Field> getAllFields(List<Field> fields, Class<?> type) {

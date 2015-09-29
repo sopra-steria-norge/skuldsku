@@ -136,6 +136,11 @@ public class ClassSerializerTest {
     }
 
     @Test
+    public void shouldDeserializeArray() {
+        Object[] a = (Object[]) serializer.asObject("<array;[Ljava.lang.Object&semi;<java.lang.String;837105382>>");
+    }
+    
+    @Test
     public void shouldBoxPrimitivesWhenSerializing() throws Exception {
         final long[] primitives = new long[] { 0l,1l };
         final String serialized = serializer.asString(primitives);
@@ -332,7 +337,7 @@ public class ClassSerializerTest {
 
         ClassWithSimpleFields classWithSimpleFields = new ClassWithSimpleFields();
         classWithSimpleFields.setStringval("Noe;Mer");
-        store(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, config);
+        store(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, null, config);
 
         os.flush();
         String serialized = os.toString();

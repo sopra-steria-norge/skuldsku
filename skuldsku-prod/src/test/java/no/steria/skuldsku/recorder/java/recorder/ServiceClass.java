@@ -8,6 +8,9 @@ import java.util.List;
 
 public class ServiceClass implements ServiceInterface {
     public String doSimpleService(String input) {
+        if (input.startsWith("exception")) {
+            throw new IllegalStateException(input);
+        }
         return "Hello " + input;
     }
 
