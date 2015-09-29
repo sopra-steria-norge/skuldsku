@@ -102,7 +102,7 @@ public class ClassSerializer {
 
             if ("array".equals(parts[0])) {
                 try {
-                    return objectValueFromString(serializedValue, Class.forName("[L" + splitToParts(parts[1])[0] + ";"));
+                    return createArray(serializedValue);
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -226,16 +226,19 @@ public class ClassSerializer {
         } else if (BigDecimal.class.equals(type)) {
             value = new BigDecimal(Double.parseDouble(fieldValue));
         } else {
-            value = fieldValue
-                    .replaceAll("&semi", ";")
-                    .replaceAll("&eq", "=")
-                    .replaceAll("&lt", "<")
-                    .replaceAll("&gt", ">")
-                    .replaceAll("&percent","%")
-                    .replaceAll("&newline", "\n")
-                    .replaceAll("&amp", "&"); //This really must happen last, or we end up double-deserializing.
+            value = unescapeSpecialCharacters(fieldValue);
         }
         return value;
+    }
+    
+    public String unescapeSpecialCharacters(String s) {
+        return s.replaceAll("&semi", ";")
+                .replaceAll("&eq", "=")
+                .replaceAll("&lt", "<")
+                .replaceAll("&gt", ">")
+                .replaceAll("&percent","%")
+                .replaceAll("&newline", "\n")
+                .replaceAll("&amp", "&"); //This really must happen last, or we end up double-deserializing.
     }
 
     private StringBuilder encodeValue(Object fieldValue) {
@@ -270,8 +273,8 @@ public class ClassSerializer {
         }
         knownObjects.add(fieldValue);
         if (fieldValue.getClass().isArray()) {
-            StringBuilder res = new StringBuilder("<array");
-
+            StringBuilder res = new StringBuilder("<array;");
+            res.append(escapeSpecialCharacters(fieldValue.getClass().getName()));
             for (int i = 0; i < Array.getLength(fieldValue); i++) {
                 Object objInArr = Array.get(fieldValue, i);
                 encode(res, objInArr);
@@ -310,21 +313,24 @@ public class ClassSerializer {
         }
 
         if (isValueClass(packageName)) {
-            return new StringBuilder(fieldValue.toString()
-                    .replaceAll("&", "&amp")
-                    .replaceAll(";", "&semi")
-                    .replaceAll("<", "&lt")
-                    .replaceAll(">", "&gt")
-                    .replaceAll("=", "&eq")
-                    .replaceAll("%","&percent")
-                    .replaceAll("\r\n", "&newline")
-                    .replaceAll("\n\r", "&newline")
-                    .replaceAll("\r", "&newline")
-                    .replaceAll("\n", "&newline"));
+            return new StringBuilder(escapeSpecialCharacters(fieldValue.toString()));
         }
         String classname = fieldValue.getClass().getName();
         StringBuilder fieldsCode = computeFields(fieldValue);
         return new StringBuilder("<").append(classname).append(fieldsCode).append(">");
+    }
+    
+    private String escapeSpecialCharacters(String s) {
+        return s.replaceAll("&", "&amp")
+                .replaceAll(";", "&semi")
+                .replaceAll("<", "&lt")
+                .replaceAll(">", "&gt")
+                .replaceAll("=", "&eq")
+                .replaceAll("%","&percent")
+                .replaceAll("\r\n", "&newline")
+                .replaceAll("\n\r", "&newline")
+                .replaceAll("\r", "&newline")
+                .replaceAll("\n", "&newline");
     }
 
     private boolean isValueClass(String packageName) {
@@ -429,15 +435,20 @@ public class ClassSerializer {
             throw new RuntimeException(e2);
         }
     }
+    
+    private Object createArray(String fieldValue) throws ClassNotFoundException {
+        final String[] parts = splitToParts(fieldValue);
+        assert "array".equals(parts[0]);
+        
+        Class<?> type = Class.forName(unescapeSpecialCharacters(parts[1]));
+        final int reservedFieldsCount = 2;
+        
+        Object arr = Array.newInstance(type.getComponentType(), parts.length - reservedFieldsCount);
 
-    private Object complexValueFromString(String fieldValue, Class<?> type) {
-        String[] parts = splitToParts(fieldValue);
-        if ("array".equals(parts[0])) {
-            Object arr = Array.newInstance(type.getComponentType(), parts.length - 1);
-
-            for (int i = 0; i < parts.length - 1; i++) {
-                String codeStr = parts[i + 1];
-                String[] valType = splitToParts(codeStr);
+        for (int i = 0; i < parts.length - reservedFieldsCount; i++) {
+            String codeStr = parts[i + reservedFieldsCount];
+            String[] valType = splitToParts(codeStr);
+            if (valType.length > 0) {
                 Class<?> aClass;
                 try {
                     aClass = Class.forName(valType[0]);
@@ -445,10 +456,16 @@ public class ClassSerializer {
                     throw new RuntimeException(e);
                 }
                 Array.set(arr, i, objectValueFromString(valType[1], aClass));
+            } else {
+                Array.set(arr, i, objectValueFromString(codeStr, null));
             }
-
-            return arr;
         }
+
+        return arr;
+    }
+
+    private Object complexValueFromString(String fieldValue, Class<?> type) {
+        String[] parts = splitToParts(fieldValue);
         if ("list".equals(parts[0])) {
             List<Object> resList = new ArrayList<>();
 

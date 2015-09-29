@@ -61,16 +61,71 @@ public class ClassSerializerTest {
         classWithCollection.setArrayOfChars(bytval);
 
         String serialized = serializer.asString(classWithCollection);
-
         ClassWithArrayOfPrimitives cloned = (ClassWithArrayOfPrimitives) serializer.asObject(serialized);
 
         assertThat(cloned.getArrayOfLongs()).containsOnly(0l, 1l, 2l);
         assertThat(cloned.getArrayOfChars()).containsOnly('a', 'b', 'c');
     }
+    
+    @Test
+    public void shouldHandleArraysWithNull() throws Exception {
+        final Object[] a = {"a", null, "b"};
+        final String serialized = serializer.asString(a);
+        //assertThat(serialized).isEqualTo("<array;<java.lang.String;a>;&null;<java.lang.String;b>>");
+        Object[] cloned = (Object[]) serializer.asObject(serialized);
+    }
+    
+    @Test
+    public void shouldHandleMixedArray() throws Exception {
+        // Need to specify array class in serialized format.
+        final Object[] a = {"a", null, 5};
+        final String serialized = serializer.asString(a);
+        System.out.println(serialized);
+        Object[] cloned = (Object[]) serializer.asObject(serialized);
+        assertThat(cloned[0]).isEqualTo("a");
+        assertThat(cloned[1]).isNull();
+        assertThat(cloned[2]).isEqualTo(5);
+    }
+    
+    @Test
+    public void shouldHandleArraysWithNullAndCorrectType() throws Exception {
+        final String[] a = {"a", null, "b"};
+        final String serialized = serializer.asString(a);
+        assertThat(serialized).isEqualTo("<array;[Ljava.lang.String&semi;<java.lang.String;a>;&null;<java.lang.String;b>>");
+        String[] cloned = (String[]) serializer.asObject(serialized);
+    }
+    
+    @Test
+    public void shouldHandleArraysBeginningWithNull() throws Exception {
+        final String[] a = {null, "a", "b"};
+        final String serialized = serializer.asString(a);
+        assertThat(serialized).isEqualTo("<array;[Ljava.lang.String&semi;&null;<java.lang.String;a>;<java.lang.String;b>>");
+        Object[] cloned = (Object[]) serializer.asObject(serialized);
+        assertThat(cloned).isEqualTo(a);
+    }
+    
+    @Test
+    @Ignore("TODO")
+    public void shouldHandleArraysBeginningWithNullAndCorrectType() throws Exception {
+        final String[] a = {null, "a", "b"};
+        final String serialized = serializer.asString(a);
+        assertThat(serialized).isEqualTo("<array;&null;<java.lang.String;a>;<java.lang.String;b>>");
+        String[] cloned = (String[]) serializer.asObject(serialized);
+    }
+    
+    @Test
+    public void shouldHandleArrayWithOnlyNull() { 
+        final String serializedValue = serializer.asString(new Object[] {null});
+        assertThat(serializedValue).isEqualTo("<array;[Ljava.lang.Object&semi;&null>");
+        Object[] a = (Object[]) serializer.asObject(serializedValue);
+        assertThat(a.length).isEqualTo(1);
+        assertThat(a[0]).isEqualTo(null);
+    }
 
     @Test
     public void shouldHandleEmptyList() {
-        assertThat(serializer.asString(new Object[0])).isEqualTo("<array>");
+        final String value = serializer.asString(new Object[0]);
+        assertThat(value).isEqualTo("<array;[Ljava.lang.Object&semi>");
     }
     
     @Test
@@ -84,8 +139,7 @@ public class ClassSerializerTest {
     public void shouldBoxPrimitivesWhenSerializing() throws Exception {
         final long[] primitives = new long[] { 0l,1l };
         final String serialized = serializer.asString(primitives);
-
-        assertThat(serialized).isEqualTo("<array;<java.lang.Long;0>;<java.lang.Long;1>>");
+        assertThat(serialized).isEqualTo("<array;[J;<java.lang.Long;0>;<java.lang.Long;1>>");
     }
 
     @Test

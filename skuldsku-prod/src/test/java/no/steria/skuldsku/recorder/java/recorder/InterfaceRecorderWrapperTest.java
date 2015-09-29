@@ -47,54 +47,8 @@ public class InterfaceRecorderWrapperTest {
 
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.java.recorder.ServiceClass");
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doSimpleService");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<array;<java.lang.String;MyName>>");
+        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<array;[Ljava.lang.Object&semi;<java.lang.String;MyName>>");
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;Hello MyName>");
-    }
-
-    @Test
-    @Ignore
-    @Deprecated
-    public void shouldIgnoreFields() throws Exception {
-        Method doWithPara = ServiceClass.class.getMethod("doWithPara", ServiceParameterClass.class);
-        Class<?> ignore = ServiceParameterClass.class;
-        JavaCallRecorderConfig javaCallRecorderConfig = JavaCallRecorderConfig.factory()
-                .withAsyncMode(AsyncMode.ALL_SYNC)
-                .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, javaCallRecorderConfig);
-
-        ServiceParameterClass para = new ServiceParameterClass();
-        para.setInfo("This is it");
-        String result = serviceClass.doWithPara(para);
-
-        assertThat(result).isEqualTo("This is it");
-
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.java.recorder.ServiceClass");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doWithPara");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<null>");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;This is it>");
-    }
-
-    @Test
-    @Ignore
-    @Deprecated
-    public void shouldIgnoreParametersCall() throws Exception {
-        Class<?> ignore = ServiceParameterClass.class;
-        JavaCallRecorderConfig javaCallRecorderConfig = JavaCallRecorderConfig.factory()
-                .withAsyncMode(AsyncMode.ALL_SYNC)
-                .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, javaCallRecorderConfig);
-
-        ServiceParameterClass para = new ServiceParameterClass();
-        para.setInfo("This is it");
-        String result = serviceClass.doWithPara(para);
-
-        assertThat(result).isEqualTo("This is it");
-
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.java.recorder.ServiceClass");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("doWithPara");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<null>");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult()).isEqualTo("<java.lang.String;This is it>");
-
     }
 
     @Test
@@ -156,31 +110,5 @@ public class InterfaceRecorderWrapperTest {
         assertThat(classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult())).isEqualTo("Hello, This is Johnny");
 
         assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
-    }
-
-    @Test
-    @Ignore
-    @Deprecated
-    public void shouldIgnoreTypesOfClasses() throws Exception {
-        JavaCallRecorderConfig javaCallRecorderConfig = JavaCallRecorderConfig.factory()
-                .withAsyncMode(AsyncMode.ALL_SYNC)
-                .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, javaCallRecorderConfig);
-        File tempFile = File.createTempFile("test", "txt");
-        PrintWriter printWriter = new PrintWriter(new FileWriter(tempFile));
-        printWriter.append("This is Johnny");
-        printWriter.close();
-
-        String s = serviceClass.readAFile("Hello, ",tempFile);
-        assertThat(s).isEqualTo("Hello, This is Johnny");
-        assertTrue("could not delete resource file", tempFile.delete());
-
-        ClassSerializer classSerializer = new ClassSerializer();
-        System.out.println(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters());
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("readAFile");
-        assertThat(classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult())).isEqualTo("Hello, This is Johnny");
-
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
-
     }
 }
