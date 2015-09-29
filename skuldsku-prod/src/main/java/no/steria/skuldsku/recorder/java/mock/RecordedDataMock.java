@@ -44,7 +44,6 @@ public class RecordedDataMock implements MockInterface {
         
         String currentArgsAsString = fieldIgnorerSerializer.asString(args);
 
-        JavaCall sameMethodCall = null;
         for (JavaCall recordObject : recorded) {
             // TODO: FIX (choose correct subclass+method combination): serviceObjectName.equals(recordObject.getClassName())
             if (method.getName().equals(recordObject.getMethodname())) {
@@ -52,18 +51,42 @@ public class RecordedDataMock implements MockInterface {
                 if (currentArgsAsString.equals(recordedArgsAsString)) {
                     return standardSerializer.asObject(recordObject.getResult());
                 }
-                sameMethodCall = recordObject;
             }
         }
         
-        final String closestMatch;
-        if (sameMethodCall != null) {
-            final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(sameMethodCall.getParameters()));
-            closestMatch = "\nDid not match recorded-args:\n" + recordedArgsAsString;
-        } else {
-            closestMatch = "";
+        final String closestMatch = findClosestMatch(method, currentArgsAsString, standardSerializer, fieldIgnorerSerializer);
+        final String extraString = (closestMatch == null) ? "" : "\nDid not match recorded-args:\n" + closestMatch;
+
+        throw new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + fieldIgnorerSerializer.asString(args) + extraString);
+    }
+
+    private String findClosestMatch(final Method method, String currentArgsAsString, final ClassSerializer standardSerializer, final ClassSerializer fieldIgnorerSerializer) {
+        String closestArgMatch = null;
+        int bestCommonFields = 0;
+        for (JavaCall recordObject : recorded) {
+            // TODO: FIX (choose correct subclass+method combination): serviceObjectName.equals(recordObject.getClassName())
+            if (method.getName().equals(recordObject.getMethodname())) {
+                final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));
+                final String[] a1 = recordedArgsAsString.split(";");
+                final String[] a2 = currentArgsAsString.split(";");
+                int commonFields = determineCommonFields(a1, a2);
+                if (commonFields > bestCommonFields) {
+                    bestCommonFields = commonFields;
+                    closestArgMatch = recordedArgsAsString;
+                }
+            }
         }
-        throw new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + fieldIgnorerSerializer.asString(args) + closestMatch);
+        return closestArgMatch;
+    }
+    
+    public int determineCommonFields(Object[] a1, Object[] a2) {
+        int count = 0;
+        for (int i=0; i<Math.min(a1.length, a2.length); i++) {
+            if (a1[i].equals(a2[i])) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public String getServiceClass() {
