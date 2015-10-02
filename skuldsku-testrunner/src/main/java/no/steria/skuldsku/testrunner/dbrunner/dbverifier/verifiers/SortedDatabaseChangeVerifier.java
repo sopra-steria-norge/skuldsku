@@ -1,13 +1,13 @@
 package no.steria.skuldsku.testrunner.dbrunner.dbverifier.verifiers;
 
-import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import no.steria.skuldsku.common.result.Results;
+import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
 
 public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
 
@@ -21,7 +21,7 @@ public class SortedDatabaseChangeVerifier implements DatabaseChangeVerifier {
     
     
     @Override
-    public DatabaseChangeVerifierResult assertEquals(final List<DatabaseChange> expected, final List<DatabaseChange> actual, final DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
+    public Results assertEquals(final List<DatabaseChange> expected, final List<DatabaseChange> actual, final DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
         final Comparator<DatabaseChange> identifierSort = new Comparator<DatabaseChange>() {
             @Override
             public int compare(DatabaseChange change1, DatabaseChange change2) {

@@ -1,9 +1,10 @@
 package no.steria.skuldsku.recorder.java;
 
-import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
-
 import java.io.Serializable;
 import java.util.List;
+
+import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
+import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
 public class JavaCall implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -22,6 +23,17 @@ public class JavaCall implements Serializable {
         this.parameters = parameters;
         this.result = result;
         this.thrown = thrown;
+    }
+    
+    public JavaCall(String clientIdentifier, String className, String methodname, Object[] args, Object result, Throwable thrown) {
+        final ClassSerializer classSerializer = new ClassSerializer();
+
+        this.clientIdentifier = clientIdentifier;
+        this.className = className;
+        this.methodname = methodname;
+        this.parameters = classSerializer.asString(args);
+        this.result = classSerializer.asString(result);
+        this.thrown = classSerializer.asString(thrown);
     }
 
     public JavaCall() {
@@ -86,5 +98,11 @@ public class JavaCall implements Serializable {
 
     public static List<JavaCall> readJavaInterfaceCalls(String filename) {
         return new FileRecorderReader(filename).getJavaInterfaceCalls();
+    }
+
+    @Override
+    public String toString() {
+        return "[clientIdentifier=" + clientIdentifier + ", className=" + className + ", methodname="
+                + methodname + ", parameters=\n" + parameters + "\nresult=\n" + result + "\nthrown=" + thrown + "]";
     }
 }

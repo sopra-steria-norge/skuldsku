@@ -100,28 +100,28 @@ public class TestHttpPlayer {
         try {
             int port = jettyServer.getPort();
 
+            final String baseUrl = "http://localhost:" + port;
             WebDriver browser = new HtmlUnitDriver();
-            browser.get("http://localhost:" + port + "/post/more");
+            browser.get(baseUrl + "/post/more");
             browser.findElement(By.name("firstname")).sendKeys("Darth");
             browser.findElement(By.name("lastname")).sendKeys("Vader");
-            browser.findElement(By.name("doPerson")).click();
+            browser.findElement(By.name("doPerson")).submit();
+            
+            final List<HttpCall> httpCalls = reporter.getPlayBook();
+            assertThat(httpCalls).hasSize(2); // GET+POST
+            List<PlayStep> playbook = httpCalls.stream().map(PlayStep::new).collect(Collectors.toList());
 
-            HttpCallPersister callReporter = mock(HttpCallPersister.class);
+            
+            final HttpCallPersister callReporter = mock(HttpCallPersister.class);
             TestFilter.setReporter(callReporter);
-
-
-            String baseUrl = "http://localhost:" + port;
-            HttpPlayer player = new HttpPlayer(baseUrl);
-            List<PlayStep> playbook = reporter.getPlayBook().stream().map(PlayStep::new).collect(Collectors.toList());
-            //System.out.println("++" + playbook.get(1).getReportObject().getReadInputStream());
-            //playbook.get(1).setReplacement("token",playbook.get(0));
+            
+            final HttpPlayer player = new HttpPlayer(baseUrl);
             player.addManipulator(new HiddenFieldManipulator("token"));
             player.playSteps(playbook);
 
             assertThat(playbook.get(1).getRecorded()).contains("Your name is Darth Vader");
         } finally {
             jettyServer.stop();
-
         }
 
 

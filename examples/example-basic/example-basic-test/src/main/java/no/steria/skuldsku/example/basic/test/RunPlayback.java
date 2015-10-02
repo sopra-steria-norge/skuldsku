@@ -2,11 +2,12 @@ package no.steria.skuldsku.example.basic.test;
 
 import java.util.List;
 
+import no.steria.skuldsku.common.result.Result;
+import no.steria.skuldsku.common.result.Results;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.testrunner.httprunner.HttpPlayer;
 import no.steria.skuldsku.testrunner.interfacerunner.JavaCallVerifier;
 import no.steria.skuldsku.testrunner.interfacerunner.JavaCallVerifierOptions;
-import no.steria.skuldsku.testrunner.interfacerunner.JavaCallVerifierResult;
 import no.steria.skuldsku.testrunner.interfacerunner.verifiers.StrictJavaCallVerifier;
 
 public class RunPlayback {
@@ -26,19 +27,19 @@ public class RunPlayback {
     }
 
     private static void verifyResult(final String expectedData, final String actualData) {
-        final JavaCallVerifierResult result = compare(expectedData, actualData);
+        final Results results = compare(expectedData, actualData);
         
-        System.out.println(result.getAdditionalInActual().size());
-        System.out.println(result.getMissingFromActual().size());
-        System.out.println(result.getNotEquals().size());
+        for (Result r : results) {
+            System.out.println(r.toString());
+        }
     }
 
-    private static JavaCallVerifierResult compare(final String expectedData, final String actualData) {
+    private static Results compare(final String expectedData, final String actualData) {
         final List<JavaCall> expected = JavaCall.readJavaInterfaceCalls(expectedData);
         final List<JavaCall> actual = JavaCall.readJavaInterfaceCalls(actualData);
         
         final JavaCallVerifier verifier = new StrictJavaCallVerifier();
-        final JavaCallVerifierResult result = verifier.assertEquals(expected, actual, new JavaCallVerifierOptions());
-        return result;
+        final Results results = verifier.assertEquals(expected, actual, new JavaCallVerifierOptions());
+        return results;
     }
 }

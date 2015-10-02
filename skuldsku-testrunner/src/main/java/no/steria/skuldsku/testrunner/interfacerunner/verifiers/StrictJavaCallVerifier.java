@@ -2,16 +2,19 @@ package no.steria.skuldsku.testrunner.interfacerunner.verifiers;
 
 import java.util.List;
 
+import no.steria.skuldsku.common.result.Results;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.testrunner.interfacerunner.JavaCallVerifier;
 import no.steria.skuldsku.testrunner.interfacerunner.JavaCallVerifierOptions;
-import no.steria.skuldsku.testrunner.interfacerunner.JavaCallVerifierResult;
+import no.steria.skuldsku.testrunner.interfacerunner.result.JavaCallAdditionalInActualResult;
+import no.steria.skuldsku.testrunner.interfacerunner.result.JavaCallMissingFromActualResult;
+import no.steria.skuldsku.testrunner.interfacerunner.result.JavaCallNotEqualsResult;
 
 public class StrictJavaCallVerifier implements JavaCallVerifier {
     
     @Override
-    public JavaCallVerifierResult assertEquals(List<JavaCall> expected, List<JavaCall> actual, JavaCallVerifierOptions options) {
-        JavaCallVerifierResult result = new JavaCallVerifierResult();
+    public Results assertEquals(List<JavaCall> expected, List<JavaCall> actual, JavaCallVerifierOptions options) {
+        Results results = new Results();
 
         int expnum=0;
         int actnum=0;
@@ -26,7 +29,7 @@ public class StrictJavaCallVerifier implements JavaCallVerifier {
                 continue;
             }
             if (exp.getClassName().equals(act.getClassName()) && exp.getMethodname().equals(act.getMethodname())) {
-                result.addNotEquals(exp, act);
+                results.addResult(new JavaCallNotEqualsResult(exp, act));
                 expnum++;
                 actnum++;
                 continue;
@@ -37,14 +40,14 @@ public class StrictJavaCallVerifier implements JavaCallVerifier {
 
             if (nextMatchInExpected != -1) {
                 for (int i=expnum;i<nextMatchInExpected;i++) {
-                    result.addMissingFromActual(expected.get(i));
+                    results.addResult(new JavaCallMissingFromActualResult(expected.get(i)));
                 }
                 expnum = nextMatchInExpected;
                 continue;
             }
             if (nextMatchInActual != -1) {
                 for (int i=actnum;i<nextMatchInActual;i++) {
-                    result.addAdditionalInActual(actual.get(i));
+                    results.addResult(new JavaCallAdditionalInActualResult(actual.get(i)));
                 }
                 actnum = nextMatchInActual;
                 continue;
@@ -53,14 +56,14 @@ public class StrictJavaCallVerifier implements JavaCallVerifier {
         }
 
         for (int i=expnum;i<expected.size();i++) {
-            result.addMissingFromActual(expected.get(i));
+            results.addResult(new JavaCallMissingFromActualResult(expected.get(i)));
         }
         for (int i=actnum;i<actual.size();i++) {
-            result.addAdditionalInActual(actual.get(i));
+            results.addResult(new JavaCallAdditionalInActualResult(actual.get(i)));
         }
 
 
-        return result;
+        return results;
 
     }
 

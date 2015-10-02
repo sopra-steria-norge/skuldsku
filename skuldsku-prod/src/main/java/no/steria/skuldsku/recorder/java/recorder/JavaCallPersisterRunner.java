@@ -1,13 +1,12 @@
 package no.steria.skuldsku.recorder.java.recorder;
 
 
-import no.steria.skuldsku.recorder.Skuldsku;
-import no.steria.skuldsku.recorder.java.JavaCall;
-import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
-import no.steria.skuldsku.recorder.logging.RecorderLog;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import no.steria.skuldsku.recorder.Skuldsku;
+import no.steria.skuldsku.recorder.java.JavaCall;
+import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 public class JavaCallPersisterRunner implements Runnable {
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -40,14 +39,8 @@ public class JavaCallPersisterRunner implements Runnable {
         RecorderLog.debug("LogRunner: log event " + className + "," + methodName);
 
         try {
-            final ClassSerializer classSerializer = new ClassSerializer();
-            final String parameters = classSerializer.asString(args);
-
-            String resultStr = classSerializer.asString(result);
-            String thrownStr = classSerializer.asString(thrown);
-            
             RecorderLog.debug("LogRunner: Calling report callback");
-            javaCallPersister.event(new JavaCall(clientIdentifier, className, methodName, parameters, resultStr, thrownStr));
+            javaCallPersister.event(new JavaCall(clientIdentifier, className, methodName, args, result, thrown));
         } catch (Throwable e) {
             RecorderLog.debug("LogRunner: exception logging " + e);
         }

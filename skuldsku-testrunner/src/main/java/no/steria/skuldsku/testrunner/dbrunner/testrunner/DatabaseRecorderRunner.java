@@ -1,18 +1,20 @@
 package no.steria.skuldsku.testrunner.dbrunner.testrunner;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.sql.DataSource;
+
+import no.steria.skuldsku.common.result.AssertionResult;
+import no.steria.skuldsku.common.result.Results;
 import no.steria.skuldsku.recorder.db.DatabaseRecorder;
 import no.steria.skuldsku.recorder.db.impl.oracle.OracleDatabaseRecorder;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChangeRollback;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
-
-import javax.sql.DataSource;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import no.steria.skuldsku.testrunner.resulthandler.ResultHandler;
 
 public final class DatabaseRecorderRunner {
 
@@ -25,7 +27,7 @@ public final class DatabaseRecorderRunner {
     private final File baseDirectory;
     private final DatabaseChangeVerifierOptions defaultVerifierOptions;
     private final boolean rollbackEnabled;
-    private final VerifierResultHandler verifierResultHandler;
+    private final ResultHandler verifierResultHandler;
     
 
     public DatabaseRecorderRunner(DataSource dataSource) {
@@ -79,20 +81,20 @@ public final class DatabaseRecorderRunner {
     }
 
     private void assertEquals(final File actualFile, final File expectedFile, DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
-        final DatabaseChangeVerifierResult result;
+        final Results results;
         if (expectedFile.exists()) {
-            result = databaseChangeVerifier.assertEquals(
+            results = databaseChangeVerifier.assertEquals(
                     DatabaseChange.readDatabaseChanges(expectedFile),
                     DatabaseChange.readDatabaseChanges(actualFile),
                     databaseChangeVerifierOptions);
         } else {
-            result = new DatabaseChangeVerifierResult();
-            result.addAssertionFailed("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
+            results = new Results();
+            results.addResult(new AssertionResult("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
                     + "\nIf this is the first execution of the test, you can take a look at the actual data ("
                     + actualFile.getAbsolutePath()
-                    + ") and check if the result is correct. If correct, you can use this file as the expected data.");
+                    + ") and check if the result is correct. If correct, you can use this file as the expected data."));
         }
-        verifierResultHandler.handle(result);
+        verifierResultHandler.handle(results);
     }
     
     private File createDirectoryIfNotExists(File baseDirectory, String directoryName) {       

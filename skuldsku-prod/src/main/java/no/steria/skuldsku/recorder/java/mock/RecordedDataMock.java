@@ -6,14 +6,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import no.steria.skuldsku.common.result.Results;
+import no.steria.skuldsku.common.result.Result;
+import no.steria.skuldsku.common.result.ResultsProvider;
+import no.steria.skuldsku.recorder.common.ClientIdentifierHolder;
 import no.steria.skuldsku.recorder.java.JavaCall;
+import no.steria.skuldsku.recorder.java.mock.result.ComparisionMockResult;
+import no.steria.skuldsku.recorder.java.mock.result.MockResult;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 
-public class RecordedDataMock implements MockInterface {
+public class RecordedDataMock implements MockInterface, ResultsProvider {
     private static final Set<String> globalIgnoreFields = new HashSet<String>();
     
     private final List<JavaCall> recorded;
     private String serviceClass;
+    private final Results mockResults = new Results();
+    
 
     // Receives a list of recordings to be played back
     public RecordedDataMock(List<JavaCall> recorded) {
@@ -42,12 +50,11 @@ public class RecordedDataMock implements MockInterface {
         final ClassSerializer fieldIgnorerSerializer = new ClassSerializer();
         fieldIgnorerSerializer.addAllIgnoreField(globalIgnoreFields);
         
-        String currentArgsAsString = fieldIgnorerSerializer.asString(args);
-
+        final String currentArgsAsString = fieldIgnorerSerializer.asString(args);
         for (JavaCall recordObject : recorded) {
             // TODO: FIX (choose correct subclass+method combination): serviceObjectName.equals(recordObject.getClassName())
             if (method.getName().equals(recordObject.getMethodname())) {
-                final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));
+                final String recordedArgsAsString = removeIgnoredFields(recordObject.getParameters(), standardSerializer, fieldIgnorerSerializer);
                 if (currentArgsAsString.equals(recordedArgsAsString)) {
                     if (recordObject.getThrown() != null) {
                         final Throwable t = (Throwable) standardSerializer.asObject(recordObject.getThrown());
@@ -59,30 +66,72 @@ public class RecordedDataMock implements MockInterface {
                 }
             }
         }
-        
-        final String closestMatch = findClosestMatch(method, currentArgsAsString, standardSerializer, fieldIgnorerSerializer);
-        final String extraString = (closestMatch == null) ? "" : "\nDid not match recorded-args:\n" + closestMatch;
 
-        throw new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + currentArgsAsString + extraString);
+        throw handleMissingMockData(interfaceClass, method, args, standardSerializer, fieldIgnorerSerializer);
+    }
+    
+    @Override
+    public Results getResults() {
+        return mockResults;
     }
 
-    private String findClosestMatch(final Method method, String currentArgsAsString, final ClassSerializer standardSerializer, final ClassSerializer fieldIgnorerSerializer) {
-        String closestArgMatch = null;
+    private RuntimeException handleMissingMockData(Class<?> interfaceClass, Method method, Object[] args,
+            final ClassSerializer standardSerializer, final ClassSerializer fieldIgnorerSerializer) {
+        final String currentArgsAsString = fieldIgnorerSerializer.asString(args);
+        
+        final JavaCall closestMatch = findClosestMatch(method, currentArgsAsString, standardSerializer, fieldIgnorerSerializer);
+        final Result mockResult;
+        final RuntimeException missingMockDataException;
+
+        if (closestMatch != null) {
+            final String closestMatchArgs = removeIgnoredFields(closestMatch.getParameters(), standardSerializer, fieldIgnorerSerializer);
+            missingMockDataException = new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + currentArgsAsString + "\nClosest args in expected:\n" + closestMatchArgs);
+            final JavaCall actual = new JavaCall(ClientIdentifierHolder.getClientIdentifier(),
+                    interfaceClass.getName(),
+                    method.getName(),
+                    args,
+                    null,
+                    missingMockDataException);
+            mockResult = new ComparisionMockResult(closestMatch, closestMatchArgs, actual, currentArgsAsString);
+        } else {
+            missingMockDataException = new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + currentArgsAsString);
+            final JavaCall actual = new JavaCall(ClientIdentifierHolder.getClientIdentifier(),
+                    interfaceClass.getName(),
+                    method.getName(),
+                    args,
+                    null,
+                    missingMockDataException);
+            mockResult = new MockResult(actual, currentArgsAsString);
+        }
+        
+        synchronized (mockResults) {
+            mockResults.addResult(mockResult);
+        }
+
+        return missingMockDataException;
+    }
+
+    private static String removeIgnoredFields(String s, ClassSerializer standardSerializer, ClassSerializer fieldIgnorerSerializer) {
+        return fieldIgnorerSerializer.asString(standardSerializer.asObject(s));
+    }
+
+    private JavaCall findClosestMatch(final Method method, String currentArgsAsString, final ClassSerializer standardSerializer, final ClassSerializer fieldIgnorerSerializer) {
+        JavaCall closestMatch = null;
         int bestCommonFields = 0;
         for (JavaCall recordObject : recorded) {
             // TODO: FIX (choose correct subclass+method combination): serviceObjectName.equals(recordObject.getClassName())
             if (method.getName().equals(recordObject.getMethodname())) {
-                final String recordedArgsAsString = fieldIgnorerSerializer.asString(standardSerializer.asObject(recordObject.getParameters()));
+                final String recordedArgsAsString = removeIgnoredFields(recordObject.getParameters(), standardSerializer, fieldIgnorerSerializer);
                 final String[] a1 = recordedArgsAsString.split(";");
                 final String[] a2 = currentArgsAsString.split(";");
                 int commonFields = determineCommonFields(a1, a2);
                 if (commonFields > bestCommonFields) {
                     bestCommonFields = commonFields;
-                    closestArgMatch = recordedArgsAsString;
+                    closestMatch = recordObject;
                 }
             }
         }
-        return closestArgMatch;
+        return closestMatch;
     }
     
     public int determineCommonFields(Object[] a1, Object[] a2) {

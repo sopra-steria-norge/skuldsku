@@ -4,8 +4,11 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Arrays;
 
+import no.steria.skuldsku.common.result.Results;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
+import no.steria.skuldsku.testrunner.interfacerunner.result.JavaCallMissingFromActualResult;
+import no.steria.skuldsku.testrunner.interfacerunner.result.JavaCallNotEqualsResult;
 import no.steria.skuldsku.testrunner.interfacerunner.verifiers.StrictJavaCallVerifier;
 
 import org.junit.Test;
@@ -40,8 +43,8 @@ public class InterfaceRecordingCheckerTest {
         JavaCall a = new JavaCall("", "Service", "doIt", para, classSerializer.asString(simple), null);
         JavaCall b = new JavaCall("", "Service", "doIt", para, classSerializer.asString(simple), null);
 
-        final JavaCallVerifierResult verifierResult = verifier.assertEquals(Arrays.asList(a), Arrays.asList(b), new JavaCallVerifierOptions());
-        assertThat(verifierResult.getNotEquals()).isEmpty();
+        final Results verifierResult = verifier.assertEquals(Arrays.asList(a), Arrays.asList(b), new JavaCallVerifierOptions());
+        assertThat(verifierResult.hasErrors()).isEqualTo(false);
     }
 
     @Test
@@ -52,9 +55,9 @@ public class InterfaceRecordingCheckerTest {
         JavaCall a = new JavaCall("", "Service", "doIt", classSerializer.asString("parax"), classSerializer.asString(simple), null);
         JavaCall b = new JavaCall("", "Service", "doIt", classSerializer.asString("para"), classSerializer.asString(simple), null);
 
-        final JavaCallVerifierResult verifierResult = verifier.assertEquals(Arrays.asList(a), Arrays.asList(b), new JavaCallVerifierOptions());
+        final Results verifierResult = verifier.assertEquals(Arrays.asList(a), Arrays.asList(b), new JavaCallVerifierOptions());
 
-        assertThat(verifierResult.getNotEquals()).isNotEmpty();
+        assertThat(verifierResult.hasErrors()).isEqualTo(true);
     }
 
 
@@ -72,10 +75,10 @@ public class InterfaceRecordingCheckerTest {
         JavaCall d = new JavaCall("", "Service", "doIt", para, classSerializer.asString(simple), null);
         JavaCall e = new JavaCall("", "Service", "doIt", para, classSerializer.asString(simple), null);
 
-        final JavaCallVerifierResult verifierResult = verifier.assertEquals(Arrays.asList(a, b, c), Arrays.asList(d, e), new JavaCallVerifierOptions());
+        final Results verifierResult = verifier.assertEquals(Arrays.asList(a, b, c), Arrays.asList(d, e), new JavaCallVerifierOptions());
 
-        assertThat(verifierResult.getNotEquals()).isEmpty();
-        assertThat(verifierResult.getMissingFromActual()).hasSize(1);
+        assertThat(verifierResult.getByType(JavaCallNotEqualsResult.class)).isEmpty();
+        assertThat(verifierResult.getByType(JavaCallMissingFromActualResult.class)).hasSize(1);
 
     }
 }

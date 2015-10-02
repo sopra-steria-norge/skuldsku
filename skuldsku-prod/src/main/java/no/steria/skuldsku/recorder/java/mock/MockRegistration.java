@@ -10,6 +10,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import no.steria.skuldsku.common.result.Results;
+import no.steria.skuldsku.common.result.ResultsProvider;
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.recorder.InterfaceRecorderWrapper;
@@ -45,6 +47,18 @@ public class MockRegistration {
     public static void registerMock(Class<?> mockClass, MockInterface mock) {
         mocks.put(mockClass, mock);
         signal();
+    }
+    
+    public static Results getResultsFromMocks() {
+        Results results = new Results();
+        for (MockInterface mi : mocks.values()) {
+            if (mi instanceof ResultsProvider) {
+                ResultsProvider p = (ResultsProvider) mi;
+                results = Results.combine(results, p.getResults());
+            }
+        }
+        
+        return results;
     }
 
     private static MockInterface getMockInterface(Class<?> givenInterface) {

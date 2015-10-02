@@ -69,7 +69,7 @@ public class DatabaseChange {
     }
 
     public Map<String, String> getData() {
-        return data;
+        return Collections.unmodifiableMap(data);
     }
     
     public String getValue(String key) {
@@ -108,6 +108,11 @@ public class DatabaseChange {
     }
     
     public boolean equals(DatabaseChange databaseChange, Set<String> skipFields) {
+        return determineDifferences(databaseChange, skipFields).isEmpty();
+    }
+    
+    public List<FieldDifference> determineDifferences(DatabaseChange databaseChange, Set<String> skipFields) {
+        final List<FieldDifference> fieldDifferences = new ArrayList<FieldDifference>();
         for (String key : data.keySet()) {
             if (skipFields.contains(key)) {
                 continue;
@@ -118,10 +123,10 @@ public class DatabaseChange {
             final String v1 = data.get(key);
             final String v2 = databaseChange.data.get(key);
             if ((v1 != null && v2!= null && !v1.equals(v2)) || (v1 == null ^ v2 == null)) {
-                return false;
+                fieldDifferences.add(new FieldDifference(key, v1, v2));
             }
         }
-        return true;
+        return fieldDifferences;
     }
 
     public static List<DatabaseChange> readDatabaseChanges(File f) {

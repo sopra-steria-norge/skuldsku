@@ -1,9 +1,9 @@
-package no.steria.skuldsku.testrunner.dbrunner.testrunner;
+package no.steria.skuldsku.testrunner.resulthandler;
 
-import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierResult;
+import no.steria.skuldsku.common.result.Results;
 
-public interface VerifierResultHandler {
+public interface ResultHandler {
 
-    public void handle(DatabaseChangeVerifierResult databaseChangeVerifierResult);
+    public void handle(Results results);
 
 }
