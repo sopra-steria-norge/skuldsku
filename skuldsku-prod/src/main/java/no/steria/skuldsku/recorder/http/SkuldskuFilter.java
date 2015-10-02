@@ -33,37 +33,65 @@ public class SkuldskuFilter implements Filter{
             return;
         }
 
-        HttpServletRequest req = (HttpServletRequest) request;
+        boolean doFilterBegun = false;
+        IOException filterIOException = null;
+        ServletException filterServletException = null;
+        RuntimeException filterRuntimeException = null;
+        try {
+            final HttpServletRequest req = (HttpServletRequest) request;
+            final HttpServletResponse resp = (HttpServletResponse) response;
 
-        HttpCall httpCall = new HttpCall();
-        httpCall.setMethod(req.getMethod());
-        recordPath(req, httpCall);
+            final HttpCall httpCall = new HttpCall();
+            httpCall.setMethod(req.getMethod());
+            recordPath(req, httpCall);
 
-        RequestWrapper requestSpy = new RequestWrapper(req, httpCall);
+            RequestWrapper requestSpy = new RequestWrapper(req, httpCall);
+            ResponseWrapper responseSpy = new ResponseWrapper(resp);
 
-        HttpServletResponse resp = (HttpServletResponse) response;
+            logHeaders(req, httpCall);
+            final String requestId = UUID.randomUUID().toString();
+            ClientIdentifierHolder.setClientIdentifier(requestId);
+            httpCall.setClientIdentifier(requestId);
 
-        ResponseWrapper responseSpy = new ResponseWrapper(resp);
-
-        logHeaders(req, httpCall);
-
-        final String requestId = UUID.randomUUID().toString();
-        ClientIdentifierHolder.setClientIdentifier(requestId);
-        httpCall.setClientIdentifier(requestId);
-        chain.doFilter(requestSpy,responseSpy);
-        //resp.flushBuffer();
-        httpCall.setOutput(responseSpy.getWritten());
-        httpCall.setStatus(resp.getStatus());
-        httpCall.setResponseHeaders(getResponseHeaders(resp));
-
-        HttpCallPersister reporter = getReporter();
-        if (reporter != null) {
-            reporter.reportCall(httpCall);
-        } else {
-            RecorderLog.error("There is no CallReporter associated with the current HTTP filter. HTTP interactions will not be recorded.");
-        }
+            doFilterBegun = true;
+            try {
+                chain.doFilter(requestSpy,responseSpy);
+            } catch (IOException e) {
+                filterIOException = e;
+            } catch (ServletException e) {
+                filterServletException = e;
+            } catch (RuntimeException e) {
+                filterRuntimeException = e;
+            }
         
-        ClientIdentifierHolder.removeClientIdentifier();
+            httpCall.setOutput(responseSpy.getWritten());
+            httpCall.setStatus(resp.getStatus());
+            httpCall.setResponseHeaders(getResponseHeaders(resp));
+
+            HttpCallPersister reporter = getReporter();
+            if (reporter != null) {
+                reporter.reportCall(httpCall);
+            } else {
+                RecorderLog.error("There is no CallReporter associated with the current HTTP filter. HTTP interactions will not be recorded.");
+            }
+
+            ClientIdentifierHolder.removeClientIdentifier();
+        } catch (Exception e) {
+            RecorderLog.error("Exception while recording request", e);
+            if (!doFilterBegun) {
+                chain.doFilter(request, response);
+            }
+        } finally {
+            if (filterIOException != null) {
+                throw filterIOException;
+            }
+            if (filterServletException != null) {
+                throw filterServletException;
+            }
+            if (filterRuntimeException != null) {
+                throw filterRuntimeException;
+            }
+        }
     }
 
     private void logHeaders(HttpServletRequest req, HttpCall httpCall) {
