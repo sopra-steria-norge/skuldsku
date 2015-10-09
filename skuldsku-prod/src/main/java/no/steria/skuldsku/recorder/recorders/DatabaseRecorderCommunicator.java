@@ -70,6 +70,9 @@ public class DatabaseRecorderCommunicator extends AbstractRecorderCommunicator {
                 statement.setString(1, res);
                 statement.execute();
             }
+            if (!conn.getAutoCommit()) {
+                conn.commit();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

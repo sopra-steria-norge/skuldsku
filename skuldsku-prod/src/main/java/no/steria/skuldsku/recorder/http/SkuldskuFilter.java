@@ -32,6 +32,13 @@ public class SkuldskuFilter implements Filter{
             chain.doFilter(request, response);
             return;
         }
+        
+        /*
+         * 1. Ensure that errors in Skuldsku does not prevent the application
+         *    from running normally.
+         * 2. Ensure that even Exceptions are handled in the same manner as
+         *    if Skuldsku was not present.
+         */
 
         boolean doFilterBegun = false;
         IOException filterIOException = null;
@@ -43,6 +50,7 @@ public class SkuldskuFilter implements Filter{
 
             final HttpCall httpCall = new HttpCall();
             httpCall.setMethod(req.getMethod());
+            httpCall.setStartTime(System.currentTimeMillis());
             recordPath(req, httpCall);
 
             RequestWrapper requestSpy = new RequestWrapper(req, httpCall);
@@ -64,6 +72,7 @@ public class SkuldskuFilter implements Filter{
                 filterRuntimeException = e;
             }
         
+            httpCall.setEndTime(System.currentTimeMillis());
             httpCall.setOutput(responseSpy.getWritten());
             httpCall.setStatus(resp.getStatus());
             httpCall.setResponseHeaders(getResponseHeaders(resp));
@@ -74,14 +83,17 @@ public class SkuldskuFilter implements Filter{
             } else {
                 RecorderLog.error("There is no CallReporter associated with the current HTTP filter. HTTP interactions will not be recorded.");
             }
-
-            ClientIdentifierHolder.removeClientIdentifier();
         } catch (Exception e) {
             RecorderLog.error("Exception while recording request", e);
             if (!doFilterBegun) {
                 chain.doFilter(request, response);
             }
         } finally {
+            try {
+                ClientIdentifierHolder.removeClientIdentifier();
+            } catch (RuntimeException e) {
+                RecorderLog.error("Cannot remove clientIdentifiers: Might cause (slow) memory leak.", e);
+            }
             if (filterIOException != null) {
                 throw filterIOException;
             }

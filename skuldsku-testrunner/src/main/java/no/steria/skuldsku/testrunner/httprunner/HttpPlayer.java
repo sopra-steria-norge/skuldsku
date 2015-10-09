@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -107,58 +108,29 @@ public class HttpPlayer {
         
         RecorderLog.info(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
 
-        URL url = new URL(baseUrl + httpCall.getPath());
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        String method = httpCall.getMethod();
-        conn.setRequestMethod(method);
+        final URL url = new URL(baseUrl + httpCall.getPath());
+        final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        
+        conn.setRequestMethod(httpCall.getMethod());
+        
         String readInputStream = playStep.getReportObject().getReadInputStream();
-
-        for (PlaybackManipulator manipulator : manipulators) {
-            readInputStream = manipulator.computePayload(readInputStream);
-        }
-        for (PlaybackManipulator manipulator : sessionInstancePlaybackManipulators) {
-            readInputStream = manipulator.computePayload(readInputStream);
-        }
+        readInputStream = performRequestContentManipulation(sessionInstancePlaybackManipulators, readInputStream);
 
         Map<String, List<String>> headers = httpCall.getHeaders();
-
-        // adjusts the headers of the request
-        for (PlaybackManipulator manipulator : manipulators) {
-            headers = manipulator.getHeaders(headers);
-        }
-        for (PlaybackManipulator manipulator : sessionInstancePlaybackManipulators) {
-            headers = manipulator.getHeaders(headers);
-        }
+        headers = performRequestHeaderManipulation(sessionInstancePlaybackManipulators, headers);
         
-        // writing headers
-        if (headers != null) {
-            Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
+        final boolean doPost = "POST".equals(httpCall.getMethod());
+        
+        writeHeadersToConnection(conn, doPost, readInputStream, headers);
+        writeBodyToConnection(conn, readInputStream);
 
-            for (Map.Entry<String, List<String>> entry : entries) {
-                String key = entry.getKey();
-                for (String propval : entry.getValue()) {
-                    String val = propval;
-                    if ("Content-Length".equals(key) && "POST".equals(method) && readInputStream != null) {
-                        val = "" + readInputStream.getBytes().length;
-                    }
-                    conn.addRequestProperty(key, val);
-                }
-            }
-        }
-
-        // writes the body of the request
-        if (readInputStream != null && !readInputStream.isEmpty()) {
-            conn.setDoOutput(true);
-            try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(), "utf-8"))) {
-                printWriter.append(readInputStream);
-            }
-        }
         final Map<String, List<String>> headerFields = conn.getHeaderFields();
-
         manipulators.forEach(m -> m.reportHeaderFields(headerFields));
         sessionInstancePlaybackManipulators.forEach(m -> m.reportHeaderFields(headerFields));
 
         //writes the parameters of the request
+        // TODO: Check: "parameters" always null?
+        /*
         String parameters = httpCall.getParametersRead().entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue()).reduce((a, b) -> a + "&" + b).orElse(null);
         if (parameters != null) {
             conn.setDoOutput(true);
@@ -167,20 +139,13 @@ public class HttpPlayer {
             wr.flush();
             wr.close();
         }
+        */
 
         //recording response from server
-        final StringBuilder result = new StringBuilder();
-        try (InputStream is = getResponseStream(conn);
-             Reader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
-                int c;
-                while ((c = reader.read()) != -1) {
-                    result.append((char) c);
-                }
-        }
-
-        final String recorded = result.toString();
+        
+        final String recorded = readResponseFromConnection(conn);
         playStep.setRecorded(recorded);
-
+        
         if (abortOnFailingRequest) {
             final int resultStatus = conn.getResponseCode();
             if (httpCall.getStatus() != 0
@@ -189,15 +154,81 @@ public class HttpPlayer {
             }
         }
 
-        manipulators.forEach(m -> m.reportResult(result.toString()));
-        sessionInstancePlaybackManipulators.forEach(m -> m.reportResult(result.toString()));
-        manipulators.forEach(m -> m.requestEnded());
-        sessionInstancePlaybackManipulators.forEach(m -> m.requestEnded());
+        reportRequestEndedToManipulators(sessionInstancePlaybackManipulators, recorded);
     }
 
-    
+    private void writeBodyToConnection(final HttpURLConnection conn, String readInputStream) throws UnsupportedEncodingException,
+            IOException {
+        if (readInputStream != null && !readInputStream.isEmpty()) {
+            conn.setDoOutput(true);
+            try (PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(conn.getOutputStream(), "utf-8"))) {
+                printWriter.append(readInputStream);
+            }
+        }
+    }
+
+
+    private void writeHeadersToConnection(final HttpURLConnection conn, final boolean doPost, String readInputStream,
+            Map<String, List<String>> headers) {
+        if (headers != null) {
+            Set<Map.Entry<String, List<String>>> entries = headers.entrySet();
+
+            for (Map.Entry<String, List<String>> entry : entries) {
+                String key = entry.getKey();
+                for (String propval : entry.getValue()) {
+                    String val = propval;
+                    if ("Content-Length".equals(key) && doPost && readInputStream != null) {
+                        val = "" + readInputStream.getBytes().length;
+                    }
+                    conn.addRequestProperty(key, val);
+                }
+            }
+        }
+    }
+
+
+    private Map<String, List<String>> performRequestHeaderManipulation(final List<PlaybackManipulator> sessionInstancePlaybackManipulators,
+            Map<String, List<String>> headers) {
+        for (PlaybackManipulator manipulator : manipulators) {
+            headers = manipulator.getHeaders(headers);
+        }
+        for (PlaybackManipulator manipulator : sessionInstancePlaybackManipulators) {
+            headers = manipulator.getHeaders(headers);
+        }
+        return headers;
+    }
+
+
+    private String performRequestContentManipulation(final List<PlaybackManipulator> sessionInstancePlaybackManipulators, String readInputStream) {
+        for (PlaybackManipulator manipulator : manipulators) {
+            readInputStream = manipulator.computePayload(readInputStream);
+        }
+        for (PlaybackManipulator manipulator : sessionInstancePlaybackManipulators) {
+            readInputStream = manipulator.computePayload(readInputStream);
+        }
+        return readInputStream;
+    }
+
+    private String readResponseFromConnection(final HttpURLConnection conn) throws IOException, UnsupportedEncodingException {
+        final StringBuilder result = new StringBuilder();
+        try (InputStream is = getResponseStream(conn);
+             Reader reader = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                int c;
+                while ((c = reader.read()) != -1) {
+                    result.append((char) c);
+                }
+        }
+        return result.toString();
+    }
     
     private InputStream getResponseStream(HttpURLConnection conn) throws IOException {
         return (conn.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) ? conn.getErrorStream() : conn.getInputStream();
+    }
+    
+    private void reportRequestEndedToManipulators(final List<PlaybackManipulator> sessionInstancePlaybackManipulators, final String recorded) {
+        manipulators.forEach(m -> m.reportResult(recorded));
+        sessionInstancePlaybackManipulators.forEach(m -> m.reportResult(recorded));
+        manipulators.forEach(m -> m.requestEnded());
+        sessionInstancePlaybackManipulators.forEach(m -> m.requestEnded());
     }
 }

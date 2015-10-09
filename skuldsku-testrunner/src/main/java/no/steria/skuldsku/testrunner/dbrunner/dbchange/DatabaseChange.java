@@ -25,6 +25,7 @@ public class DatabaseChange {
     private static final String TABLE_NAME = "TABLE_NAME";
     private static final String ACTION = "ACTION";
     private static final String CLIENT_IDENTIFIER = "CLIENT_IDENTIFIER";
+    private static final String START_TIME = "START_TIME";
     
     private final String row;
     private final Map<String, String> data;
@@ -86,6 +87,14 @@ public class DatabaseChange {
     
     public String getClientIdentifier() {
         return data.get(CLIENT_IDENTIFIER);
+    }
+    
+    /**
+     * Gets the time the DB change happened.
+     * @return The point in time using the format <code>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</code>.
+     */
+    public String getStartTime() {
+        return data.get(START_TIME);
     }
     
     List<Entry<String, String>> getFields(String start) {

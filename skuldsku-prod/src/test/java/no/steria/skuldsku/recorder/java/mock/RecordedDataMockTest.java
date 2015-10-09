@@ -20,6 +20,7 @@ import no.steria.skuldsku.recorder.java.recorder.ServiceInterface;
 
 import org.fest.util.Collections;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RecordedDataMockTest {
@@ -90,5 +91,31 @@ public class RecordedDataMockTest {
         final Object resultFromMock = mock.invoke(ServiceInterface.class, "", ServiceInterface.class.getMethod("doSimpleService", String.class), new Object[] {"MyName2"});
         
         assertThat(resultFromMock).isEqualTo(correctResult);
+    }
+    
+    
+    public interface HandleReturningAnArgumentService {
+        Object returnTheArgument(Object o);
+    }
+    static final class HandleReturningAnArgumentImpl implements HandleReturningAnArgumentService {
+        public Object returnTheArgument(Object o) {
+            return o;
+        }
+    }
+    
+    @Test
+    @Ignore("Not implemented: Probably easiest to implement by serializing the entire JavaCall object in one go.")
+    public void shouldHandleReturningAnArgument() throws Throwable {
+        final HandleReturningAnArgumentService serviceClass = InterfaceRecorderWrapper.newInstance(new HandleReturningAnArgumentImpl(), HandleReturningAnArgumentService.class, dummyJavaIntefaceCallPersister, JavaCallRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        final Object parameter = new Object();
+        final Object result = serviceClass.returnTheArgument(parameter);
+        assertThat(result).isSameAs(parameter);
+        
+        final RecordedDataMock mock = new RecordedDataMock(Collections.list(dummyJavaIntefaceCallPersister.getJavaInterfaceCall()));
+        final Object resultFromMock = mock.invoke(HandleReturningAnArgumentService.class, "",
+                HandleReturningAnArgumentService.class.getMethod("returnTheArgument", Object.class),
+                new Object[] {parameter});
+        
+        assertThat(resultFromMock).isSameAs(parameter);
     }
 }

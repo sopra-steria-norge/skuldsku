@@ -77,7 +77,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='|" +
-                        "|SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
+                        "|SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';START_TIME='||TO_CHAR(systimestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM')||';'||DATAROW AS DATA FROM " +
                         DATABASE_RECORDINGS_TABLE + " ORDER BY SKS_ID", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
@@ -101,7 +101,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             @Override
             public Object callback(Jdbc jdbc) {
                 jdbc.query("SELECT 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||'" +
-                        ";TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " +
+                        ";TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';START_TIME='||TO_CHAR(systimestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM')||';'||DATAROW AS DATA FROM " +
                         DATABASE_RECORDINGS_TABLE + " ORDER BY SKS_ID", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
@@ -120,7 +120,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
         transactionManager.doInTransaction(new TransactionCallback<Object>() {
             @Override
             public Object callback(Jdbc jdbc) {
-                jdbc.query("SELECT " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';'||DATAROW AS DATA FROM " + DATABASE_RECORDINGS_TABLE + " ORDER BY SKS_ID", new ResultSetCallback() {
+                jdbc.query("SELECT " + SKULDSKU_DATABASE_TABLE_PREFIX + "ID, 'CLIENT_IDENTIFIER='||CLIENT_IDENTIFIER||';SESSION_USER='||SESSION_USER||';SESSIONID='||SESSIONID||';TABLE_NAME='||TABLE_NAME||';ACTION='||ACTION||';START_TIME='||TO_CHAR(systimestamp, 'YYYY-MM-DD\"T\"HH24:MI:SS.FFTZH:TZM')||';'||DATAROW AS DATA FROM " + DATABASE_RECORDINGS_TABLE + " ORDER BY SKS_ID", new ResultSetCallback() {
                     @Override
                     public void extractData(ResultSet rs) throws SQLException {
                         while (rs.next()) {
@@ -175,7 +175,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
             public Object callback(Jdbc jdbc) {
                 for (String triggerName : getTriggerNames(jdbc)) {
                     if (isSkuldskuTrigger(triggerName)) {
-                        jdbc.execute("DROP TRIGGER " + triggerName);
+                        jdbc.execute("DROP TRIGGER \"" + triggerName + "\"");
                     }
                 }
                 return null;
@@ -198,6 +198,7 @@ public class OracleDatabaseRecorder implements DatabaseRecorder {
                     "    SESSIONID          VARCHAR2(256),\n" +
                     "    TABLE_NAME         VARCHAR2(30),\n" +
                     "    ACTION             VARCHAR2(6),\n" +
+                    "    START_TIME         TIMESTAMP(6) DEFAULT SYSTIMESTAMP,\n" +
                     "    DATAROW            CLOB    \n" +
                     ")");
         }

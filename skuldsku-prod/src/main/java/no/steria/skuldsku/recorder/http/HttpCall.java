@@ -1,8 +1,10 @@
 package no.steria.skuldsku.recorder.http;
 
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
+import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +21,46 @@ public class HttpCall implements Serializable {
     private int status = 0; // responseStatus
     private Map<String, List<String>> headers; // requestHeaders
     private Map<String, List<String>> responseHeaders;
+    private String startTime;
+    private String endTime;
 
     public HttpCall setReadInputStream(String readInputStream) {
         this.readInputStream = readInputStream;
         return this;
+    }
+    
+    /**
+     * Gets the time the HTTP request arrived on the server.
+     * @return The point in time using the format <code>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</code>.
+     */
+    public String getStartTime() {
+        return startTime;
+    }
+    
+    public void setStartTime(long startTime) {
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        this.startTime = simpleDateFormat.format(startTime);
+    }
+    
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+    
+    /**
+     * Gets the time the HTTP response was given by the server.
+     * @return The point in time using the format <code>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</code>.
+     */
+    public String getEndTime() {
+        return endTime;
+    }
+    
+    public void setEndTime(long endTime) {
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        this.endTime = simpleDateFormat.format(endTime);
+    }
+    
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
     
     public Map<String, List<String>> getResponseHeaders() {
@@ -99,5 +137,14 @@ public class HttpCall implements Serializable {
 
     public Map<String, List<String>> getHeaders() {
         return headers;
+    }
+    
+    @Override
+    public String toString() {
+        return method + " " + path + "\nResponse HTTP-code: " + status + "\nClient Identifier: " + clientIdentifier;
+    }
+    
+    public static List<HttpCall> readHttpCalls(String filename) {
+        return new FileRecorderReader(filename).getRecordedHttp();
     }
 }

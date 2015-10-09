@@ -31,6 +31,7 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
         RecorderLog.debug("IRW: Invoke called for " + method.getName());
         Object result = null;
         Throwable thrown = null;
+        final long startTime = System.currentTimeMillis();
         try {
            result = method.invoke(obj, args);
            return result;
@@ -39,17 +40,18 @@ public class InterfaceRecorderWrapper implements java.lang.reflect.InvocationHan
             throw thrown;
         } finally {
             if (Skuldsku.isRecordingOn()) {
-                storeMethodCall(method, args, result, thrown);
+                final long endTime = System.currentTimeMillis();
+                storeMethodCall(method, args, result, thrown, startTime, endTime);
             }
         }
     }
 
-    private void storeMethodCall(Method method, Object[] args, Object result, Throwable thrown) {
+    private void storeMethodCall(Method method, Object[] args, Object result, Throwable thrown, long startTime, long endTime) {
         try {
             final String className = determineClassName(obj);
             final String methodName = method.getName();
             
-            JavaCallPersisterRunner.store(javaCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, thrown, javaCallRecorderConfig);
+            JavaCallPersisterRunner.store(javaCallPersister, ClientIdentifierHolder.getClientIdentifier(), className, methodName, args, result, thrown, startTime, endTime, javaCallRecorderConfig);
             RecorderLog.info("IRW: Recorded for " + className + "," + methodName);
         } catch (Exception e) {
             RecorderLog.warn("IRW: Exception recording result : " + e);

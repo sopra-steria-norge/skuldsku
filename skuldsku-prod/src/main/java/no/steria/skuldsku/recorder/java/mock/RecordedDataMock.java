@@ -83,6 +83,7 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
         final Result mockResult;
         final RuntimeException missingMockDataException;
 
+        final long time = System.currentTimeMillis();
         if (closestMatch != null) {
             final String closestMatchArgs = removeIgnoredFields(closestMatch.getParameters(), standardSerializer, fieldIgnorerSerializer);
             missingMockDataException = new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + currentArgsAsString + "\nClosest args in expected:\n" + closestMatchArgs);
@@ -91,7 +92,9 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
                     method.getName(),
                     args,
                     null,
-                    missingMockDataException);
+                    missingMockDataException,
+                    time,
+                    time);
             mockResult = new ComparisionMockResult(closestMatch, closestMatchArgs, actual, currentArgsAsString);
         } else {
             missingMockDataException = new RuntimeException("No mock data found. Interface: " + interfaceClass.getName() + " Method: " + method.getName() + " Args:\n" + currentArgsAsString);
@@ -100,7 +103,9 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
                     method.getName(),
                     args,
                     null,
-                    missingMockDataException);
+                    missingMockDataException,
+                    time,
+                    time);
             mockResult = new MockResult(actual, currentArgsAsString);
         }
         

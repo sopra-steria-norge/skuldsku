@@ -63,7 +63,7 @@ public class DatabaseChangeRollback {
     }
     
     void enableTrigger(Jdbc jdbc, String triggerName) {
-        jdbc.execute("ALTER TRIGGER " + triggerName + " ENABLE");
+        jdbc.execute("ALTER TRIGGER \"" + triggerName + "\" ENABLE");
     }
     
     void enableTriggers(Jdbc jdbc, final List<String> triggerNames) {
@@ -77,13 +77,13 @@ public class DatabaseChangeRollback {
     }
     
     void disableTrigger(Jdbc jdbc, String triggerName) {
-        jdbc.execute("ALTER TRIGGER " + triggerName + " DISABLE");
+        jdbc.execute("ALTER TRIGGER \"" + triggerName + "\" DISABLE");
     }
     
     void disableTriggers(Jdbc jdbc, final List<String> triggerNames) {
         RecorderLog.debug("Disabling triggers. Run these SQLs in case later reenabling fails:");
         for (String triggerName : triggerNames) {
-            RecorderLog.debug("    ALTER TRIGGER " + triggerName + " ENABLE;");
+            RecorderLog.debug("    ALTER TRIGGER \"" + triggerName + "\" ENABLE;");
             disableTrigger(jdbc, triggerName);
         }
         RecorderLog.debug("");

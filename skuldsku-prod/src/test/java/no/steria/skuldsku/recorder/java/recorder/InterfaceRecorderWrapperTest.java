@@ -12,11 +12,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import no.steria.skuldsku.recorder.Skuldsku;
 import no.steria.skuldsku.recorder.SkuldskuAccessor;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
+import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 import no.steria.skuldsku.recorder.java.serializer.ClassWithSimpleFields;
 
@@ -76,18 +78,20 @@ public class InterfaceRecorderWrapperTest {
 
         assertThat(result).containsOnly("This", "is", "not", "null");
 
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getClassName()).isEqualTo("no.steria.skuldsku.recorder.java.recorder.ServiceClass");
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("returnList");
+        final JavaCall recordedJavaInterfaceCall = dummyJavaIntefaceCallPersister.getJavaInterfaceCall();
+        assertThat(recordedJavaInterfaceCall.getClassName()).isEqualTo("no.steria.skuldsku.recorder.java.recorder.ServiceClass");
+        assertThat(recordedJavaInterfaceCall.getMethodname()).isEqualTo("returnList");
 
         ClassSerializer classSerializer = new ClassSerializer();
-
-        final Object[] parameterArray = (Object[]) classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters());
+        System.out.println(recordedJavaInterfaceCall.getParameters());
+        final Object[] parameterArray = (Object[]) classSerializer.asObject(recordedJavaInterfaceCall.getParameters());
+        System.out.println(Arrays.toString(parameterArray));
         ClassWithSimpleFields simpleFields = (ClassWithSimpleFields) parameterArray[0];
 
         assertThat(simpleFields).isNotNull();
         assertThat(simpleFields.getIntval()).isEqualTo(42);
 
-        @SuppressWarnings("unchecked") List<String> recordedResult = (List<String>) classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult());
+        @SuppressWarnings("unchecked") List<String> recordedResult = (List<String>) classSerializer.asObject(recordedJavaInterfaceCall.getResult());
         assertThat(recordedResult).containsOnly("This", "is", "not", "null");
     }
 
@@ -103,30 +107,5 @@ public class InterfaceRecorderWrapperTest {
 
         assertNull(dummyJavaIntefaceCallPersister.getJavaInterfaceCall());
         Skuldsku.start();
-    }
-
-    @Test
-    @Ignore
-    @Deprecated
-    public void shouldHandleFile() throws Exception {
-        JavaCallRecorderConfig javaCallRecorderConfig = JavaCallRecorderConfig.factory()
-                .withAsyncMode(AsyncMode.ALL_SYNC)
-                .create();
-        ServiceInterface serviceClass = InterfaceRecorderWrapper.newInstance(new ServiceClass(), ServiceInterface.class, dummyJavaIntefaceCallPersister, javaCallRecorderConfig);
-        File tempFile = File.createTempFile("test", "txt");
-        PrintWriter printWriter = new PrintWriter(new FileWriter(tempFile));
-        printWriter.append("This is Johnny");
-        printWriter.close();
-
-        String s = serviceClass.readAFile("Hello, ",tempFile);
-        assertThat(s).isEqualTo("Hello, This is Johnny");
-        assertTrue("could not delete resource file", tempFile.delete());
-
-        ClassSerializer classSerializer = new ClassSerializer();
-        System.out.println(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters());
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getMethodname()).isEqualTo("readAFile");
-        assertThat(classSerializer.asObject(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getResult())).isEqualTo("Hello, This is Johnny");
-
-        assertThat(dummyJavaIntefaceCallPersister.getJavaInterfaceCall().getParameters()).isEqualTo("<java.lang.String;Hello, >;<null>");
     }
 }

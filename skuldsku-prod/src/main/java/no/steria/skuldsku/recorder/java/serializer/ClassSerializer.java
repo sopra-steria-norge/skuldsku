@@ -14,6 +14,7 @@ import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,19 +26,34 @@ import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 public class ClassSerializer {
     private static final Set<String> globalIgnoreFields = new HashSet<String>();
+    private static Set<Class<?>> nonDuplicationClass = new HashSet<>();
+    static {
+        nonDuplicationClass.add(String.class);
+    }
+    
     private final Set<String> ignoreFields;
     
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmssSSS");
     private List<Object> knownObjects = new ArrayList<>();
+
     
     public ClassSerializer() {
-        ignoreFields = new HashSet<String>();
+        this(new HashSet<String>());
     }
     
     private ClassSerializer(Set<String> ignoreFields) {
         this.ignoreFields = ignoreFields;
     }
 
+    
+    public static void addNonDuplicationClass(Class<?> clazz) {
+        nonDuplicationClass.add(clazz);
+    }
+    
+    public static void removeNonDuplicationClass(Class<?> clazz) {
+        nonDuplicationClass.remove(clazz);
+    }
+    
     /**
      * Adds a field to be ignored (skipped) when serializing.
      * 
@@ -76,7 +92,7 @@ public class ClassSerializer {
     }
 
     private StringBuilder myAsString(Object object) {
-        StringBuilder encodedValue = encodeValue(object);
+        StringBuilder encodedValue = encodeValue(object, false);
         if (object != null && encodedValue.indexOf("<") != 0) {
             encodedValue.append(">");
             encodedValue.insert(0, ";");
@@ -98,13 +114,20 @@ public class ClassSerializer {
             }
             String[] parts = splitToParts(serializedValue);
 
-            if ("list".equals(parts[0]) || "map".equals(parts[0])) {
-                return objectValueFromString(serializedValue, null);
+            if ("list".equals(parts[0])) {
+                final Object collection = createList(serializedValue);
+                return collection;
             }
 
+            if ("map".equals(parts[0])) {
+                final Object collection = createMap(serializedValue);
+                return collection;
+            }
+            
             if ("array".equals(parts[0])) {
                 try {
-                    return createArray(serializedValue);
+                    final Object array = createArray(serializedValue);
+                    return array;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -116,15 +139,22 @@ public class ClassSerializer {
             }
 
             if (!serializedValue.contains("=") && parts.length > 1) {
-                try {
-                    return objectValueFromString(parts[1], Class.forName(parts[0]));
+                try {  
+                    final String value = parts[1];
+                    final Class<?> type = Class.forName(parts[0]);
+                    if (value.startsWith("<")) {
+                        final Object objectValue = myAsObject(value);
+                        return objectValue;
+                    } else {                  
+                        final Object objectValue = objectValueFromString(value, type);
+                        return objectValue;
+                    }
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
 
             Object object = initObject(parts[0]);
-
             knownObjects.add(object);
 
             for (int i = 1; i < parts.length; i++) {
@@ -135,7 +165,7 @@ public class ClassSerializer {
 
                 try {
                     Field field = findField(object.getClass(),fieldName);
-
+                    
                     setFieldValue(object, encFieldValue, field);
 
                 } catch (IllegalAccessError e) {
@@ -145,8 +175,19 @@ public class ClassSerializer {
 
             return object;
         } catch (RuntimeException e) {
-            throw new RuntimeException("Could not deserialize:\n" + serializedValue, e);
+            final String serializedValueDisplay = reduceToMaxLength(serializedValue, 10000);
+            throw new RuntimeException("Could not deserialize:\n" + serializedValueDisplay + "\n" + e.getMessage(), e);
         }
+    }
+
+    private String reduceToMaxLength(String serializedValue, int maxLength) {
+        final String serializedValueDisplay;
+        if (serializedValue.length() > maxLength) {
+            serializedValueDisplay = serializedValue.substring(0, maxLength - 3) + "...";
+        } else {
+            serializedValueDisplay = serializedValue;
+        }
+        return serializedValueDisplay;
     }
 
     private Field findField(Class<?> clazz, String fieldName)  {
@@ -192,12 +233,13 @@ public class ClassSerializer {
     }
 
     private Object objectValueFromString(String fieldValue, Class<?> type) {
-        Object value;
-
+        if (fieldValue.startsWith("<")) {
+            return myAsObject(fieldValue);
+        }
+        
+        final Object value;
         if ("&null".equals(fieldValue)) {
             value = null;
-        } else if (fieldValue.startsWith("<")) {
-            value = complexValueFromString(fieldValue, type);
         } else if (type.isEnum()) {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             final Object e = Enum.valueOf((Class) type, fieldValue);
@@ -222,7 +264,7 @@ public class ClassSerializer {
             try {
                 Date val = dateFormat.parse(fieldValue);
                 Constructor<?> constructor = type.getConstructor(Object.class);
-                return constructor.newInstance(val);
+                value = constructor.newInstance(val);
             } catch (InvocationTargetException | IllegalAccessException | InstantiationException | ParseException | NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
@@ -231,6 +273,11 @@ public class ClassSerializer {
         } else {
             value = unescapeSpecialCharacters(fieldValue);
         }
+        
+        if (value != null && (type == null || !type.isPrimitive())) {
+            knownObjects.add(value);
+        }
+        
         return value;
     }
     
@@ -244,7 +291,7 @@ public class ClassSerializer {
                 .replaceAll("&amp", "&"); //This really must happen last, or we end up double-deserializing.
     }
 
-    private StringBuilder encodeValue(Object fieldValue) {
+    private StringBuilder encodeValue(Object fieldValue, boolean primitive) {
         StringBuilder stringBuffer = new StringBuilder();
         if (fieldValue == null) {
             stringBuffer.append("<null>");
@@ -268,22 +315,23 @@ public class ClassSerializer {
         }
         
         final String className = fieldValue.getClass().getName();
-        if (!isValueClass(className)
-                && !fieldValue.getClass().isArray()
-                && !(fieldValue instanceof List)
-                && !(fieldValue instanceof Map)) {
+        
+        if (!nonDuplicationClass.contains(fieldValue.getClass())) {
             int ind = isKnown(fieldValue);
             if (ind != -1) {
                 return stringBuffer.append("<duplicate;").append(ind).append(">");
             }
         }
-        knownObjects.add(fieldValue);
+            
+        if (fieldValue != null && !primitive) {
+            knownObjects.add(fieldValue);
+        }
         if (fieldValue.getClass().isArray()) {
             StringBuilder res = new StringBuilder("<array;");
             res.append(escapeSpecialCharacters(fieldValue.getClass().getName()));
             for (int i = 0; i < Array.getLength(fieldValue); i++) {
                 Object objInArr = Array.get(fieldValue, i);
-                encode(res, objInArr);
+                encode(res, objInArr, fieldValue.getClass().getComponentType().isPrimitive());
             }
             res.append(">");
             return res;
@@ -293,7 +341,7 @@ public class ClassSerializer {
             List<Object> listValues = (List<Object>) fieldValue;
             StringBuilder res = new StringBuilder("<list");
             for (Object objectInList : listValues) {
-                encode(res, objectInList);
+                encode(res, objectInList, false);
             }
             res.append(">");
             return res;
@@ -305,9 +353,9 @@ public class ClassSerializer {
             try {
                 for (Map.Entry<Object, Object> entry : mapValue.entrySet()) {
                     Object val = entry.getKey();
-                    encode(res, val);
+                    encode(res, val, false);
                     val = entry.getValue();
-                    encode(res, val);
+                    encode(res, val, false);
 
                 }
             } catch (UnsupportedOperationException uoe) {
@@ -320,7 +368,7 @@ public class ClassSerializer {
             return new StringBuilder(dateFormat.format(fieldValue));
         }
 
-        if (isValueClass(className)) {
+        if (isStringValueClass(className)) {
             return new StringBuilder(escapeSpecialCharacters(fieldValue.toString()));
         }
         String classname = fieldValue.getClass().getName();
@@ -341,7 +389,7 @@ public class ClassSerializer {
                 .replaceAll("\n", "&newline");
     }
 
-    private boolean isValueClass(String className) {
+    private boolean isStringValueClass(String className) {
         return Boolean.class.getName().equals(className)
                 || Byte.class.getName().equals(className)
                 || Character.class.getName().equals(className)
@@ -394,7 +442,7 @@ public class ClassSerializer {
                     field.setAccessible(true);
                 }
                 Object fieldValue = field.get(object);
-                StringBuilder encodedValue = encodeValue(fieldValue);
+                StringBuilder encodedValue = encodeValue(fieldValue, field.getType().isPrimitive());
                 result.append(encodedValue);
                 if (!access) {
                     field.setAccessible(false);
@@ -469,12 +517,14 @@ public class ClassSerializer {
         final int reservedFieldsCount = 2;
         
         Object arr = Array.newInstance(type.getComponentType(), parts.length - reservedFieldsCount);
+        
+        knownObjects.add(arr);
 
         for (int i = 0; i < parts.length - reservedFieldsCount; i++) {
             String codeStr = parts[i + reservedFieldsCount];
-            String[] valType = splitToParts(codeStr);
-            if (valType.length > 0) {
-                Class<?> aClass;
+            if(type.getComponentType().isPrimitive()) {
+                final String[] valType = splitToParts(codeStr);
+                final Class<?> aClass;
                 try {
                     aClass = Class.forName(valType[0]);
                 } catch (ClassNotFoundException e) {
@@ -488,62 +538,47 @@ public class ClassSerializer {
 
         return arr;
     }
+    
+    private Object createList(String fieldValue) {
+        final String[] parts = splitToParts(fieldValue);
+        final List<Object> resList = new ArrayList<>();
+        
+        knownObjects.add(resList);
 
-    private Object complexValueFromString(String fieldValue, Class<?> type) {
-        String[] parts = splitToParts(fieldValue);
-        if ("list".equals(parts[0])) {
-            List<Object> resList = new ArrayList<>();
-
-            for (int i = 0; i < parts.length - 1; i++) {
-                String codeStr = parts[i + 1];
-                String[] valType = splitToParts(codeStr);
-                Class<?> aClass;
-                try {
-                    aClass = Class.forName(valType[0]);
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-                resList.add(objectValueFromString(valType[1], aClass));
-            }
-
-            return resList;
-        }
-        if ("map".equals(parts[0])) {
-            Map<Object, Object> resMap = new HashMap<>();
-
-            for (int i = 0; i < parts.length - 1; i++) {
-                Object key = extractObject(parts[i + 1]);
-                i++;
-                Object value = extractObject(parts[i + 1]);
-                resMap.put(key, value);
-            }
-
-            return resMap;
+        for (int i = 1; i < parts.length; i++) {
+            resList.add(myAsObject(parts[i]));
         }
 
-        return myAsObject(fieldValue);
+        return resList;        
+    }
+    
+    private Object createMap(String fieldValue) {
+        final String[] parts = splitToParts(fieldValue);
+        final Map<Object, Object> resMap = new HashMap<>();
+        
+        knownObjects.add(resMap);
+
+        for (int i = 1; i < parts.length; i++) {
+            Object key = myAsObject(parts[i]);
+            i++;
+            Object value = myAsObject(parts[i]);
+            resMap.put(key, value);
+        }
+
+        return resMap;
     }
 
-    private Object extractObject(String part) {
-        if ("&null".equals(part)) {
-            return null;
-        }
-        String[] valType = splitToParts(part);
-        Class<?> aClass;
-        try {
-            aClass = Class.forName(valType[0]);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        return objectValueFromString(valType[1], aClass);
-    }
-
-    private void encode(StringBuilder res, Object val) {
+    private void encode(StringBuilder res, Object val, boolean primitive) {
         res.append(";");
         if (val == null) {
             res.append("&null");
             return;
         }
-        res.append("<").append(val.getClass().getName()).append(";").append(encodeValue(val)).append(">");
+        final String encodeValue = encodeValue(val, primitive).toString();
+        if (encodeValue.startsWith("<")) {
+            res.append(encodeValue);
+        } else {
+            res.append("<").append(val.getClass().getName()).append(";").append(encodeValue).append(">");
+        }
     }
 }

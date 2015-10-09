@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,13 +20,12 @@ import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.recorder.AsyncMode;
 import no.steria.skuldsku.recorder.java.recorder.JavaCallPersister;
 import no.steria.skuldsku.recorder.java.recorder.JavaCallRecorderConfig;
-import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 import no.steria.skuldsku.recorder.recorders.StreamRecorderCommunicator;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-// Apparently you cannot use internal classes for testing this. I don't know why, it just doesn't work.
+
 public class ClassSerializerTest {
 
     private final ClassSerializer serializer = new ClassSerializer();
@@ -42,12 +42,14 @@ public class ClassSerializerTest {
 
     @Test
     public void shouldDeserialiseNull() throws Exception {
-        assertThat(serializer.asObject(serializer.asString(null))).isNull();
+        final String serializedValue = serializer.asString(null);
+        assertThat(serializer.asObject(serializedValue)).isNull();
     }
 
     @Test
     public void shouldReturnClass() throws Exception {
         final String serializedEmptyClass = serializer.asString(new EmptyClass());
+        assertThat(serializedEmptyClass).isEqualTo("<" + EmptyClass.class.getName() + ">");
         final EmptyClass emptyClass = (EmptyClass) serializer.asObject(serializedEmptyClass);
         assertThat(emptyClass.getClass()).isEqualTo(EmptyClass.class);
     }
@@ -61,6 +63,10 @@ public class ClassSerializerTest {
         classWithCollection.setArrayOfChars(bytval);
 
         String serialized = serializer.asString(classWithCollection);
+        assertThat(serialized).isEqualTo("<" + ClassWithArrayOfPrimitives.class.getName()
+                + ";arrayOfLongs=<array;[J;<java.lang.Long;0>;<java.lang.Long;1>;<java.lang.Long;2>>"
+                + ";arrayOfChars=<array;[C;<java.lang.Character;a>;<java.lang.Character;b>;<java.lang.Character;c>>"
+                + ">");
         ClassWithArrayOfPrimitives cloned = (ClassWithArrayOfPrimitives) serializer.asObject(serialized);
 
         assertThat(cloned.getArrayOfLongs()).containsOnly(0l, 1l, 2l);
@@ -71,6 +77,7 @@ public class ClassSerializerTest {
     public void shouldHandleArraysWithNull() throws Exception {
         final Object[] a = {"a", null, "b"};
         final String serialized = serializer.asString(a);
+        assertThat(serialized).isEqualTo("<array;[Ljava.lang.Object&semi;<java.lang.String;a>;&null;<java.lang.String;b>>");
         final Object[] cloned = (Object[]) serializer.asObject(serialized);
         assertThat(cloned).isEqualTo(a);
     }
@@ -80,7 +87,7 @@ public class ClassSerializerTest {
         // Need to specify array class in serialized format.
         final Object[] a = {"a", null, 5};
         final String serialized = serializer.asString(a);
-        System.out.println(serialized);
+        assertThat(serialized).isEqualTo("<array;[Ljava.lang.Object&semi;<java.lang.String;a>;&null;<java.lang.Integer;5>>");
         Object[] cloned = (Object[]) serializer.asObject(serialized);
         assertThat(cloned[0]).isEqualTo("a");
         assertThat(cloned[1]).isNull();
@@ -124,7 +131,7 @@ public class ClassSerializerTest {
     }
 
     @Test
-    public void shouldHandleEmptyList() {
+    public void shouldHandleEmptyArray() {
         final String value = serializer.asString(new Object[0]);
         assertThat(value).isEqualTo("<array;[Ljava.lang.Object&semi>");
     }
@@ -132,7 +139,6 @@ public class ClassSerializerTest {
     @Test
     public void shouldSerializeAndDeserializeArray() throws Exception {
         final String actual = serializer.asString(new String[]{"asdf", "asdf "});
-
         assertThat(serializer.asObject(actual)).isEqualTo(new String[]{"asdf", "asdf "});
     }
     
@@ -154,9 +160,21 @@ public class ClassSerializerTest {
 
     @Test
     public void shouldSerializeAndDeserializeList() throws Exception {
-        final String actual = serializer.asString(Arrays.asList("asdf", "asdf"));
+        final String actual = serializer.asString(Arrays.asList(new String("a"), new String("b")));
+        assertThat(actual).isEqualTo("<list;<java.lang.String;a>;<java.lang.String;b>>");
+        assertThat(serializer.asObject(actual)).isEqualTo(Arrays.asList("a", "b"));
+    }
+    
+    @Test
+    public void shouldSerializeAndDeserializeListWithDuplicates() throws Exception {
+        ClassSerializer.removeNonDuplicationClass(String.class);
+        final String testString = "asdf";
+        final String actual = serializer.asString(Arrays.asList(testString, testString));
 
-        assertThat(serializer.asObject(actual)).isEqualTo(Arrays.asList("asdf", "asdf"));
+        assertThat(actual).isEqualTo("<list;<java.lang.String;asdf>;<duplicate;1>>");
+        
+        assertThat(serializer.asObject(actual)).isEqualTo(Arrays.asList(testString, testString));
+        ClassSerializer.addNonDuplicationClass(String.class);
     }
 
     @Test
@@ -211,6 +229,16 @@ public class ClassSerializerTest {
     public void shouldDeSerializeListOfObjectsWithFields() {
         List<ClassWithSimpleFields> list = Arrays.asList(new ClassWithSimpleFields());
         String serialized = serializer.asString(list);
+        assertThat(serialized).isEqualTo("<list;<no.steria.skuldsku.recorder.java.serializer.ClassWithSimpleFields;stringval=<null>;intval=0;anotherVar=false>>");
+        System.out.println(serialized);
+        serializer.asObject(serialized);
+    }
+    
+    @Test
+    public void shouldDeSerializeListOfMultipleObjectsWithFields() {
+        List<ClassWithSimpleFields> list = Arrays.asList(new ClassWithSimpleFields(), new ClassWithSimpleFields());
+        String serialized = serializer.asString(list);
+        assertThat(serialized).isEqualTo("<list;<no.steria.skuldsku.recorder.java.serializer.ClassWithSimpleFields;stringval=<null>;intval=0;anotherVar=false>;<no.steria.skuldsku.recorder.java.serializer.ClassWithSimpleFields;stringval=<null>;intval=0;anotherVar=<duplicate;2>>>");
         System.out.println(serialized);
         serializer.asObject(serialized);
     }
@@ -225,6 +253,7 @@ public class ClassSerializerTest {
 
         String serialized = serializer.asString(classWithMap);
 
+        System.out.println(serialized);
 
         ClassWithMap cloned = (ClassWithMap) serializer.asObject(serialized);
 
@@ -322,6 +351,21 @@ public class ClassSerializerTest {
 
         assertThat(dupl.getStringval()).isEqualTo("Noe\nMer");
     }
+    
+    @Test
+    public void shouldHandleSelfReferenceToList() {
+        List<Object> l = new ArrayList<>();
+        l.add(l);
+        
+        final String serializedValue = serializer.asString(l);
+        assertThat(serializedValue).isEqualTo("<list;<duplicate;0>>");
+        
+        final Object result = serializer.asObject(serializedValue);
+        @SuppressWarnings("unchecked")
+        List<Object> resultList = (List<Object>) result;
+        assertThat(resultList.size()).isEqualTo(1);
+        assertThat(resultList.get(0)).isSameAs(resultList);
+    }
 
     @Test
     public void shouldHandleDataWithSemicolon() throws IOException {
@@ -333,7 +377,7 @@ public class ClassSerializerTest {
 
         ClassWithSimpleFields classWithSimpleFields = new ClassWithSimpleFields();
         classWithSimpleFields.setStringval("Noe;Mer");
-        store(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, null, config);
+        store(persister, "", "myTestClass", "MyTestMethod", new Object[0], classWithSimpleFields, null, 0, 0, config);
 
         os.flush();
         String serialized = os.toString();
@@ -556,5 +600,85 @@ public class ClassSerializerTest {
         final TestIgnore tiDuplicate = (TestIgnore) cs.asObject(serializedValue);
         assertThat(tiDuplicate.a).isEqualTo(ti.a);
         assertThat(tiDuplicate.b).isEqualTo(null);
+    }
+    
+    public static final class TestDucplicates {
+        private List<TestDucplicates2> list = new ArrayList<TestDucplicates2>();
+    }
+    
+    public static final class TestDucplicates2 {
+        private String field;
+        
+        TestDucplicates2(String field) {
+            this.field = field;
+        }
+    }
+    
+    @Test
+    public void shouldHandleDuplicatesInLists() {
+        final TestDucplicates td = new TestDucplicates();
+        TestDucplicates2 td2 = new TestDucplicates2("OK");
+        td.list.add(td2);
+        td.list.add(td2);
+        
+        final ClassSerializer cs = new ClassSerializer();
+        String serializedValue = cs.asString(td);
+        Object o = cs.asObject(serializedValue);
+    }
+    
+    public static final class TestDucplicates3 {
+        private String field1;
+        private String field2;
+        
+        TestDucplicates3(String field1, String field2) {
+            this.field1 = field1;
+            this.field2 = field2;
+        }
+    }
+    
+    @Test
+    public void shouldHandleDuplicateObjects() {
+        ClassSerializer.removeNonDuplicationClass(String.class);
+        final String s = "OK";
+        TestDucplicates3 td3 = new TestDucplicates3(s, s);
+        
+        final ClassSerializer cs = new ClassSerializer();
+        String serializedValue = cs.asString(td3);
+        assertThat(serializedValue).isEqualTo("<no.steria.skuldsku.recorder.java.serializer.ClassSerializerTest$TestDucplicates3;field1=OK;field2=<duplicate;1>>");
+        
+        Object o = cs.asObject(serializedValue);
+        ClassSerializer.addNonDuplicationClass(String.class);
+    }
+    
+    @Test
+    public void equalsShouldNotMeanDuplicateGetsUsed() {
+        TestDucplicates3 td3 = new TestDucplicates3(new String("OK"), new String("OK"));
+        
+        final ClassSerializer cs = new ClassSerializer();
+        String serializedValue = cs.asString(td3);
+        assertThat(serializedValue).isEqualTo("<no.steria.skuldsku.recorder.java.serializer.ClassSerializerTest$TestDucplicates3;field1=OK;field2=OK>");
+        
+        cs.asObject(serializedValue);
+    }
+    
+    public static final class TestDucplicates4 {
+        private int field1;
+        private int field2;
+        
+        TestDucplicates4(int field1, int field2) {
+            this.field1 = field1;
+            this.field2 = field2;
+        }
+    }
+    
+    @Test
+    public void primitiveTypesShouldNotUseDuplicate() {
+        TestDucplicates4 td3 = new TestDucplicates4(42, 42);
+        
+        final ClassSerializer cs = new ClassSerializer();
+        String serializedValue = cs.asString(td3);
+        assertThat(serializedValue).isEqualTo("<no.steria.skuldsku.recorder.java.serializer.ClassSerializerTest$TestDucplicates4;field1=42;field2=42>");
+        
+        cs.asObject(serializedValue);
     }
 }
