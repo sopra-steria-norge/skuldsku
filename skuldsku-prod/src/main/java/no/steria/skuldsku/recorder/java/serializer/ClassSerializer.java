@@ -112,6 +112,9 @@ public class ClassSerializer {
             if ("<null>".equals(serializedValue)) {
                 return null;
             }
+            if ("&null".equals(serializedValue)) {
+                return null;
+            }
             String[] parts = splitToParts(serializedValue);
 
             if ("list".equals(parts[0])) {
