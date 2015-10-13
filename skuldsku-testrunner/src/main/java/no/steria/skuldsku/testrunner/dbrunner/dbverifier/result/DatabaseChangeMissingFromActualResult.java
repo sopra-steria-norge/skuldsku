@@ -15,8 +15,18 @@ public class DatabaseChangeMissingFromActualResult implements ItemResult<Databas
     
     
     @Override
+    public String getStartTime() {
+        return databaseChange.getStartTime();
+    }
+    
+    @Override
     public String getRequestId() {
         return databaseChange.getClientIdentifier();
+    }
+    
+    @Override
+    public String getTitle() {
+        return "Database " + getItem().getTableName() + " " + getItem().getAction() + " missing from actual";
     }
 
     @Override

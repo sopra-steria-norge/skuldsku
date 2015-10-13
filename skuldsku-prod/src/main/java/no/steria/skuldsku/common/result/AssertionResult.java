@@ -2,16 +2,27 @@ package no.steria.skuldsku.common.result;
 
 public class AssertionResult implements Result {
 
-    private String explanation;
+    private final String title;
+    private final String explanation;
     
-    public AssertionResult(String explanation) {
+    public AssertionResult(String title, String explanation) {
+        this.title = title;
         this.explanation = explanation;
     }
     
+    @Override
+    public String getStartTime() {
+        return null;
+    }
     
     @Override
     public String getRequestId() {
         return "";
+    }
+    
+    @Override
+    public String getTitle() {
+        return title;
     }
 
     @Override

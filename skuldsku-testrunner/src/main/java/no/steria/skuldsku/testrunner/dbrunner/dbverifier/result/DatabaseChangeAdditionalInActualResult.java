@@ -13,10 +13,19 @@ public class DatabaseChangeAdditionalInActualResult implements ItemResult<Databa
         this.databaseChange = databaseChange;
     }
     
+    @Override
+    public String getStartTime() {
+        return databaseChange.getStartTime();
+    }
     
     @Override
     public String getRequestId() {
         return databaseChange.getClientIdentifier();
+    }
+    
+    @Override
+    public String getTitle() {
+        return "Database " + getItem().getTableName() + " " + getItem().getAction() + " additional in actual";
     }
 
     @Override

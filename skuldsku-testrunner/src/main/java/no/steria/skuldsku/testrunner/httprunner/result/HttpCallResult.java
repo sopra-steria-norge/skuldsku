@@ -13,12 +13,32 @@ public class HttpCallResult implements ComparisionResult<HttpCall>{
         this.expected = expected;
         this.actual = actual;
         this.requestNumber = requestNumber;
+        
+        if (actual.getStartTime() == null) {
+            throw new NullPointerException("actual.getStartTime() == null");
+        }
+        if (actual.getClientIdentifier() == null) {
+            throw new NullPointerException("actual.getClientIdentifier() == null");
+        }
+        if (actual.getPath() == null) {
+            throw new NullPointerException("actual.getPath() == null");
+        }
     }
     
     
     @Override
+    public String getStartTime() {
+        return actual.getStartTime();
+    }
+    
+    @Override
     public String getRequestId() {
         return actual.getClientIdentifier();
+    }
+    
+    @Override
+    public String getTitle() {
+        return "HTTP " + getActual().getMethod() + " " + getActual().getPath();
     }
 
     @Override

@@ -14,6 +14,7 @@ import no.steria.skuldsku.testrunner.dbrunner.dbchange.FieldDifference;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifier;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeAdditionalInActualResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeMatchesResult;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeMissingFromActualResult;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeNotEqualsResult;
 
@@ -54,6 +55,8 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
                 final List<FieldDifference> fieldDifferences = expectedDatabaseChange.determineDifferences(actualDatabaseChange, databaseChangeVerifierOptions.getSkipFields());
                 if (!fieldDifferences.isEmpty()) {
                     databaseChangeVerifierResult.addResult(new DatabaseChangeNotEqualsResult(expectedDatabaseChange, actualDatabaseChange, fieldDifferences));
+                } else if (databaseChangeVerifierOptions.isIncludeSuccessfulMatchesInResult()) {
+                    databaseChangeVerifierResult.addResult(new DatabaseChangeMatchesResult(expectedDatabaseChange, actualDatabaseChange));
                 }
             }
             

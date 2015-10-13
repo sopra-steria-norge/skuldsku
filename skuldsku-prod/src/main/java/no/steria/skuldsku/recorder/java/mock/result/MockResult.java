@@ -14,8 +14,18 @@ public class MockResult implements ItemResult<JavaCall> {
     }
     
     @Override
+    public String getStartTime() {
+        return javaCall.getStartTime();
+    }
+    
+    @Override
     public String getRequestId() {
         return javaCall.getClientIdentifier();
+    }
+    
+    @Override
+    public String getTitle() {
+        return "Java Mock " + getItem().getClassName() + "." + getItem().getMethodname() + " additional in actual";
     }
 
     @Override

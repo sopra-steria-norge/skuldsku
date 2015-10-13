@@ -20,8 +20,18 @@ public class DatabaseChangeNotEqualsResult implements ComparisionResult<Database
     }
 
     @Override
+    public String getStartTime() {
+        return actual.getStartTime();
+    }
+    
+    @Override
     public String getRequestId() {
         return actual.getClientIdentifier();
+    }
+    
+    @Override
+    public String getTitle() {
+        return "Database " + getActual().getTableName() + " " + getActual().getAction() + " actual does not match expected";
     }
 
     @Override

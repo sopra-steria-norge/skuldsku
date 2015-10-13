@@ -13,10 +13,22 @@ public class JavaCallNotEqualsResult implements ComparisionResult<JavaCall> {
         this.actual = actual;
     }
     
+    
+    @Override
+    public String getStartTime() {
+        return actual.getStartTime();
+    }
+    
     @Override
     public String getRequestId() {
         return actual.getClientIdentifier();
     }
+    
+    @Override
+    public String getTitle() {
+        return "Java Call " + getExpected().getClassName() + "." + getExpected().getMethodname() + " actual does not match expected";
+    }
+    
 
     @Override
     public boolean isFailure() {

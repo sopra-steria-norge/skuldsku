@@ -89,7 +89,7 @@ public final class DatabaseRecorderRunner {
                     databaseChangeVerifierOptions);
         } else {
             results = new Results();
-            results.addResult(new AssertionResult("The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
+            results.addResult(new AssertionResult("Database No actual data.", "The file that should be containing the expected data does not exist: " + expectedFile.getAbsolutePath()
                     + "\nIf this is the first execution of the test, you can take a look at the actual data ("
                     + actualFile.getAbsolutePath()
                     + ") and check if the result is correct. If correct, you can use this file as the expected data."));
