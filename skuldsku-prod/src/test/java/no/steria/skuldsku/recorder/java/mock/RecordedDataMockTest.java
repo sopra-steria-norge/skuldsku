@@ -93,6 +93,50 @@ public class RecordedDataMockTest {
         assertThat(resultFromMock).isEqualTo(correctResult);
     }
     
+    public interface CounterService {
+        public int counter();
+    }
+    
+    static final class CounterServiceImpl implements CounterService {
+        private int num = 0;
+        @Override
+        public int counter() {
+            num++;
+            return num;
+        }
+    }
+    
+    @Test
+    public void shouldHandleMultipleCallsWithDifferingReturnValue() throws Throwable {
+        // Setup:
+        CounterService serviceClass = InterfaceRecorderWrapper.newInstance(new CounterServiceImpl(), CounterService.class, dummyJavaIntefaceCallPersister, JavaCallRecorderConfig.factory().withAsyncMode(AsyncMode.ALL_SYNC).create());
+        final List<JavaCall> calls = new ArrayList<>();
+        assertThat(serviceClass.counter()).isEqualTo(1);
+        calls.add(dummyJavaIntefaceCallPersister.getJavaInterfaceCall());
+        assertThat(serviceClass.counter()).isEqualTo(2);
+        calls.add(dummyJavaIntefaceCallPersister.getJavaInterfaceCall());
+        assertThat(serviceClass.counter()).isEqualTo(3);
+        calls.add(dummyJavaIntefaceCallPersister.getJavaInterfaceCall());
+        
+        // Test:
+        final RecordedDataMock mock = new RecordedDataMock(calls);
+        
+        final Object firstResultFromMock = mock.invoke(CounterService.class, "", CounterService.class.getMethod("counter"), null);
+        assertThat(firstResultFromMock).isEqualTo(1);
+        
+        final Object secondResultFromMock = mock.invoke(CounterService.class, "", CounterService.class.getMethod("counter"), null);
+        assertThat(secondResultFromMock).isEqualTo(2);
+
+        final Object thirdResultFromMock = mock.invoke(CounterService.class, "", CounterService.class.getMethod("counter"), null);
+        assertThat(thirdResultFromMock).isEqualTo(3);
+        
+        final Object overflowResultFromMock = mock.invoke(CounterService.class, "", CounterService.class.getMethod("counter"), null);
+        assertThat(overflowResultFromMock).isEqualTo(3); // continue returning same as last.
+        
+        assertThat(mock.expectedCalls.get(calls.get(0))).isEqualTo(3);
+        assertThat(mock.actualCalls.get(calls.get(0))).isEqualTo(4);
+    }
+    
     
     public interface HandleReturningAnArgumentService {
         Object returnTheArgument(Object o);

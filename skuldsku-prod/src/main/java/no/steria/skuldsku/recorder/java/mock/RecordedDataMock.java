@@ -27,8 +27,8 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
     private final List<JavaCall> recorded;
     private String serviceClass;
     private final Results mockResults = new Results();
-    private final Map<JavaCall, Integer> expectedCalls = new HashMap<>();
-    private final Map<JavaCall, Integer> actualCalls = new HashMap<>();
+    final Map<JavaCall, Integer> expectedCalls = new HashMap<>();
+    final Map<JavaCall, Integer> actualCalls = new HashMap<>();
     
 
     /**
@@ -45,9 +45,9 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
         this.recorded = new ArrayList<>();
         
         /*
-         * JavaCalls can be equal (with or without parameter filtering). The code below
-         * keeps only one JavaCall when there are multiple equal calls, and uses the
-         * "expectedCalls" variable to store how many copies there were.
+         * JavaCalls can be equal (with or without parameter filtering). When generating
+         * test results we count the number of actual calls to the first matching
+         * JavaCall.
          */
         final ClassSerializer standardSerializer = new ClassSerializer();
         final ClassSerializer fieldIgnorerSerializer = createFieldIgnorerSerializer();
@@ -57,14 +57,13 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
             if (existingJc == null) {
                 expectedCalls.put(jc, 1);
                 actualCalls.put(jc, 0);
-                this.recorded.add(jc);
             } else {
                 expectedCalls.put(existingJc, expectedCalls.get(existingJc) + 1);
             }
+            this.recorded.add(jc);
         }
         
         assert expectedCalls.size() == actualCalls.size();
-        assert this.recorded.size() == expectedCalls.size();
     }
 
     private static JavaCall findExisting(List<JavaCall> exisingList, String methodName, String jcArgs, ClassSerializer standardSerializer, ClassSerializer fieldIgnorerSerializer) {
@@ -98,24 +97,50 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
         final ClassSerializer standardSerializer = new ClassSerializer();
         final ClassSerializer fieldIgnorerSerializer = createFieldIgnorerSerializer();
         
+        final List<JavaCall> matchingCandidateCalls = new ArrayList<>();
+        
         final String currentFilteredArgs = fieldIgnorerSerializer.asString(args);
         for (JavaCall candidateJavaCall : recorded) {
             if (method.getName().equals(candidateJavaCall.getMethodname())) {
                 final String candidateFilteredArgs = removeIgnoredFields(candidateJavaCall.getParameters(), standardSerializer, fieldIgnorerSerializer);
                 if (currentFilteredArgs.equals(candidateFilteredArgs)) {
-                    actualCalls.put(candidateJavaCall, actualCalls.get(candidateJavaCall) + 1);
-                    if (candidateJavaCall.getThrown() != null) {
-                        final Throwable t = (Throwable) standardSerializer.asObject(candidateJavaCall.getThrown());
-                        if (t != null) {
-                            throw t;
-                        }
+                    matchingCandidateCalls.add(candidateJavaCall);
+
+                    final JavaCall firstMatchingCandidateCall = matchingCandidateCalls.get(0);
+                    final int numActualCalls = actualCalls.get(firstMatchingCandidateCall);
+                    
+                    if (matchingCandidateCalls.size() == numActualCalls + 1) {
+                        increaseActualCall(firstMatchingCandidateCall);
+                        return getReturnValue(standardSerializer, candidateJavaCall);
                     }
-                    return standardSerializer.asObject(candidateJavaCall.getResult());
                 }
             }
         }
+        
+        if (!matchingCandidateCalls.isEmpty()) {
+            final JavaCall firstMatchingCandidateCall = matchingCandidateCalls.get(0);
+            increaseActualCall(firstMatchingCandidateCall);
+            final JavaCall candidateJavaCall = matchingCandidateCalls.get(matchingCandidateCalls.size() - 1);
+            return getReturnValue(standardSerializer, candidateJavaCall);
+        }
 
         throw handleMissingMockData(interfaceClass, method, args, standardSerializer, fieldIgnorerSerializer);
+    }
+
+    private void increaseActualCall(final JavaCall firstMatchingCandidateCall) {
+        final int numActualCalls = actualCalls.get(firstMatchingCandidateCall) + 1;
+        actualCalls.put(firstMatchingCandidateCall, numActualCalls);
+    }
+
+    private Object getReturnValue(final ClassSerializer standardSerializer, final JavaCall candidateJavaCall)
+            throws Throwable {
+        if (candidateJavaCall.getThrown() != null) {
+            final Throwable t = (Throwable) standardSerializer.asObject(candidateJavaCall.getThrown());
+            if (t != null) {
+                throw t;
+            }
+        }
+        return standardSerializer.asObject(candidateJavaCall.getResult());
     }
 
     private ClassSerializer createFieldIgnorerSerializer() {
