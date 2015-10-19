@@ -17,7 +17,6 @@ import no.steria.skuldsku.recorder.java.mock.result.ComparisionMockResult;
 import no.steria.skuldsku.recorder.java.mock.result.MissingMockResult;
 import no.steria.skuldsku.recorder.java.mock.result.MockResult;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
-import no.steria.skuldsku.recorder.logging.RecorderLog;
 
 /**
  * A mock for a single class.

@@ -35,18 +35,36 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         if (parameters != null) {
             return;
         }
+        
+        parameters = new HashMap<>();
+        
+        initializePostParameters();
+        initializeGetParameters();
+    }
+
+    private void initializePostParameters() {
         String inputStr;
         try {
             inputStr = toString(getInputStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        parameters=new HashMap<>();
         if (inputStr == null || inputStr.isEmpty()) {
             return;
         }
+        fromParameterStringToMap(inputStr, parameters, getCharacterEncoding());
+    }
+    
+    private void initializeGetParameters() {
+        final String inputStr = getQueryString();
+        if (inputStr != null) {
+            fromParameterStringToMap(inputStr, parameters, getCharacterEncoding());
+        }
+    }
+
+    private static void fromParameterStringToMap(String inputStr, Map<String,List<String>> parameters, String charset) {
         for (String keyvalue : inputStr.split("&")) {
-            String characterEncoding = getCharacterEncoding();
+            String characterEncoding = charset;
             if (characterEncoding == null) {
                 characterEncoding = "UTF-8";
             }
@@ -71,7 +89,6 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
             parameterValues.add(value);
         }
-
     }
 
     @Override
