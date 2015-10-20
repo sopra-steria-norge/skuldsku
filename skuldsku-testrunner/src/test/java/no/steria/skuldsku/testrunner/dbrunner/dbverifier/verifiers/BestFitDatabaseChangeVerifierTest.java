@@ -8,6 +8,7 @@ import no.steria.skuldsku.common.result.Results;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeAdditionalInActualResult;
+import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeMatchesResult;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeMissingFromActualResult;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeNotEqualsResult;
 
@@ -59,6 +60,16 @@ public class BestFitDatabaseChangeVerifierTest {
                 DatabaseChange.toDatabaseChangeList(new String[] { "foo=bar", "lala=nope" }),
                 new DatabaseChangeVerifierOptions());
         assertThat(results.hasErrors()).isFalse();
+    }
+    
+    @Test
+    public void prioritizeShorterMatches() {
+        final Results results = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope", "foo=bar;lala=nope", "foo=bar" }),
+                DatabaseChange.toDatabaseChangeList(new String[] { "lala=nope", "foo=bar" }),
+                new DatabaseChangeVerifierOptions());
+        assertThat(results.getResults().size()).isEqualTo(3);
+        assertThat(results.getByType(DatabaseChangeMatchesResult.class).size()).isEqualTo(2);
+        assertThat(results.getByType(DatabaseChangeMissingFromActualResult.class).size()).isEqualTo(1);
     }
     
     @Test

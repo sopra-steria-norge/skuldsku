@@ -81,7 +81,13 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
                 final DatabaseChange bestFitForDc2 = determineBestFitFor(dc2, actual, skipFields);
                 final int fieldsMatchDc2 = (bestFitForDc2 != null) ? dc2.fieldsMatched(bestFitForDc2, skipFields) : 0;
                 
-                return Integer.compare(fieldsMatchDc2, fieldsMatchDc1);
+                if (fieldsMatchDc1 == fieldsMatchDc2) {
+                    final int numRowFields1 = dc1.getData().size();
+                    final int numRowFields2 = dc2.getData().size();
+                    return Integer.compare(numRowFields1, numRowFields2);
+                } else {
+                    return Integer.compare(fieldsMatchDc2, fieldsMatchDc1);
+                }
             }
         });
         return expectedSorted;
