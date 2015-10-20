@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import no.steria.skuldsku.recorder.logging.RecorderLog;
+
 public class ClientIdentifierConnection implements Connection {
 
     private final Connection connection;
@@ -42,7 +44,7 @@ public class ClientIdentifierConnection implements Connection {
         try {
             executeClientIdentifierSql(clientIdentifier);
         } catch (SQLException e) {
-            e.printStackTrace();
+            RecorderLog.error("Could not set client identifier in database.", e);
         }
     }
     
