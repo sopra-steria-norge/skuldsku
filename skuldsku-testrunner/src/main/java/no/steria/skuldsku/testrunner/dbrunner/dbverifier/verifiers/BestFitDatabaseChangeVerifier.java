@@ -92,10 +92,14 @@ public class BestFitDatabaseChangeVerifier implements DatabaseChangeVerifier {
         int bestFieldsMatched = -1;
         
         for (DatabaseChange candidate : candidates) {
-            final int fieldsMatched = d.fieldsMatched(candidate, skipFields);
-            if (fieldsMatched > bestFieldsMatched) {
-                bestFit = candidate;
-                bestFieldsMatched = fieldsMatched;
+            if (candidate.getTableName() == null
+                    || d.getTableName() == null
+                    || candidate.getTableName().equals(d.getTableName())) {
+                final int fieldsMatched = d.fieldsMatched(candidate, skipFields);
+                if (fieldsMatched > bestFieldsMatched) {
+                    bestFit = candidate;
+                    bestFieldsMatched = fieldsMatched;
+                }
             }
         }
         return bestFit;

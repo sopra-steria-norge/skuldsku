@@ -136,4 +136,14 @@ public class BestFitDatabaseChangeVerifierTest {
         assertThat(results.getByType(DatabaseChangeAdditionalInActualResult.class).size()).isEqualTo(0);
         assertThat(results.getByType(DatabaseChangeNotEqualsResult.class).size()).isEqualTo(0);
     }
+    
+    @Test
+    public void allSkippedMatchesOk() {
+        final DatabaseChangeVerifierOptions databaseChangeVerifierOptions = new DatabaseChangeVerifierOptions();
+        databaseChangeVerifierOptions.addSkipField("a");
+        final Results results = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "a=1", "a=2" }),
+                DatabaseChange.toDatabaseChangeList(new String[] { "a=3", "a=4" }),
+                databaseChangeVerifierOptions);
+        assertThat(results.hasErrors()).isFalse();
+    }
 }
