@@ -5,6 +5,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.Collections;
 
 import no.steria.skuldsku.common.result.Results;
+import no.steria.skuldsku.testrunner.common.ClientIdentifierMapper;
 import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.DatabaseChangeVerifierOptions;
 import no.steria.skuldsku.testrunner.dbrunner.dbverifier.result.DatabaseChangeAdditionalInActualResult;
@@ -70,6 +71,26 @@ public class BestFitDatabaseChangeVerifierTest {
         assertThat(results.getResults().size()).isEqualTo(3);
         assertThat(results.getByType(DatabaseChangeMatchesResult.class).size()).isEqualTo(2);
         assertThat(results.getByType(DatabaseChangeMissingFromActualResult.class).size()).isEqualTo(1);
+    }
+    
+    @Test
+    public void prioritizeFirstDatabaseChangesInExpected() {
+        final Results results = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "a=1", "a=0" }),
+                DatabaseChange.toDatabaseChangeList(new String[] { "a=2" }),
+                new DatabaseChangeVerifierOptions());
+        assertThat(results.getResults().size()).isEqualTo(2);
+        assertThat(results.getByType(DatabaseChangeNotEqualsResult.class).size()).isEqualTo(1); // Matched with a=1
+        assertThat(results.getByType(DatabaseChangeMissingFromActualResult.class).get(0).getItem().getValue("a")).isEqualTo("0");
+    }
+    
+    @Test
+    public void prioritizeFirstDatabaseChangesInActual() {
+        final Results results = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "a=2" }),
+                DatabaseChange.toDatabaseChangeList(new String[] { "a=1", "a=0" }),
+                new DatabaseChangeVerifierOptions());
+        assertThat(results.getResults().size()).isEqualTo(2);
+        assertThat(results.getByType(DatabaseChangeNotEqualsResult.class).size()).isEqualTo(1); // Matched with a=1
+        assertThat(results.getByType(DatabaseChangeAdditionalInActualResult.class).get(0).getItem().getValue("a")).isEqualTo("0");
     }
     
     @Test
@@ -156,5 +177,28 @@ public class BestFitDatabaseChangeVerifierTest {
                 DatabaseChange.toDatabaseChangeList(new String[] { "a=3", "a=4" }),
                 databaseChangeVerifierOptions);
         assertThat(results.hasErrors()).isFalse();
+    }
+    
+    @Test
+    public void clientIdentifierCheck() {
+        final DatabaseChangeVerifierOptions databaseChangeVerifierOptions = new DatabaseChangeVerifierOptions();
+        databaseChangeVerifierOptions.setClientIdentifierMapper(new ClientIdentifierMapper() {
+            @Override
+            public String translateToActual(String expectedClientIdentifier) {
+                if (expectedClientIdentifier.equals("foo")) {
+                    return "bar";
+                } else {
+                    return expectedClientIdentifier;
+                }
+            }
+        });
+        
+        final Results results = verifier.assertEquals(DatabaseChange.toDatabaseChangeList(new String[] { "CLIENT_IDENTIFIER=foo;a=2" }),
+                DatabaseChange.toDatabaseChangeList(new String[] { "CLIENT_IDENTIFIER=nope;a=2", "CLIENT_IDENTIFIER=bar;a=1" }),
+                databaseChangeVerifierOptions);
+        assertThat(results.hasErrors()).isTrue();
+        assertThat(results.getResults().size()).isEqualTo(2);
+        assertThat(results.getByType(DatabaseChangeNotEqualsResult.class).size()).isEqualTo(1);
+        assertThat(results.getByType(DatabaseChangeAdditionalInActualResult.class).get(0).getItem().getValue("a")).isEqualTo("2");
     }
 }
