@@ -7,10 +7,12 @@ import no.steria.skuldsku.testrunner.dbrunner.dbchange.DatabaseChange;
 public class DatabaseChangeMissingFromActualResult implements ItemResult<DatabaseChange> {
 
     private final DatabaseChange databaseChange;
+    private final String clientIdentifier;
     
     
-    public DatabaseChangeMissingFromActualResult(DatabaseChange databaseChange) {
+    public DatabaseChangeMissingFromActualResult(DatabaseChange databaseChange, String clientIdentifier) {
         this.databaseChange = databaseChange;
+        this.clientIdentifier = clientIdentifier;
     }
     
     
@@ -21,7 +23,7 @@ public class DatabaseChangeMissingFromActualResult implements ItemResult<Databas
     
     @Override
     public String getRequestId() {
-        return databaseChange.getClientIdentifier();
+        return clientIdentifier;
     }
     
     @Override
