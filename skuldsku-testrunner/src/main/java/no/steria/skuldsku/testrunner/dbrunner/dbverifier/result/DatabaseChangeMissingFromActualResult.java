@@ -16,7 +16,7 @@ public class DatabaseChangeMissingFromActualResult implements ItemResult<Databas
     
     @Override
     public String getStartTime() {
-        return databaseChange.getStartTime();
+        return null;
     }
     
     @Override
