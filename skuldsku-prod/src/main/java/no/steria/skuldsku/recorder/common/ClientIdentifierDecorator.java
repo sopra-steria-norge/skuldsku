@@ -22,35 +22,13 @@ public class ClientIdentifierDecorator implements DataSource {
 
     public Connection getConnection() throws SQLException {
         final Connection c = dataSource.getConnection();
-        //executeSqlOn(c);
         return new ClientIdentifierConnection(c, callback);
     }
     
     public Connection getConnection(String username, String password) throws SQLException {
         final Connection c = dataSource.getConnection(username, password);
-        //executeSqlOn(c);
         return new ClientIdentifierConnection(c, callback);
     }
-
-    /*
-    private void executeSqlOn(final Connection c) throws SQLException {
-        final String clientIdentifier = callback.getClientIdentifier();
-        if (clientIdentifier == null) {
-            return;
-        }
-        
-        final CallableStatement s = c.prepareCall("begin dbms_session.set_identifier(?); end;");
-        try {
-            s.setString(1, clientIdentifier);
-            s.execute();
-        } finally {
-            try {
-                s.close();
-            } catch (SQLException e) {}
-        }
-        c.commit();
-    }
-    */
 
     public PrintWriter getLogWriter() throws SQLException {
         return dataSource.getLogWriter();
