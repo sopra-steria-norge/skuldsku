@@ -17,21 +17,21 @@ public class StrictOrderDatabaseChangeVerifier implements DatabaseChangeVerifier
     public Results assertEquals(List<DatabaseChange> expected, List<DatabaseChange> actual, DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
         final Results databaseChangeVerifierResult = new Results();
 
+        for (int i=0; i<Math.min(actual.size(), expected.size()); i++) {
+            final DatabaseChange expectedDatabaseChange = expected.get(i);
+            final DatabaseChange actualDatabaseChange = actual.get(i);
+
+            final List<FieldDifference> fieldDifferences = expectedDatabaseChange.determineDifferences(actualDatabaseChange, databaseChangeVerifierOptions.getSkipFields());
+            if (!fieldDifferences.isEmpty()) {
+                databaseChangeVerifierResult.addResult(new DatabaseChangeNotEqualsResult(expectedDatabaseChange, actualDatabaseChange, fieldDifferences));
+                break;
+            } else if (databaseChangeVerifierOptions.isIncludeSuccessfulMatchesInResult()) {
+                databaseChangeVerifierResult.addResult(new DatabaseChangeMatchesResult(expectedDatabaseChange, actualDatabaseChange));
+            }
+        }
+
         if (expected.size() != actual.size()) {
             databaseChangeVerifierResult.addResult(new AssertionResult("Database actual result size differs from expected", "The actual data (" + actual.size() + ") should be of the same number of entries as the expected data (" + expected.size() + ")."));
-        } else {
-            for (int i=0; i<expected.size(); i++) {
-                final DatabaseChange expectedDatabaseChange = expected.get(i);
-                final DatabaseChange actualDatabaseChange = actual.get(i);
-
-                final List<FieldDifference> fieldDifferences = expectedDatabaseChange.determineDifferences(actualDatabaseChange, databaseChangeVerifierOptions.getSkipFields());
-                if (!fieldDifferences.isEmpty()) {
-                    databaseChangeVerifierResult.addResult(new DatabaseChangeNotEqualsResult(expectedDatabaseChange, actualDatabaseChange, fieldDifferences));
-                    break;
-                } else if (databaseChangeVerifierOptions.isIncludeSuccessfulMatchesInResult()) {
-                    databaseChangeVerifierResult.addResult(new DatabaseChangeMatchesResult(expectedDatabaseChange, actualDatabaseChange));
-                }
-            }
         }
         
         return databaseChangeVerifierResult;
