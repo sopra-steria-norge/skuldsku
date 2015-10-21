@@ -35,7 +35,7 @@ public class DatabaseChangeAdditionalInActualResult implements ItemResult<Databa
 
     @Override
     public String getExplanation() {
-        return "Missing result in actual data that was present in the expected data (line number " + databaseChange.getLineNumber() + ").";
+        return "Row in actual data (line number " + databaseChange.getLineNumber() + ") that was not present in the expected data.";
     }
 
     @Override
