@@ -139,9 +139,15 @@ public class SkuldskuFilter implements Filter{
 
     private void recordPath(HttpServletRequest req, HttpCall httpCall) {
         StringBuilder path = new StringBuilder(req.getServletPath());
-        String pathInfo = req.getPathInfo();
+        final String pathInfo = req.getPathInfo();
         if (pathInfo != null) {
             path.append(pathInfo);
+        }
+        
+        final String queryString = req.getQueryString();
+        if (queryString != null) {
+            path.append("?");
+            path.append(queryString);
         }
 
         httpCall.setPath(path.toString());
