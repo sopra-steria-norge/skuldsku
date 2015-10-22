@@ -14,7 +14,7 @@ import no.steria.skuldsku.common.result.ResultsProvider;
 import no.steria.skuldsku.recorder.common.ClientIdentifierHolder;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.mock.result.ComparisionMockResult;
-import no.steria.skuldsku.recorder.java.mock.result.MissingMockResult;
+import no.steria.skuldsku.recorder.java.mock.result.WrongNumberOfCallsMockResult;
 import no.steria.skuldsku.recorder.java.mock.result.MockResult;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 
@@ -117,6 +117,9 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
             }
         }
         
+        /*
+         * More actual calls than expected: Reuse last result/thrown value.
+         */
         if (!matchingCandidateCalls.isEmpty()) {
             final JavaCall firstMatchingCandidateCall = matchingCandidateCalls.get(0);
             increaseActualCall(firstMatchingCandidateCall);
@@ -151,17 +154,17 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
     
     @Override
     public Results getResults() {
-        return Results.combine(mockResults, findMissingCalls());
+        return Results.combine(mockResults, findWrongNumberOfCalls());
     }
     
-    private Results findMissingCalls() {
+    private Results findWrongNumberOfCalls() {
         final Results results = new Results();
         for (JavaCall jc : expectedCalls.keySet()) {
             final int expected = expectedCalls.get(jc);
             final int actual = actualCalls.get(jc);
             if (expected != actual) {
                 final long time = System.currentTimeMillis();
-                final JavaCall actualJavaCall = new JavaCall(ClientIdentifierHolder.getClientIdentifier(),
+                final JavaCall actualJavaCall = new JavaCall(null,
                         jc.getClassName(),
                         jc.getMethodname(),
                         jc.getParameters(),
@@ -170,7 +173,7 @@ public class RecordedDataMock implements MockInterface, ResultsProvider {
                         time,
                         time);
                 
-                results.addResult(new MissingMockResult(actualJavaCall, expected, actual));
+                results.addResult(new WrongNumberOfCallsMockResult(actualJavaCall, expected, actual));
             }
         }
         return results;
