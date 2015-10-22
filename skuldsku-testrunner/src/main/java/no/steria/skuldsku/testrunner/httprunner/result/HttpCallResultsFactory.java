@@ -8,7 +8,6 @@ import no.steria.skuldsku.recorder.http.HttpCall;
 public final class HttpCallResultsFactory {
 
     public static Results createFrom(List<HttpCall> expectedHttpCalls, List<HttpCall> actualHttpCalls) {
-        // TODO: Proper implementation.
         if (expectedHttpCalls.size() != actualHttpCalls.size()) {
             throw new ArrayIndexOutOfBoundsException("expectedHttpCalls.size() != actualHttpCalls.size() --> " + expectedHttpCalls.size() + " != " + actualHttpCalls.size());
         }
@@ -19,6 +18,22 @@ public final class HttpCallResultsFactory {
             final int requestNumber = i+1;
             results.addResult(new HttpCallResult(expected, actual, requestNumber));
         }
+        
+        final List<HttpCallResult> httpCalls = results.getByType(HttpCallResult.class);
+        generateStatusCodeResults(results, httpCalls);
+        
         return results;
+    }
+
+    private static void generateStatusCodeResults(Results results, List<HttpCallResult> httpCalls) {
+        for (HttpCallResult httpCall : httpCalls) {
+            final HttpCall expected = httpCall.getExpected();
+            final HttpCall actual = httpCall.getActual();
+            if (expected.getStatus() != 0
+                    && actual.getStatus() != 0
+                    && expected.getStatus() != actual.getStatus()) {
+                results.addResult(new WrongStatusCodeHttpCallResult(expected, actual));
+            }
+        }
     }
 }
