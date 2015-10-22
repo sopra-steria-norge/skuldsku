@@ -58,6 +58,12 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     private void initializeGetParameters() {
         final String inputStr = getQueryString();
         if (inputStr != null) {
+            /*
+             * TODO: URL encoding should always be ASCII ... but legaacy system might
+             *       expect UTF-8 characters to be allowed. We should not be using
+             *       getCharacterEncoding() for queryParams (as implemented below),
+             *       but have charset autodetection (or at least a separate configuration).
+             */
             fromParameterStringToMap(inputStr, parameters, getCharacterEncoding());
         }
     }
@@ -104,7 +110,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         return paraval.get(0);
     }
 
-
+    @Override
     public Map<String, String[]> getParameterMap() {
         if (parameters == null) {
             readParams();
@@ -126,7 +132,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         return arrval;
     }
 
-
+    @Override
     public Enumeration<String> getParameterNames() {
         if (parameters == null) {
             readParams();
@@ -146,8 +152,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         };
     }
 
-
-
+    @Override
     public String[] getParameterValues(String name) {
         if (parameters == null) {
             readParams();
