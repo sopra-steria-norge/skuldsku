@@ -40,7 +40,7 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
                 continue;
             }
             ClassSerializer classSerializer = new ClassSerializer();
-            int stpos = record.indexOf("%",5);
+            int stpos = record.indexOf("%",5) + 1;
             HttpCall recordObject = (HttpCall) classSerializer.asObject(record.substring(stpos));
             httpCalls.add(recordObject);
         }
@@ -55,7 +55,7 @@ public abstract class AbstractRecorderCommunicator implements HttpCallPersister,
                 continue;
             }
             ClassSerializer classSerializer = new ClassSerializer();
-            int stpos = record.indexOf("%", 6);
+            int stpos = record.indexOf("%", 6) + 1;
             JavaCall recordObject = (JavaCall) classSerializer.asObject(record.substring(stpos));
             javaCalls.add(recordObject);
         }
