@@ -110,7 +110,7 @@ public class HttpPlayer {
 
         final URL url = new URL(baseUrl + httpCall.getPath());
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        
+        conn.setInstanceFollowRedirects(false);
         conn.setRequestMethod(httpCall.getMethod());
         
         String readInputStream = playStep.getReportObject().getReadInputStream();
