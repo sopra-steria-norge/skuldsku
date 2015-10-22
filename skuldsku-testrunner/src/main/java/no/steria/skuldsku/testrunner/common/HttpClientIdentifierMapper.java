@@ -22,7 +22,8 @@ public final class HttpClientIdentifierMapper implements ClientIdentifierMapper 
     
     @Override
     public String translateToActual(String expectedClientIdentifier) {
-        return map.get(expectedClientIdentifier);
+        final String value = map.get(expectedClientIdentifier);
+        return (value != null) ? value : expectedClientIdentifier;
     }
     
 }
