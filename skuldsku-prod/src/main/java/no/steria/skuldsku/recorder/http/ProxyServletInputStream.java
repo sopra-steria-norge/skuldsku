@@ -16,6 +16,11 @@ public class ProxyServletInputStream extends ServletInputStream {
 
     @Override
     public int read() throws IOException {
+        /*
+         * TODO: Building a String from potentially binary
+         *       data is not a good idea. Handle as byte[]
+         *       or use Base64-encoding.
+         */
         int readb = delegate.read();
         if (readb != -1) {
             char c = (char) readb;

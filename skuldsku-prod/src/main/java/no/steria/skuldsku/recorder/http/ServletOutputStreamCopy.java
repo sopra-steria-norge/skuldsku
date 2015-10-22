@@ -1,9 +1,11 @@
 package no.steria.skuldsku.recorder.http;
 
-import javax.servlet.ServletOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import javax.servlet.ServletOutputStream;
+import javax.xml.bind.DatatypeConverter;
 
 public class ServletOutputStreamCopy extends ServletOutputStream {
 
@@ -27,6 +29,7 @@ public class ServletOutputStreamCopy extends ServletOutputStream {
     }
 
     public String written() {
-        return bys.toString();
+        final String result = DatatypeConverter.printBase64Binary(bys.toByteArray());
+        return "base64:" + result;
     }
 }

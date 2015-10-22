@@ -77,7 +77,7 @@ public class ServerFunctionsTest {
             assertThat(httpCall.getMethod()).isEqualTo("POST");
             assertThat(httpCall.getPath()).isEqualTo("/data");
             assertThat(httpCall.getReadInputStream()).isEqualTo(postObj.toString());
-            assertThat(httpCall.getOutput()).isEqualTo(res);
+            assertThat(httpCall.getOutput()).isEqualTo("text:" + res);
 
         } finally {
             jettyServer.stop();

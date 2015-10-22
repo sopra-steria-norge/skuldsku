@@ -78,7 +78,7 @@ public class TestHttpPlayer {
             HttpCall reportObject = captor.getValue();
 
             assertThat(reportObject.getReadInputStream()).isEqualTo(postObj.toString());
-            assertThat(reportObject.getOutput()).isEqualTo(res);
+            assertThat(reportObject.getOutput()).isEqualTo("text:" + res);
 
         } finally {
             jettyServer.stop();
