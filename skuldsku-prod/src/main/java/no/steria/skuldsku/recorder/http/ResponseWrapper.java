@@ -24,7 +24,7 @@ public class ResponseWrapper extends HttpServletResponseWrapper {
 
     public String getWritten() {
         if (copier != null) {
-            return copier.toString();
+            return "text:" + copier.toString();
         }
         if (servletOutputStreamCopy != null) {
             return servletOutputStreamCopy.written();
