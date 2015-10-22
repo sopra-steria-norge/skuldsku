@@ -14,7 +14,6 @@ import java.security.PrivilegedAction;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -161,7 +160,6 @@ public class ClassSerializer {
             knownObjects.add(object);
 
             for (int i = 1; i < parts.length; i++) {
-                //String[] fieldParts = parts[i].split("=");
                 int eqPos = parts[i].indexOf("=");
                 String fieldName = parts[i].substring(0, eqPos);
                 String encFieldValue = parts[i].substring(eqPos + 1);
@@ -285,13 +283,25 @@ public class ClassSerializer {
     }
     
     public String unescapeSpecialCharacters(String s) {
-        return s.replaceAll("&semi", ";")
-                .replaceAll("&eq", "=")
-                .replaceAll("&lt", "<")
-                .replaceAll("&gt", ">")
-                .replaceAll("&percent","%")
-                .replaceAll("&newline", "\n")
-                .replaceAll("&amp", "&"); //This really must happen last, or we end up double-deserializing.
+        return s.replace("&semi", ";")
+                .replace("&eq", "=")
+                .replace("&lt", "<")
+                .replace("&gt", ">")
+                .replace("&percent","%")
+                .replace("&newline", "\n")
+                .replace("&return", "\r")
+                .replace("&amp", "&"); //This really must happen last, or we end up double-deserializing.
+    }
+    
+    private String escapeSpecialCharacters(String s) {
+        return s.replace("&", "&amp")
+                .replace(";", "&semi")
+                .replace("<", "&lt")
+                .replace(">", "&gt")
+                .replace("=", "&eq")
+                .replace("%","&percent")
+                .replace("\r", "&return")
+                .replace("\n", "&newline");
     }
 
     private StringBuilder encodeValue(Object fieldValue, boolean primitive) {
@@ -377,19 +387,6 @@ public class ClassSerializer {
         String classname = fieldValue.getClass().getName();
         StringBuilder fieldsCode = computeFields(fieldValue);
         return new StringBuilder("<").append(classname).append(fieldsCode).append(">");
-    }
-    
-    private String escapeSpecialCharacters(String s) {
-        return s.replaceAll("&", "&amp")
-                .replaceAll(";", "&semi")
-                .replaceAll("<", "&lt")
-                .replaceAll(">", "&gt")
-                .replaceAll("=", "&eq")
-                .replaceAll("%","&percent")
-                .replaceAll("\r\n", "&newline")
-                .replaceAll("\n\r", "&newline")
-                .replaceAll("\r", "&newline")
-                .replaceAll("\n", "&newline");
     }
 
     private boolean isStringValueClass(String className) {

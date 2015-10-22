@@ -681,4 +681,16 @@ public class ClassSerializerTest {
         
         cs.asObject(serializedValue);
     }
+    
+    
+    public static final class TestFieldSemiColonEscape {
+        String field1 = "foo;;bar";
+    }
+    
+    @Test
+    public void shouldHandleSemiColonsInFields() {
+        final ClassSerializer cs = new ClassSerializer();
+        final String serializedValue = cs.asString(new TestFieldSemiColonEscape());
+        assertThat(serializedValue).isEqualTo("<" + TestFieldSemiColonEscape.class.getName() +  ";field1=foo&semi&semibar>");
+    }
 }
