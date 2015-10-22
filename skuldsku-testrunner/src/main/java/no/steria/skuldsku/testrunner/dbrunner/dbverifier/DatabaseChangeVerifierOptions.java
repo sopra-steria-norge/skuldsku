@@ -19,6 +19,8 @@ public final class DatabaseChangeVerifierOptions {
     
     public DatabaseChangeVerifierOptions(DatabaseChangeVerifierOptions databaseChangeVerifierOptions) {
         this.skipFields = new HashSet<String>(databaseChangeVerifierOptions.getSkipFields());
+        this.includeSuccessfulMatchesInResult = databaseChangeVerifierOptions.includeSuccessfulMatchesInResult;
+        this.clientIdentifierMapper = databaseChangeVerifierOptions.clientIdentifierMapper;
     }
     
     
