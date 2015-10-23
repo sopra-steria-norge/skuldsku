@@ -41,7 +41,7 @@ public class WrongStatusCodeHttpCallResult implements ComparisionResult<HttpCall
 
     @Override
     public boolean isFailure() {
-        return false;
+        return true;
     }
 
     @Override
