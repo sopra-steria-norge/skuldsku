@@ -46,7 +46,7 @@ public class WrongStatusCodeHttpCallResult implements ComparisionResult<HttpCall
 
     @Override
     public String getExplanation() {
-        return "Actual status code (" + actual.getStatus() + ") does not match expected (" + actual.getStatus() + ")";
+        return "Actual status code (" + actual.getStatus() + ") does not match expected (" + expected.getStatus() + ")";
     }
 
     @Override
