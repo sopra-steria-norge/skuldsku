@@ -162,6 +162,10 @@ public class DatabaseChange {
             String line;
             int lineNumber = 1;
             while ((line = in.readLine()) != null) {
+                if (line.trim().equals("")) {
+                    lineNumber++;
+                    continue;
+                }
                 result.add(new DatabaseChange(line, lineNumber));
                 lineNumber++;
             }
