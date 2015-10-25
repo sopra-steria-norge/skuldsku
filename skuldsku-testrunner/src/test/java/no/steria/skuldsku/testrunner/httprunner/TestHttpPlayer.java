@@ -22,6 +22,7 @@ import no.steria.skuldsku.recorder.SkuldskuAccessor;
 import no.steria.skuldsku.recorder.SkuldskuConfig;
 import no.steria.skuldsku.recorder.http.HttpCall;
 import no.steria.skuldsku.recorder.http.HttpCallPersister;
+import no.steria.skuldsku.testrunner.httprunner.manipulator.HiddenFieldManipulator;
 
 import org.json.JSONObject;
 import org.junit.Before;

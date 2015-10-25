@@ -1,24 +1,48 @@
-package no.steria.skuldsku.testrunner.httprunner;
+package no.steria.skuldsku.testrunner.httprunner.manipulator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import no.steria.skuldsku.testrunner.httprunner.PlaybackManipulator;
+import no.steria.skuldsku.testrunner.httprunner.RequestCompleteData;
+import no.steria.skuldsku.testrunner.httprunner.RequestData;
 
 class SessionHiddenFieldManipulator implements PlaybackManipulator {
     private final String fieldname;
-
-    private String value;
-
-    public SessionHiddenFieldManipulator(String fieldname) {
+    private final Set<String> ignorePathsRegexs;
+    private String fieldValue;
+    
+    SessionHiddenFieldManipulator(String fieldname, Set<String> ignorePathsRegexs) {
         this.fieldname = fieldname;
+        this.ignorePathsRegexs = ignorePathsRegexs;
+    }
+    
+    
+    public void performRequestManipulation(RequestData requestData) {
+        final String requestInput = updateWithStoredFieldValue(requestData.getRequestInput());
+        requestData.setRequestInput(requestInput);
     }
 
-    @Override
-    public String computePayload(String readInputStream) {
+    public void reportRequestCompleteData(RequestCompleteData requestCompleteData) {
+        if (matches(requestCompleteData.getRequestPath(), ignorePathsRegexs)) {
+            return;
+        }
+        
+        final String newFieldValue = retrieveFieldValue(requestCompleteData.getResponseOutput());
+        if (newFieldValue != null) {
+            fieldValue = newFieldValue;
+        }
+    }
+    
+    
+    private String updateWithStoredFieldValue(String readInputStream) {
         if (readInputStream == null) {
             return null;
         }
+        
         String field = fieldname;
-        String replacementVal = value;
+        String replacementVal = fieldValue;
 
 
         StringBuilder inpStr = new StringBuilder(readInputStream);
@@ -35,15 +59,7 @@ class SessionHiddenFieldManipulator implements PlaybackManipulator {
         return inpStr.toString();
     }
 
-    @Override
-    public void reportResult(String recorded) {
-        String replacement = replacement(recorded);
-        if (replacement != null) {
-            value = replacement;
-        }
-    }
-
-    public String replacement(String recorded) {
+    private String retrieveFieldValue(String recorded) {
         if (recorded == null) {
             return null;
         }
@@ -106,8 +122,12 @@ class SessionHiddenFieldManipulator implements PlaybackManipulator {
         return attributes;
     }
     
-    @Override
-    public void requestEnded() {
-        
+    private static boolean matches(String s, Set<String> regexs) {
+        for (String r : regexs) {
+            if (s.matches(r)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

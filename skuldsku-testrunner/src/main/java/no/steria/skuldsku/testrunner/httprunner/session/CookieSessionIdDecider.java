@@ -1,4 +1,4 @@
-package no.steria.skuldsku.testrunner.httprunner;
+package no.steria.skuldsku.testrunner.httprunner.session;
 
 import java.net.HttpCookie;
 import java.util.List;
