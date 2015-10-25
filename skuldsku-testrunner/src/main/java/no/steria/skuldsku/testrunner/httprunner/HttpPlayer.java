@@ -1,7 +1,6 @@
 package no.steria.skuldsku.testrunner.httprunner;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -109,8 +108,16 @@ public class HttpPlayer {
         RecorderLog.info(String.format("Step: %s %s ***", httpCall.getMethod(), httpCall.getPath()));
 
         final URL url = new URL(baseUrl + httpCall.getPath());
+        
+        /*
+         * TODO: Implement as pure TCP connection in order to have full
+         *       control.
+         */
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setInstanceFollowRedirects(false);
+        conn.setUseCaches(false);
+        conn.setAllowUserInteraction(false);
         conn.setRequestMethod(httpCall.getMethod());
         
         String readInputStream = playStep.getReportObject().getReadInputStream();

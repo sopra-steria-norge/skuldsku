@@ -1,13 +1,17 @@
 package no.steria.skuldsku.recorder.http;
 
-import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
-import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
-
-import java.io.*;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.DatatypeConverter;
+
+import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
+import no.steria.skuldsku.recorder.recorders.FileRecorderReader;
 
 public class HttpCall implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -116,6 +120,30 @@ public class HttpCall implements Serializable {
     public String getOutput() {
         return output;
     }
+    
+    /**
+     * Gets the output as text or <code>null</code> if it's not possible
+     * to convert the output data into text.
+     */
+    public String getOutputAsText() {
+        if (output == null) {
+            return null;
+        }
+        if (output.startsWith("text:")) {
+            return getOutput().substring(5);
+        }
+        if (output.startsWith("base64:")) {
+            // TODO: Proper implementation:
+            try {
+                final byte[] result = DatatypeConverter.parseBase64Binary(output.substring(7));
+                return new String(result, "UTF-8");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        
+        return null;
+    }
 
     public HttpCall setOutput(String output) {
         this.output = output;
@@ -137,6 +165,18 @@ public class HttpCall implements Serializable {
 
     public Map<String, List<String>> getHeaders() {
         return headers;
+    }
+    
+    public String getResponseHeadersAsString() {
+        final StringBuilder sb = new StringBuilder();
+        final List<String> keys = new ArrayList<String>(responseHeaders.keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
+            for (String value : responseHeaders.get(key)) {
+                sb.append(key + ": " + value + "\n");
+            }
+        }
+        return sb.toString();
     }
     
     @Override

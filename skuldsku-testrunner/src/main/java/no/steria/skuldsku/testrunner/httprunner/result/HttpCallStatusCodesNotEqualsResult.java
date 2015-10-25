@@ -3,12 +3,12 @@ package no.steria.skuldsku.testrunner.httprunner.result;
 import no.steria.skuldsku.common.result.ComparisionResult;
 import no.steria.skuldsku.recorder.http.HttpCall;
 
-public class WrongStatusCodeHttpCallResult implements ComparisionResult<HttpCall>{
+public class HttpCallStatusCodesNotEqualsResult implements ComparisionResult<HttpCall>{
 
     private final HttpCall expected;
     private final HttpCall actual;
     
-    public WrongStatusCodeHttpCallResult(HttpCall expected, HttpCall actual) {
+    public HttpCallStatusCodesNotEqualsResult(HttpCall expected, HttpCall actual) {
         this.expected = expected;
         this.actual = actual;
         

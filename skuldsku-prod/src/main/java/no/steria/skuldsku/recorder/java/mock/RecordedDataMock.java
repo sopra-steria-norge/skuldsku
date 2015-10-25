@@ -14,8 +14,8 @@ import no.steria.skuldsku.common.result.ResultsProvider;
 import no.steria.skuldsku.recorder.common.ClientIdentifierHolder;
 import no.steria.skuldsku.recorder.java.JavaCall;
 import no.steria.skuldsku.recorder.java.mock.result.ComparisionMockResult;
-import no.steria.skuldsku.recorder.java.mock.result.WrongNumberOfCallsMockResult;
 import no.steria.skuldsku.recorder.java.mock.result.MockResult;
+import no.steria.skuldsku.recorder.java.mock.result.WrongNumberOfCallsMockResult;
 import no.steria.skuldsku.recorder.java.serializer.ClassSerializer;
 
 /**

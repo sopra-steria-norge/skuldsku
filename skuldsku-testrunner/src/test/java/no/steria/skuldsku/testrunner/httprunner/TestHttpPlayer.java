@@ -106,6 +106,7 @@ public class TestHttpPlayer {
             browser.findElement(By.name("firstname")).sendKeys("Darth");
             browser.findElement(By.name("lastname")).sendKeys("Vader");
             browser.findElement(By.name("doPerson")).submit();
+            Thread.sleep(100);
             
             final List<HttpCall> httpCalls = reporter.getPlayBook();
             assertThat(httpCalls).hasSize(2); // GET+POST
