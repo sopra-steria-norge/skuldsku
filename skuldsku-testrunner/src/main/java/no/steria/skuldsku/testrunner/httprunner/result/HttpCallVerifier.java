@@ -21,17 +21,22 @@ public final class HttpCallVerifier {
         }
         
         final List<HttpCallResult> httpCalls = results.getByType(HttpCallResult.class);
-        generateStatusCodeResults(results, httpCalls);
-        generateHeaderResults(results, httpCalls);
+        generateStatusCodeResults(results, httpCalls, options);
+        generateHeaderResults(results, httpCalls, options);
         generateOutputResults(results, httpCalls, options);
         
         return results;
     }
 
-    private static void generateStatusCodeResults(Results results, List<HttpCallResult> httpCalls) {
+    private static void generateStatusCodeResults(Results results, List<HttpCallResult> httpCalls, HttpCallVerifierOptions options) {
         for (HttpCallResult httpCall : httpCalls) {
             final HttpCall expected = httpCall.getExpected();
             final HttpCall actual = httpCall.getActual();
+            
+            if (matches(expected.getPath(), options.getComparisionSkipPaths())) {
+                continue;
+            }
+            
             if (expected.getStatus() != 0
                     && actual.getStatus() != 0
                     && expected.getStatus() != actual.getStatus()) {
@@ -40,10 +45,14 @@ public final class HttpCallVerifier {
         }
     }
     
-    private static void generateHeaderResults(Results results, List<HttpCallResult> httpCalls) {
+    private static void generateHeaderResults(Results results, List<HttpCallResult> httpCalls, HttpCallVerifierOptions options) {
         for (HttpCallResult httpCall : httpCalls) {
             final HttpCall expected = httpCall.getExpected();
             final HttpCall actual = httpCall.getActual();
+            
+            if (matches(expected.getPath(), options.getComparisionSkipPaths())) {
+                continue;
+            }
             
             final String expectedHeaders = HttpCallHeadersNotEqualsResult.getFiltredResponseHeadersAsString(expected.getResponseHeaders());
             final String actualHeaders = HttpCallHeadersNotEqualsResult.getFiltredResponseHeadersAsString(actual.getResponseHeaders());
@@ -58,7 +67,7 @@ public final class HttpCallVerifier {
             final HttpCall expected = httpCall.getExpected();
             final HttpCall actual = httpCall.getActual();
             
-            if (matches(expected.getPath(), options.getOutputComparisionSkipPaths())) {
+            if (matches(expected.getPath(), options.getComparisionSkipPaths())) {
                 continue;
             }
             

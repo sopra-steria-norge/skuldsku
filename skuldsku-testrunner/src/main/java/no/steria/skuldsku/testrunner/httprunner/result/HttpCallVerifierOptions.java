@@ -9,16 +9,16 @@ import java.util.Set;
 public class HttpCallVerifierOptions {
 
     private final List<String> outputComparisionIgnores;
-    private final Set<String> outputComparisionSkipPaths; 
+    private final Set<String> comparisionSkipPaths; 
     
     public HttpCallVerifierOptions() {
         outputComparisionIgnores = new ArrayList<>();
-        outputComparisionSkipPaths = new HashSet<>();
+        comparisionSkipPaths = new HashSet<>();
     }
     
     public HttpCallVerifierOptions(HttpCallVerifierOptions options) {
         this.outputComparisionIgnores = new ArrayList<String>(options.outputComparisionIgnores);
-        this.outputComparisionSkipPaths = new HashSet<String>(options.outputComparisionSkipPaths);
+        this.comparisionSkipPaths = new HashSet<String>(options.comparisionSkipPaths);
     }
     
     
@@ -30,11 +30,11 @@ public class HttpCallVerifierOptions {
         return Collections.unmodifiableList(outputComparisionIgnores);
     }
     
-    public void addOutputComparisionSkipPaths(String outputComparisionSkipPath) {
-        outputComparisionSkipPaths.add(outputComparisionSkipPath);
+    public void addComparisionSkipPaths(String comparisionSkipPath) {
+        comparisionSkipPaths.add(comparisionSkipPath);
     }
     
-    public Set<String> getOutputComparisionSkipPaths() {
-        return Collections.unmodifiableSet(outputComparisionSkipPaths);
+    public Set<String> getComparisionSkipPaths() {
+        return Collections.unmodifiableSet(comparisionSkipPaths);
     }
 }
