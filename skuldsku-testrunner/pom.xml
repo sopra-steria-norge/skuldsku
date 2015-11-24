@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>no.steria.skuldsku</groupId>
     <artifactId>skuldsku-testrunner</artifactId>
-    <version>1.0-alpha-3-SHAPSHOT</version>
+    <version>1.0-alpha-3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>no.steria.skuldsku</groupId>
             <artifactId>skuldsku-prod</artifactId>
-            <version>1.0-alpha-3-SHAPSHOT</version>
+            <version>1.0-alpha-3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -78,6 +78,16 @@
             <version>2.3</version>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <downloadUrl>http://byggmester.slf.dep.no/nexus/content/groups/public</downloadUrl>
+
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Internal Snapshots</name>
+            <url>http://byggmester.slf.dep.no/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <build>
         <plugins>

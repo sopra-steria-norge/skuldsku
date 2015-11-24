@@ -5,7 +5,7 @@
 
     <groupId>no.steria.skuldsku</groupId>
     <artifactId>skuldsku-prod</artifactId>
-    <version>1.0-alpha-3-SHAPSHOT</version>
+    <version>1.0-alpha-3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <developers>
@@ -119,6 +119,21 @@
         </dependency>
 
     </dependencies>
+    <distributionManagement>
+        <downloadUrl>http://byggmester.slf.dep.no/nexus/content/groups/public</downloadUrl>
+
+        <repository>
+            <id>releases</id>
+            <name>Internal Releases</name>
+            <url>http://byggmester.slf.dep.no/nexus/content/repositories/releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Internal Snapshots</name>
+            <url>http://byggmester.slf.dep.no/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <version.maven.assembly.plugin>2.2-beta-3</version.maven.assembly.plugin>

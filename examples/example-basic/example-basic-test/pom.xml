@@ -5,14 +5,14 @@
 
     <groupId>no.steria.skuldsku</groupId>
     <artifactId>example-basic-test</artifactId>
-    <version>1.0-alpha-3-SHAPSHOT</version>
+    <version>1.0-alpha-3-SNHAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>no.steria.skuldsku</groupId>
             <artifactId>skuldsku-testrunner</artifactId>
-            <version>1.0-alpha-3-SHAPSHOT</version>
+            <version>1.0-alpha-3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
