@@ -9,7 +9,8 @@ import java.util.*;
 
 public class RequestWrapper extends HttpServletRequestWrapper {
     private Map<String,List<String>> parameters;
-
+    private boolean nonParameterInputRead = false;
+    
     private final HttpCall httpCall;
 
     public RequestWrapper(HttpServletRequest request, HttpCall httpCall) {
@@ -22,12 +23,15 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() throws IOException {
         final ServletInputStream servletIS = super.getInputStream();
 
+        nonParameterInputRead = true;
+        
         return new ProxyServletInputStream(servletIS, httpCall);
     }
 
 
     @Override
     public BufferedReader getReader() throws IOException {
+        nonParameterInputRead = true;
         return new ProxyBufferedReader(super.getReader(), httpCall);
     }
 
@@ -38,7 +42,9 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         
         parameters = new HashMap<>();
         
-        initializePostParameters();
+        if (!nonParameterInputRead) {
+            initializePostParameters();
+        }
         initializeGetParameters();
     }
 
